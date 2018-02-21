@@ -2,18 +2,15 @@ package uk.co.ridentbyte
 
 import java.net._
 import javafx.application.Application
-import javafx.beans.property.SimpleStringProperty
-import javafx.collections.{FXCollections, ObservableList}
+import javafx.collections.FXCollections
 import javafx.event.ActionEvent
-import javafx.geometry.Insets
+import javafx.geometry.{HPos, Insets, VPos}
 import javafx.scene.Scene
 import javafx.scene.control.Alert.AlertType
 import javafx.scene.control._
-import javafx.scene.control.cell.PropertyValueFactory
 import javafx.scene.layout.{ColumnConstraints, GridPane, Priority}
 import javafx.stage.Stage
 
-import scala.collection.JavaConverters._
 import scalaj.http.{Http, HttpOptions, HttpResponse}
 
 object Cardinal {
@@ -22,8 +19,10 @@ object Cardinal {
 
 class Cardinal extends Application {
 
-  val table: TableView[Header] = new TableView[Header]
-  table.setColumnResizePolicy(TableView.UNCONSTRAINED_RESIZE_POLICY)
+  val tabPane = new TabPane()
+  val bodyTextArea = new TextArea()
+  bodyTextArea.setEditable(false)
+  val headersListView = new ListView[String]()
 
   override def start(primaryStage: Stage): Unit = {
     primaryStage.setTitle("Cardinal")
@@ -33,7 +32,7 @@ class Cardinal extends Application {
     primaryStage.setMinWidth(500)
 
     val gridPane = new GridPane()
-    gridPane.setGridLinesVisible(true)
+//    gridPane.setGridLinesVisible(true)
     gridPane.setHgap(10)
     gridPane.setVgap(10)
     gridPane.setPadding(new Insets(10, 10, 10, 10))
@@ -62,29 +61,29 @@ class Cardinal extends Application {
       } else {
         try {
           val response = sendRequest(uri)
-          val headers = response.headers.map({
-            case (k, v) => Header(ssp(k), ssp(v.head))
-          })
-          val data = FXCollections.observableArrayList(headers.asJavaCollection)
-          table.setItems(data)
-          println(table.getColumns.get(0).getMaxWidth)
+          val headers = response.headers.map({ case (k, v) => Header(k, v.head) })
+          headers.foreach { header => headersListView.getItems.add(header.toString) }
+          bodyTextArea.setText(response.body)
         } catch {
           case _: UnknownHostException => showErrorDialog("Unknown Host")
         }
       }
     })
+    GridPane.setValignment(sendRequestButton, VPos.TOP)
     gridPane.add(sendRequestButton, 1, 1)
+//    gridPane.add(listView, 0, 2)
+    gridPane.add(tabPane, 0, 1)
 
-    val headerKeyColumn = new TableColumn[Header, String]
-    headerKeyColumn.setCellValueFactory(
-      new PropertyValueFactory[Header, String]("key")
-    )
-    val headerValueColumn = new TableColumn[Header, String]
-    headerValueColumn.setCellValueFactory(
-      new PropertyValueFactory[Header, String]("value")
-    )
-    table.getColumns.asInstanceOf[ObservableList[TableColumn[Header, String]]].addAll(headerKeyColumn, headerValueColumn)
-    gridPane.add(table, 0, 2)
+    val bodyTab = new Tab("Body")
+    bodyTab.setClosable(false)
+    bodyTab.setContent(bodyTextArea)
+    tabPane.getTabs.add(bodyTab)
+
+    val headersTab = new Tab("Headers")
+    headersTab.setClosable(false)
+    headersTab.setContent(headersListView)
+    tabPane.getTabs.add(headersTab)
+
 
     val scene = new Scene(gridPane)
     primaryStage.setScene(scene)
@@ -121,10 +120,8 @@ class Cardinal extends Application {
     alert.showAndWait
   }
 
-  def ssp(s: String): SimpleStringProperty = new SimpleStringProperty(s)
-
-  case class Header(key: SimpleStringProperty, value: SimpleStringProperty) {
-    def getKey: String = key.get()
-    def getValue: String = value.get()
+  case class Header(key: String, value: String) {
+    override def toString: String = s"""$key: $value"""
   }
+
 }
