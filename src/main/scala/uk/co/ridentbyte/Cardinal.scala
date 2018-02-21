@@ -2,22 +2,29 @@ package uk.co.ridentbyte
 
 import java.net._
 import javafx.application.Application
-import javafx.collections.FXCollections
+import javafx.beans.property.SimpleStringProperty
+import javafx.collections.{FXCollections, ObservableList}
 import javafx.event.ActionEvent
 import javafx.geometry.Insets
 import javafx.scene.Scene
 import javafx.scene.control.Alert.AlertType
-import javafx.scene.control.{Alert, Button, ChoiceBox, TextField}
+import javafx.scene.control._
+import javafx.scene.control.cell.PropertyValueFactory
 import javafx.scene.layout.{ColumnConstraints, GridPane, Priority}
 import javafx.stage.Stage
 
-import scalaj.http.{Http, HttpOptions}
+import scala.collection.JavaConverters._
+import scalaj.http.{Http, HttpOptions, HttpResponse}
 
 object Cardinal {
   Application.launch()
 }
 
 class Cardinal extends Application {
+
+  val table: TableView[Header] = new TableView[Header]
+  table.setColumnResizePolicy(TableView.UNCONSTRAINED_RESIZE_POLICY)
+
   override def start(primaryStage: Stage): Unit = {
     primaryStage.setTitle("Cardinal")
     primaryStage.setWidth(750)
@@ -54,19 +61,40 @@ class Cardinal extends Application {
         showErrorDialog("Invalid URL")
       } else {
         try {
-          println(Http(uri).option(HttpOptions.followRedirects(true)).asString)
+          val response = sendRequest(uri)
+          val headers = response.headers.map({
+            case (k, v) => Header(ssp(k), ssp(v.head))
+          })
+          val data = FXCollections.observableArrayList(headers.asJavaCollection)
+          table.setItems(data)
+          println(table.getColumns.get(0).getMaxWidth)
         } catch {
           case _: UnknownHostException => showErrorDialog("Unknown Host")
         }
       }
     })
-
     gridPane.add(sendRequestButton, 1, 1)
+
+    val headerKeyColumn = new TableColumn[Header, String]
+    headerKeyColumn.setCellValueFactory(
+      new PropertyValueFactory[Header, String]("key")
+    )
+    val headerValueColumn = new TableColumn[Header, String]
+    headerValueColumn.setCellValueFactory(
+      new PropertyValueFactory[Header, String]("value")
+    )
+    table.getColumns.asInstanceOf[ObservableList[TableColumn[Header, String]]].addAll(headerKeyColumn, headerValueColumn)
+    gridPane.add(table, 0, 2)
 
     val scene = new Scene(gridPane)
     primaryStage.setScene(scene)
 
     primaryStage.show()
+  }
+
+  def sendRequest(uri: String): HttpResponse[String] = {
+    println("SENDING...")
+    Http(uri).option(HttpOptions.followRedirects(true)).asString
   }
 
   def parseURI(rawUri: String): (String, Boolean) = {
@@ -91,5 +119,12 @@ class Cardinal extends Application {
     val alert = new Alert(AlertType.ERROR)
     alert.setContentText(errorMessage)
     alert.showAndWait
+  }
+
+  def ssp(s: String): SimpleStringProperty = new SimpleStringProperty(s)
+
+  case class Header(key: SimpleStringProperty, value: SimpleStringProperty) {
+    def getKey: String = key.get()
+    def getValue: String = value.get()
   }
 }
