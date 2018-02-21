@@ -14,15 +14,26 @@ import javafx.stage.Stage
 import scalaj.http.{Http, HttpOptions, HttpResponse}
 
 object Cardinal {
-  Application.launch()
+  def main(args: Array[String]): Unit = {
+    Application.launch(classOf[Cardinal], args: _*)
+  }
 }
 
 class Cardinal extends Application {
 
+  val uriInput = new TextField()
+  uriInput.setPromptText("http://localhost:8080")
+  uriInput.setText("https://google.com")
+
   val tabPane = new TabPane()
+
   val bodyTextArea = new TextArea()
   bodyTextArea.setEditable(false)
+
   val headersListView = new ListView[String]()
+
+  val verbSelect = new ChoiceBox[String](FXCollections.observableArrayList("GET", "POST", "PUT", "DELETE", "HEAD", "CONNECT", "OPTIONS", "TRACE", "PATCH"))
+  verbSelect.getSelectionModel.selectFirst()
 
   override def start(primaryStage: Stage): Unit = {
     primaryStage.setTitle("Cardinal")
@@ -32,7 +43,7 @@ class Cardinal extends Application {
     primaryStage.setMinWidth(500)
 
     val gridPane = new GridPane()
-//    gridPane.setGridLinesVisible(true)
+    //    gridPane.setGridLinesVisible(true)
     gridPane.setHgap(10)
     gridPane.setVgap(10)
     gridPane.setPadding(new Insets(10, 10, 10, 10))
@@ -43,35 +54,16 @@ class Cardinal extends Application {
     val c2 = new ColumnConstraints()
     gridPane.getColumnConstraints.addAll(c1, c2)
 
-    val uriInput = new TextField()
-    uriInput.setPromptText("http://localhost:8080")
-    uriInput.setText("https://google.com")
     gridPane.add(uriInput, 0, 0)
 
-    val verbSelect = new ChoiceBox[String](FXCollections.observableArrayList("GET", "POST", "PUT", "DELETE", "HEAD"))
-    verbSelect.getSelectionModel.selectFirst()
+
     gridPane.add(verbSelect, 1, 0)
 
     val sendRequestButton = new Button("Send Request")
-    sendRequestButton.setOnAction((_: ActionEvent) => {
-      val verb = verbSelect.getSelectionModel.getSelectedItem
-      val (uri, hasError) = parseURI(uriInput.getText.trim)
-      if (hasError) {
-        showErrorDialog("Invalid URL")
-      } else {
-        try {
-          val response = sendRequest(uri)
-          val headers = response.headers.map({ case (k, v) => Header(k, v.head) })
-          headers.foreach { header => headersListView.getItems.add(header.toString) }
-          bodyTextArea.setText(response.body)
-        } catch {
-          case _: UnknownHostException => showErrorDialog("Unknown Host")
-        }
-      }
-    })
+    sendRequestButton.setOnAction(sendRequestAction)
     GridPane.setValignment(sendRequestButton, VPos.TOP)
     gridPane.add(sendRequestButton, 1, 1)
-//    gridPane.add(listView, 0, 2)
+    //    gridPane.add(listView, 0, 2)
     gridPane.add(tabPane, 0, 1)
 
     val bodyTab = new Tab("Body")
@@ -84,16 +76,15 @@ class Cardinal extends Application {
     headersTab.setContent(headersListView)
     tabPane.getTabs.add(headersTab)
 
-
     val scene = new Scene(gridPane)
     primaryStage.setScene(scene)
 
     primaryStage.show()
   }
 
-  def sendRequest(uri: String): HttpResponse[String] = {
+  def sendRequest(uri: String, verb: String): HttpResponse[String] = {
     println("SENDING...")
-    Http(uri).option(HttpOptions.followRedirects(true)).asString
+    Http(uri).option(HttpOptions.followRedirects(true)).method(verb).asString
   }
 
   def parseURI(rawUri: String): (String, Boolean) = {
@@ -122,6 +113,24 @@ class Cardinal extends Application {
 
   case class Header(key: String, value: String) {
     override def toString: String = s"""$key: $value"""
+  }
+
+  def sendRequestAction(actionEvent: ActionEvent): Unit = {
+    val verb = verbSelect.getSelectionModel.getSelectedItem
+    val (uri, hasError) = parseURI(uriInput.getText.trim)
+    if (hasError) {
+      showErrorDialog("Invalid URL")
+    } else {
+      try {
+        val response = sendRequest(uri, verb)
+        val headers = response.headers.map({ case (k, v) => Header(k, v.head) })
+        headersListView.getItems.clear()
+        headers.foreach { header => headersListView.getItems.add(header.toString) }
+        bodyTextArea.setText(response.body)
+      } catch {
+        case _: UnknownHostException => showErrorDialog("Unknown Host")
+      }
+    }
   }
 
 }
