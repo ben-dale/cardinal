@@ -2,6 +2,7 @@ package uk.co.ridentbyte
 
 import javafx.application.Application
 import javafx.scene.Scene
+import javafx.scene.control.Alert.AlertType
 import javafx.scene.control._
 import javafx.scene.layout.GridPane
 import javafx.stage.Stage
@@ -19,7 +20,7 @@ class Cardinal extends Application {
 
   val rootGridPane = new GridPane()
 
-  val requestPane = new RequestPane(loadResponse)
+  val requestPane = new RequestPane(loadResponse, showErrorDialog)
 
   val responseTabPane = new TabPane()
 
@@ -59,6 +60,12 @@ class Cardinal extends Application {
     responseHeadersListView.getItems.clear()
     headers.foreach { header => responseHeadersListView.getItems.add(header.toString) }
     responseBodyTextArea.setText(body)
+  }
+
+  def showErrorDialog(errorMessage: String): Unit = {
+    val alert = new Alert(AlertType.ERROR)
+    alert.setContentText(errorMessage)
+    alert.showAndWait
   }
 
 
