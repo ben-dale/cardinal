@@ -11,7 +11,8 @@ import javafx.stage.Stage
 
 import uk.co.ridentbyte.model.Header
 import uk.co.ridentbyte.view.util.GridConstraints
-import uk.co.ridentbyte.view.{RequestPane, ResponsePane}
+import uk.co.ridentbyte.view.request.RequestPane
+import uk.co.ridentbyte.view.response.ResponsePane
 
 object Cardinal {
   def main(args: Array[String]): Unit = {
@@ -40,8 +41,8 @@ class Cardinal extends Application {
     primaryStage.show()
   }
 
-  def loadResponse(headers: Iterable[Header], body: String): Unit = {
-    responsePane.loadResponse(headers, body)
+  def loadResponse(code: Int, headers: Iterable[Header], body: String): Unit = {
+    responsePane.loadResponse(code, headers, body)
   }
 
   def showErrorDialog(errorMessage: String): Unit = {

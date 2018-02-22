@@ -23,4 +23,11 @@ object GridConstraints {
     column
   }
 
+  def heightRowConstraint(percentage: Int): RowConstraints = {
+    val row = new RowConstraints()
+    row.setPercentHeight(percentage)
+    row.setVgrow(Priority.ALWAYS)
+    row
+  }
+
 }

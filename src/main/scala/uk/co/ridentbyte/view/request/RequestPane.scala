@@ -1,4 +1,4 @@
-package uk.co.ridentbyte.view
+package uk.co.ridentbyte.view.request
 
 import java.net._
 import javafx.collections.FXCollections
@@ -13,7 +13,7 @@ import uk.co.ridentbyte.model.Header
 import uk.co.ridentbyte.util.HttpUtil
 import uk.co.ridentbyte.view.util.GridConstraints
 
-class RequestPane(responseCallback: (Iterable[Header], String) => Unit, onErrorCallback: (String) => Unit) extends GridPane {
+class RequestPane(responseCallback: (Int, Iterable[Header], String) => Unit, onErrorCallback: (String) => Unit) extends GridPane {
 
   setGridLinesVisible(true)
   setHgap(10)
@@ -48,7 +48,7 @@ class RequestPane(responseCallback: (Iterable[Header], String) => Unit, onErrorC
       try {
         val response = HttpUtil.sendRequest(uri, verb)
         val headers = response.headers.map({ case (k, v) => Header(k, v.head) })
-        responseCallback(headers, response.body)
+        responseCallback(response.code, headers, response.body)
       } catch {
         case _: UnknownHostException => onErrorCallback("Unknown Host")
         case _: SSLHandshakeException => onErrorCallback("SSL Handshake failed. Remote host closed connection during handshake.")
