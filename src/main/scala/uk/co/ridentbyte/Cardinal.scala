@@ -25,8 +25,8 @@ object Cardinal {
 class Cardinal extends Application {
 
   val rootGridPane = new GridPane()
-  rootGridPane.getColumnConstraints.add(GridConstraints.widthColumnConstraint(30))
-  rootGridPane.getColumnConstraints.add(GridConstraints.widthColumnConstraint(70))
+  rootGridPane.getColumnConstraints.add(GridConstraints.widthColumnConstraint(40))
+  rootGridPane.getColumnConstraints.add(GridConstraints.widthColumnConstraint(60))
   rootGridPane.getRowConstraints.add(GridConstraints.maxHeightRowConstraint)
 
   val requestPane = new RequestPane(sendRequest)
@@ -34,6 +34,7 @@ class Cardinal extends Application {
 
   override def start(primaryStage: Stage): Unit = {
     primaryStage.setTitle("Cardinal")
+    primaryStage.setMinHeight(400)
 
     rootGridPane.add(requestPane, 0, 0)
     rootGridPane.add(responsePane, 1, 0)

@@ -10,7 +10,7 @@ object GridConstraints {
     row
   }
 
-  def maxWidthRowConstraint: ColumnConstraints = {
+  def maxWidthColumnConstraint: ColumnConstraints = {
     val column = new ColumnConstraints()
     column.setHgrow(Priority.ALWAYS)
     column
@@ -27,6 +27,12 @@ object GridConstraints {
     val row = new RowConstraints()
     row.setPercentHeight(percentage)
     row.setVgrow(Priority.ALWAYS)
+    row
+  }
+
+  def noScaleRowConstraint: RowConstraints = {
+    val row = new RowConstraints()
+    row.setVgrow(Priority.NEVER)
     row
   }
 

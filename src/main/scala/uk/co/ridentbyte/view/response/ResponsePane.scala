@@ -1,19 +1,18 @@
 package uk.co.ridentbyte.view.response
 
+import javafx.geometry.Insets
 import javafx.scene.control.{ListView, Tab, TabPane, TextArea}
 import javafx.scene.layout.GridPane
+
 import uk.co.ridentbyte.model.Header
 import uk.co.ridentbyte.view.util.GridConstraints
 
 class ResponsePane extends GridPane {
 
-  setHgap(10)
-  setVgap(10)
-  getColumnConstraints.add(GridConstraints.maxWidthRowConstraint)
+  getColumnConstraints.add(GridConstraints.maxWidthColumnConstraint)
 
-  getRowConstraints.add(GridConstraints.heightRowConstraint(10))
-  getRowConstraints.add(GridConstraints.heightRowConstraint(90))
-
+  getRowConstraints.add(GridConstraints.noScaleRowConstraint)
+  getRowConstraints.add(GridConstraints.maxHeightRowConstraint)
 
   val summaryPane = new ResponseSummaryPane
 

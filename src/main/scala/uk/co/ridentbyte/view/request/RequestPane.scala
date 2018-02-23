@@ -6,7 +6,6 @@ import javafx.geometry.{HPos, Insets, VPos}
 import javafx.scene.control.{Button, ChoiceBox, TextField}
 import javafx.scene.layout._
 import javafx.scene.paint.Color
-import uk.co.ridentbyte.view.util.GridConstraints
 
 class RequestPane(sendRequestCallback: (String, String) => Unit) extends GridPane {
 
@@ -15,10 +14,9 @@ class RequestPane(sendRequestCallback: (String, String) => Unit) extends GridPan
   setVgap(10)
   setPadding(new Insets(10, 10, 10, 10))
   setBackground(new Background(new BackgroundFill(Color.web("#FF0000"), CornerRadii.EMPTY, Insets.EMPTY)))
-  getColumnConstraints.add(GridConstraints.widthColumnConstraint(70))
-  getColumnConstraints.add(GridConstraints.widthColumnConstraint(30))
 
   val inputUri = new TextField()
+  GridPane.setHgrow(inputUri, Priority.ALWAYS)
   inputUri.setPromptText("http://localhost:8080")
   inputUri.setText("https://google.com")
   add(inputUri, 0, 0)
