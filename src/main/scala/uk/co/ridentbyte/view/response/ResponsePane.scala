@@ -4,14 +4,8 @@ import javafx.scene.control.{ListView, Tab, TabPane, TextArea}
 import javafx.scene.layout.{GridPane, Priority}
 
 import uk.co.ridentbyte.model.Header
-import uk.co.ridentbyte.view.util.GridConstraints
 
 class ResponsePane extends GridPane {
-
-//  getColumnConstraints.add(GridConstraints.maxWidthColumnConstraint)
-//
-//  getRowConstraints.add(GridConstraints.noScaleRowConstraint)
-//  getRowConstraints.add(GridConstraints.maxHeightRowConstraint)
 
   val summaryPane = new ResponseSummaryPane
   add(summaryPane, 0, 0)
