@@ -1,20 +1,20 @@
 package uk.co.ridentbyte.view.response
 
-import javafx.geometry.Insets
 import javafx.scene.control.{ListView, Tab, TabPane, TextArea}
-import javafx.scene.layout.GridPane
+import javafx.scene.layout.{GridPane, Priority}
 
 import uk.co.ridentbyte.model.Header
 import uk.co.ridentbyte.view.util.GridConstraints
 
 class ResponsePane extends GridPane {
 
-  getColumnConstraints.add(GridConstraints.maxWidthColumnConstraint)
-
-  getRowConstraints.add(GridConstraints.noScaleRowConstraint)
-  getRowConstraints.add(GridConstraints.maxHeightRowConstraint)
+//  getColumnConstraints.add(GridConstraints.maxWidthColumnConstraint)
+//
+//  getRowConstraints.add(GridConstraints.noScaleRowConstraint)
+//  getRowConstraints.add(GridConstraints.maxHeightRowConstraint)
 
   val summaryPane = new ResponseSummaryPane
+  add(summaryPane, 0, 0)
 
   val textAreaBody = new TextArea()
   textAreaBody.setEditable(false)
@@ -22,13 +22,18 @@ class ResponsePane extends GridPane {
     """
       |-fx-font-family: Monospaced;
       |-fx-font-size: 13;
-      |-fx-font-weight: 700;
-      |-fx-text-fill: grey;
-      |-fx-control-inner-background:#000000;
-      |-fx-border-color:#000000;
-    """.stripMargin)
+      |-fx-font-weight: 600;
+    """.stripMargin
+  )
 
   val listHeaders = new ListView[String]()
+  listHeaders.setStyle(
+    """
+      |-fx-font-family: Monospaced;
+      |-fx-font-size: 13;
+      |-fx-font-weight: 600;
+    """.stripMargin
+  )
 
   val tabPaneBodyHeaders = new TabPane()
 
@@ -42,7 +47,8 @@ class ResponsePane extends GridPane {
   tabHeaders.setContent(listHeaders)
   tabPaneBodyHeaders.getTabs.add(tabHeaders)
 
-  add(summaryPane, 0, 0)
+  GridPane.setVgrow(tabPaneBodyHeaders, Priority.ALWAYS)
+  GridPane.setHgrow(tabPaneBodyHeaders, Priority.ALWAYS)
   add(tabPaneBodyHeaders, 0, 1)
 
   def loadResponse(code: Int, headers: Iterable[Header], body: String): Unit = {
