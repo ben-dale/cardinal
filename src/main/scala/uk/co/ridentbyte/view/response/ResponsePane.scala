@@ -52,6 +52,12 @@ class ResponsePane extends GridPane {
     summaryPane.setHttpCode(code.toString)
   }
 
+  def clear(): Unit = {
+    listHeaders.getItems.clear()
+    textAreaBody.clear()
+    summaryPane.clear()
+  }
+
 }
 
 

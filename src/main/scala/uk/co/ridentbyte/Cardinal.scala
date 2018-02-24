@@ -2,7 +2,6 @@ package uk.co.ridentbyte
 
 import java.net.{ConnectException, URISyntaxException, UnknownHostException}
 import javafx.application.Application
-import javafx.geometry.Insets
 import javafx.scene.Scene
 import javafx.scene.control.Alert.AlertType
 import javafx.scene.control._
@@ -29,7 +28,7 @@ class Cardinal extends Application {
   rootGridPane.getColumnConstraints.add(GridConstraints.widthColumnConstraint(60))
   rootGridPane.getRowConstraints.add(GridConstraints.maxHeightRowConstraint)
 
-  val requestPane = new RequestPane(sendRequest)
+  val requestPane = new RequestPane(sendRequest, clearAll)
   val responsePane = new ResponsePane()
 
   override def start(primaryStage: Stage): Unit = {
@@ -44,6 +43,7 @@ class Cardinal extends Application {
     primaryStage.setScene(scene)
     primaryStage.show()
   }
+
   def showErrorDialog(errorMessage: String): Unit = {
     val alert = new Alert(AlertType.ERROR)
     alert.setContentText(errorMessage)
@@ -62,6 +62,11 @@ class Cardinal extends Application {
       case _: UnknownHostException => showErrorDialog("Unknown Host")
       case _: SSLHandshakeException => showErrorDialog("SSL Handshake failed. Remote host closed connection during handshake.")
     }
+  }
+
+  def clearAll(): Unit = {
+    requestPane.clear()
+    responsePane.clear()
   }
 
 }

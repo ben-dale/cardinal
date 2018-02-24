@@ -16,12 +16,12 @@ class RequestInputPane extends GridPane {
   setVgap(10)
   setPadding(new Insets(10, 10, 10, 10))
 
-  val inputUri = new TextField()
-  GridPane.setVgrow(inputUri, Priority.NEVER)
-  GridPane.setHgrow(inputUri, Priority.ALWAYS)
-  inputUri.setPromptText("http://localhost:8080")
-  inputUri.setText("https://reqres.in/api/users")
-  add(inputUri, 0, 0)
+  val textUri = new TextField()
+  GridPane.setVgrow(textUri, Priority.NEVER)
+  GridPane.setHgrow(textUri, Priority.ALWAYS)
+  textUri.setPromptText("http://localhost:8080")
+  textUri.setText("https://reqres.in/api/users")
+  add(textUri, 0, 0)
 
   val selectVerb = new ChoiceBox[String](FXCollections.observableArrayList("GET", "POST", "PUT", "DELETE", "HEAD", "CONNECT", "OPTIONS", "TRACE", "PATCH"))
   GridPane.setVgrow(selectVerb, Priority.NEVER)
@@ -100,7 +100,7 @@ class RequestInputPane extends GridPane {
   gridHeadersBody.add(textAreaBody, 0, 3)
 
 
-  def getUri: String = inputUri.getText.trim
+  def getUri: String = textUri.getText.trim
 
   def getVerb: String = selectVerb.getSelectionModel.getSelectedItem
 
@@ -118,6 +118,13 @@ class RequestInputPane extends GridPane {
 
   def getBody: String = {
     textAreaBody.getText.trim
+  }
+
+  def clear(): Unit = {
+    textAreaBody.clear()
+    listHeaders.getItems.clear()
+    selectVerb.getSelectionModel.select(0)
+    textUri.clear()
   }
 
 }

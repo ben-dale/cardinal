@@ -20,4 +20,8 @@ class ResponseSummaryPane extends GridPane {
     labelHttpCode.setText(code)
   }
 
+  def clear(): Unit = {
+    labelHttpCode.setText("")
+  }
+
 }
