@@ -60,6 +60,13 @@ class RequestInputPane extends GridPane {
   gridHeadersBody.add(labelHeaders, 0, 0)
 
   val listHeaders = new ListView[String]()
+  listHeaders.setStyle(
+    """
+      |-fx-font-family: Monospaced;
+      |-fx-font-size: 13;
+      |-fx-font-weight: 600;
+    """.stripMargin
+  )
   listHeaders.setCellFactory(TextFieldListCell.forListView())
   listHeaders.addEventFilter(KeyEvent.KEY_RELEASED, (event: KeyEvent) => {
     val selectedIndex = listHeaders.getSelectionModel.getSelectedIndex
