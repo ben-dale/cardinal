@@ -1,6 +1,8 @@
 package uk.co.ridentbyte
 
+import java.io.{File, PrintWriter}
 import java.net.{ConnectException, URISyntaxException, UnknownHostException}
+import java.nio.file.{Files, Paths}
 import javafx.application.Application
 import javafx.scene.Scene
 import javafx.scene.control.Alert.AlertType
@@ -9,7 +11,7 @@ import javafx.scene.layout._
 import javafx.stage.Stage
 import javax.net.ssl.SSLHandshakeException
 
-import uk.co.ridentbyte.model.{Header, HttpResponseWrapper}
+import uk.co.ridentbyte.model.{HttpResponseWrapper, Request}
 import uk.co.ridentbyte.util.HttpUtil
 import uk.co.ridentbyte.view.file.FilePane
 import uk.co.ridentbyte.view.util.GridConstraints
@@ -23,6 +25,8 @@ object Cardinal {
 }
 
 class Cardinal extends Application {
+
+  val fileDir = "cardinal_files"
 
   val rootGridPane = new GridPane()
   rootGridPane.getColumnConstraints.add(GridConstraints.widthColumnConstraint(20))
@@ -46,6 +50,8 @@ class Cardinal extends Application {
     val scene = new Scene(rootGridPane, 1000, 500)
     primaryStage.setScene(scene)
     primaryStage.show()
+
+    filePane.loadFiles(loadFiles())
   }
 
   def showErrorDialog(errorMessage: String): Unit = {
@@ -54,15 +60,12 @@ class Cardinal extends Application {
     alert.showAndWait
   }
 
-  def sendRequest(verb: String, uri: String, headers: List[String], body: Option[String]): Unit = {
+  def sendRequest(request: Request): Unit = {
     try {
       val startTime = System.currentTimeMillis()
-      val parsedUri = HttpUtil.parseURI(uri)
-      val response = HttpUtil.sendRequest(parsedUri, verb, headers, body)
+      val response = HttpUtil.sendRequest(request)
       val totalTime = System.currentTimeMillis() - startTime
-
       val httpResponse = HttpResponseWrapper(response, totalTime)
-
       responsePane.loadResponse(httpResponse)
     } catch {
       case _: ConnectException => showErrorDialog("Connection refused")
@@ -75,6 +78,27 @@ class Cardinal extends Application {
   def clearAll(): Unit = {
     requestPane.clear()
     responsePane.clear()
+  }
+
+  def loadFiles(): List[File] = {
+    val d = new File(fileDir)
+    if (d.exists && d.isDirectory) {
+      d.listFiles.filter(_.isFile).toList
+    } else {
+      Files.createDirectories(Paths.get(fileDir))
+      List.empty[File]
+    }
+  }
+
+  def saveFile(): Unit = {
+    val d = new File(fileDir)
+    if (!d.exists || !d.isDirectory) {
+      Files.createDirectories(Paths.get(fileDir))
+    }
+
+    val pw = new PrintWriter(fileDir + "/" + System.currentTimeMillis() + ".json")
+    pw.write("Hello, world")
+    pw.close()
   }
 
 }

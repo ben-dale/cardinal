@@ -3,7 +3,9 @@ package uk.co.ridentbyte.view.request
 import javafx.scene.control._
 import javafx.scene.layout._
 
-class RequestPane(sendRequestCallback: (String, String, List[String], Option[String]) => Unit, clearAllCallback: () => Unit) extends GridPane {
+import uk.co.ridentbyte.model.Request
+
+class RequestPane(sendRequestCallback: (Request) => Unit, clearAllCallback: () => Unit) extends GridPane {
 
   setStyle(
     """
@@ -27,7 +29,8 @@ class RequestPane(sendRequestCallback: (String, String, List[String], Option[Str
     val uri = requestInputPane.getUri
     val headers = requestInputPane.getHeaders
     val body = requestInputPane.getBody
-    sendRequestCallback(verb, uri, headers, if (body.length != 0) Some(body) else None)
+    val request = Request(uri, verb, headers, body)
+    sendRequestCallback(request)
   }
 
   def showAddHeader(): Unit = {

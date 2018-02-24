@@ -2,6 +2,8 @@ package uk.co.ridentbyte.util
 
 import java.net._
 
+import uk.co.ridentbyte.model.Request
+
 import scalaj.http.{Http, HttpOptions, HttpResponse}
 
 object HttpUtil {
@@ -20,8 +22,9 @@ object HttpUtil {
     uri.toASCIIString
   }
 
-  def sendRequest(uri: String, verb: String, headers: List[String], body: Option[String]): HttpResponse[String] = {
-    val splitHeaders = headers.map { header =>
+  def sendRequest(request: Request): HttpResponse[String] = {
+    val parsedUri = HttpUtil.parseURI(request.uri)
+    val splitHeaders = request.headers.map { header =>
       val splitHeader = header.split(":")
       if (splitHeader.length == 2) {
         (splitHeader(0), splitHeader(1))
@@ -30,13 +33,13 @@ object HttpUtil {
       }
     }
 
-    verb match {
-      case "POST" if body.isDefined => {
-        println("here with " + body.get)
-        Http(uri).option(HttpOptions.followRedirects(true)).method(verb).headers(splitHeaders).postData(body.get).asString
+    request.verb match {
+      case "POST" if request.body.isDefined => {
+        println("here with " + request.body.get)
+        Http(parsedUri).option(HttpOptions.followRedirects(true)).method(request.verb).headers(splitHeaders).postData(request.body.get).asString
       }
       case _ => {
-        Http(uri).option(HttpOptions.followRedirects(true)).method(verb).headers(splitHeaders).asString
+        Http(parsedUri).option(HttpOptions.followRedirects(true)).method(request.verb).headers(splitHeaders).asString
       }
     }
 

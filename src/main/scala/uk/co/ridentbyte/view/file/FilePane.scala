@@ -1,5 +1,6 @@
 package uk.co.ridentbyte.view.file
 
+import java.io.File
 import javafx.geometry.Insets
 import javafx.scene.control.ListView
 import javafx.scene.layout._
@@ -17,5 +18,12 @@ class FilePane extends GridPane {
   GridPane.setHgrow(listFiles, Priority.ALWAYS)
   GridPane.setVgrow(listFiles, Priority.ALWAYS)
   add(listFiles, 0, 0)
+
+
+  def loadFiles(files: List[File]): Unit = {
+    files.foreach { file =>
+      listFiles.getItems.add(file.getName)
+    }
+  }
 
 }

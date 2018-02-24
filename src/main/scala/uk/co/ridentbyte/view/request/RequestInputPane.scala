@@ -115,8 +115,9 @@ class RequestInputPane extends GridPane {
     listHeaders.getItems.asScala.toList
   }
 
-  def getBody: String = {
-    textAreaBody.getText.trim
+  def getBody: Option[String] = {
+    val contents = textAreaBody.getText.trim
+    if (contents.length == 0) None else Some(contents)
   }
 
   def clear(): Unit = {
