@@ -41,7 +41,7 @@ class Cardinal extends Application {
   override def start(primaryStage: Stage): Unit = {
     primaryStage.setTitle("Cardinal")
     primaryStage.setMinHeight(400)
-    primaryStage.setMinWidth(600)
+    primaryStage.setMinWidth(800)
 
     rootGridPane.add(filePane, 0, 0)
     rootGridPane.add(requestPane, 1, 0)

@@ -49,7 +49,8 @@ class ResponsePane extends GridPane {
     clear()
 
     httpResponseWrapper.httpResponse.headers.foreach { header => listHeaders.getItems.add(header._1 + ": " + header._2.mkString("")) }
-    textAreaBody.setText(httpResponseWrapper.httpResponse.body)
+
+    textAreaBody.setText(httpResponseWrapper.formattedBody)
 
     summaryPane.setHttpCode(httpResponseWrapper.httpResponse.header("Status").getOrElse(""))
     summaryPane.setTime(httpResponseWrapper.time)
