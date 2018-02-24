@@ -46,8 +46,9 @@ class ResponsePane extends GridPane {
   add(tabPaneBodyHeaders, 0, 1)
 
   def loadResponse(httpResponseWrapper: HttpResponseWrapper): Unit = {
-    listHeaders.getItems.clear()
-    httpResponseWrapper.httpResponse.headers.foreach { header => listHeaders.getItems.add(header.toString) }
+    clear()
+
+    httpResponseWrapper.httpResponse.headers.foreach { header => listHeaders.getItems.add(header._1 + ": " + header._2.mkString("")) }
     textAreaBody.setText(httpResponseWrapper.httpResponse.body)
 
     summaryPane.setHttpCode(httpResponseWrapper.httpResponse.header("Status").getOrElse(""))

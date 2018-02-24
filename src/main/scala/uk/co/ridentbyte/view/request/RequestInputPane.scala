@@ -11,7 +11,6 @@ import scala.collection.JavaConverters._
 
 class RequestInputPane extends GridPane {
 
-//  setGridLinesVisible(true)
   setHgap(10)
   setVgap(10)
   setPadding(new Insets(10, 10, 10, 10))

@@ -6,9 +6,10 @@ import javafx.scene.layout._
 import javafx.scene.paint.Color
 
 class RequestControlPane(sendRequestCallback: () => Unit, addHeaderCallback: () => Unit, clearAllCallback: () => Unit) extends GridPane {
-  
+
   setHgap(10)
   setPadding(new Insets(10, 10, 10, 10))
+
   setBackground(new Background(new BackgroundFill(Color.web("#DDDDDD"), CornerRadii.EMPTY, Insets.EMPTY)))
 
   val buttonClearAll = new Button("Clear All")

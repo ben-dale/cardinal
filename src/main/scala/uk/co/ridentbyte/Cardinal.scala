@@ -11,6 +11,7 @@ import javax.net.ssl.SSLHandshakeException
 
 import uk.co.ridentbyte.model.{Header, HttpResponseWrapper}
 import uk.co.ridentbyte.util.HttpUtil
+import uk.co.ridentbyte.view.file.FilePane
 import uk.co.ridentbyte.view.util.GridConstraints
 import uk.co.ridentbyte.view.request.RequestPane
 import uk.co.ridentbyte.view.response.ResponsePane
@@ -24,10 +25,12 @@ object Cardinal {
 class Cardinal extends Application {
 
   val rootGridPane = new GridPane()
-  rootGridPane.getColumnConstraints.add(GridConstraints.widthColumnConstraint(40))
-  rootGridPane.getColumnConstraints.add(GridConstraints.widthColumnConstraint(60))
+  rootGridPane.getColumnConstraints.add(GridConstraints.widthColumnConstraint(20))
+  rootGridPane.getColumnConstraints.add(GridConstraints.widthColumnConstraint(35))
+  rootGridPane.getColumnConstraints.add(GridConstraints.widthColumnConstraint(45))
   rootGridPane.getRowConstraints.add(GridConstraints.maxHeightRowConstraint)
 
+  val filePane = new FilePane
   val requestPane = new RequestPane(sendRequest, clearAll)
   val responsePane = new ResponsePane()
 
@@ -36,8 +39,9 @@ class Cardinal extends Application {
     primaryStage.setMinHeight(400)
     primaryStage.setMinWidth(600)
 
-    rootGridPane.add(requestPane, 0, 0)
-    rootGridPane.add(responsePane, 1, 0)
+    rootGridPane.add(filePane, 0, 0)
+    rootGridPane.add(requestPane, 1, 0)
+    rootGridPane.add(responsePane, 2, 0)
 
     val scene = new Scene(rootGridPane, 1000, 500)
     primaryStage.setScene(scene)
