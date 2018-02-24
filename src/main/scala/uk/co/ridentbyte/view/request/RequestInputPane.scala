@@ -7,6 +7,8 @@ import javafx.scene.control._
 import javafx.scene.input.{KeyCode, KeyEvent}
 import javafx.scene.layout._
 
+import uk.co.ridentbyte.view.util.GridConstraints
+
 class RequestInputPane extends GridPane {
 
 //  setGridLinesVisible(true)
@@ -27,12 +29,35 @@ class RequestInputPane extends GridPane {
   selectVerb.getSelectionModel.selectFirst()
   add(selectVerb, 1, 0)
 
+  val labelRowConstraint = new RowConstraints(5)
+  labelRowConstraint.setVgrow(Priority.NEVER)
+
+  val headerRowConstraint = new RowConstraints()
+  headerRowConstraint.setMaxHeight(200)
+  headerRowConstraint.setVgrow(Priority.ALWAYS)
+
+  val bodyRowConstraint = new RowConstraints()
+  bodyRowConstraint.setVgrow(Priority.ALWAYS)
+
+  val gridHeadersBody = new GridPane
+  gridHeadersBody.getRowConstraints.addAll(
+    labelRowConstraint,
+    headerRowConstraint,
+    labelRowConstraint,
+    bodyRowConstraint
+  )
+  gridHeadersBody.setVgap(10)
+  GridPane.setVgrow(gridHeadersBody, Priority.ALWAYS)
+  GridPane.setHgrow(gridHeadersBody, Priority.ALWAYS)
+  GridPane.setColumnSpan(gridHeadersBody, 2)
+  add(gridHeadersBody, 0, 1)
+
   val labelHeaders = new Label("Headers")
   labelHeaders.setStyle(labelStyle)
   GridPane.setVgrow(labelHeaders, Priority.NEVER)
   GridPane.setHgrow(labelHeaders, Priority.ALWAYS)
   GridPane.setColumnSpan(labelHeaders, 2)
-  add(labelHeaders, 0, 1)
+  gridHeadersBody.add(labelHeaders, 0, 0)
 
   val listHeaders = new ListView[String]()
   listHeaders.setCellFactory(TextFieldListCell.forListView())
@@ -45,20 +70,20 @@ class RequestInputPane extends GridPane {
   GridPane.setVgrow(listHeaders, Priority.ALWAYS)
   GridPane.setHgrow(listHeaders, Priority.ALWAYS)
   GridPane.setColumnSpan(listHeaders, 2)
-  add(listHeaders, 0, 2)
+  gridHeadersBody.add(listHeaders, 0, 1)
 
   val labelBody = new Label("Body")
   labelBody.setStyle(labelStyle)
   GridPane.setVgrow(labelBody, Priority.NEVER)
   GridPane.setHgrow(labelBody, Priority.ALWAYS)
   GridPane.setColumnSpan(labelBody, 2)
-  add(labelBody, 0, 3)
+  gridHeadersBody.add(labelBody, 0, 2)
 
   val textAreaBody = new TextArea()
   GridPane.setColumnSpan(textAreaBody, 2)
   GridPane.setHgrow(textAreaBody, Priority.ALWAYS)
   GridPane.setVgrow(textAreaBody, Priority.ALWAYS)
-  add(textAreaBody, 0, 4)
+  gridHeadersBody.add(textAreaBody, 0, 3)
 
 
   def getUri: String = inputUri.getText.trim
