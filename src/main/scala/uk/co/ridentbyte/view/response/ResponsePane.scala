@@ -47,12 +47,13 @@ class ResponsePane extends GridPane {
 
   def loadResponse(httpResponseWrapper: HttpResponseWrapper): Unit = {
     clear()
+    val response = httpResponseWrapper.httpResponse
 
-    httpResponseWrapper.httpResponse.headers.foreach { header => listHeaders.getItems.add(header._1 + ": " + header._2.mkString("")) }
+    response.headers.foreach { header => listHeaders.getItems.add(header._1 + ": " + header._2.mkString("")) }
 
     textAreaBody.setText(httpResponseWrapper.formattedBody)
 
-    summaryPane.setHttpCode(httpResponseWrapper.httpResponse.header("Status").getOrElse(""))
+    summaryPane.setHttpCode(response.header("Status").getOrElse(""))
     summaryPane.setTime(httpResponseWrapper.time)
   }
 

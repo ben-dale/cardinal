@@ -4,8 +4,6 @@ import javafx.geometry.{HPos, Insets}
 import javafx.scene.control.Label
 import javafx.scene.layout.GridPane
 
-import uk.co.ridentbyte.model.Header
-
 class ResponseSummaryPane extends GridPane {
 
   setPadding(new Insets(10, 10, 10, 10))
