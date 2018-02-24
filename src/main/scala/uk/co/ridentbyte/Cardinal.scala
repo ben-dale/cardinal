@@ -9,7 +9,7 @@ import javafx.scene.layout._
 import javafx.stage.Stage
 import javax.net.ssl.SSLHandshakeException
 
-import uk.co.ridentbyte.model.Header
+import uk.co.ridentbyte.model.{Header, HttpResponseWrapper}
 import uk.co.ridentbyte.util.HttpUtil
 import uk.co.ridentbyte.view.util.GridConstraints
 import uk.co.ridentbyte.view.request.RequestPane
@@ -52,10 +52,14 @@ class Cardinal extends Application {
 
   def sendRequest(verb: String, uri: String, headers: List[String], body: Option[String]): Unit = {
     try {
+      val startTime = System.currentTimeMillis()
       val parsedUri = HttpUtil.parseURI(uri)
       val response = HttpUtil.sendRequest(parsedUri, verb, headers, body)
-      val responseHeaders = response.headers.map({ case (k, v) => Header(k, v.head) })
-      responsePane.loadResponse(response.code, responseHeaders, response.body)
+      val totalTime = System.currentTimeMillis() - startTime
+
+      val httpResponse = HttpResponseWrapper(response, totalTime)
+
+      responsePane.loadResponse(httpResponse)
     } catch {
       case _: ConnectException => showErrorDialog("Connection refused")
       case _: URISyntaxException => showErrorDialog("Invalid URL")

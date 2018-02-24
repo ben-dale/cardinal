@@ -3,7 +3,7 @@ package uk.co.ridentbyte.view.response
 import javafx.scene.control.{ListView, Tab, TabPane, TextArea}
 import javafx.scene.layout.{GridPane, Priority}
 
-import uk.co.ridentbyte.model.Header
+import uk.co.ridentbyte.model.HttpResponseWrapper
 
 class ResponsePane extends GridPane {
 
@@ -45,11 +45,13 @@ class ResponsePane extends GridPane {
   GridPane.setHgrow(tabPaneBodyHeaders, Priority.ALWAYS)
   add(tabPaneBodyHeaders, 0, 1)
 
-  def loadResponse(code: Int, headers: Iterable[Header], body: String): Unit = {
+  def loadResponse(httpResponseWrapper: HttpResponseWrapper): Unit = {
     listHeaders.getItems.clear()
-    headers.foreach { header => listHeaders.getItems.add(header.toString) }
-    textAreaBody.setText(body)
-    summaryPane.setHttpCode(code.toString)
+    httpResponseWrapper.httpResponse.headers.foreach { header => listHeaders.getItems.add(header.toString) }
+    textAreaBody.setText(httpResponseWrapper.httpResponse.body)
+
+    summaryPane.setHttpCode(httpResponseWrapper.httpResponse.header("Status").getOrElse(""))
+    summaryPane.setTime(httpResponseWrapper.time)
   }
 
   def clear(): Unit = {

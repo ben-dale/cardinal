@@ -4,9 +4,12 @@ import javafx.geometry.{HPos, Insets}
 import javafx.scene.control.Label
 import javafx.scene.layout.GridPane
 
+import uk.co.ridentbyte.model.Header
+
 class ResponseSummaryPane extends GridPane {
 
   setPadding(new Insets(10, 10, 10, 10))
+  setHgap(10)
 
   val labelHttpCode = new Label()
   GridPane.setHalignment(labelHttpCode, HPos.LEFT)
@@ -20,8 +23,13 @@ class ResponseSummaryPane extends GridPane {
     labelHttpCode.setText(code)
   }
 
+  def setTime(time: Long): Unit = {
+    labelRequestTiming.setText(time + " ms")
+  }
+
   def clear(): Unit = {
     labelHttpCode.setText("")
+    labelRequestTiming.setText("")
   }
 
 }
