@@ -20,8 +20,27 @@ object HttpUtil {
     uri.toASCIIString
   }
 
-  def sendRequest(uri: String, verb: String): HttpResponse[String] = {
-    Http(uri).option(HttpOptions.followRedirects(true)).method(verb).asString
+  def sendRequest(uri: String, verb: String, headers: List[String], body: Option[String]): HttpResponse[String] = {
+    val splitHeaders = headers.map { header =>
+      val splitHeader = header.split(":")
+      if (splitHeader.length == 2) {
+        (splitHeader(0), splitHeader(1))
+      } else {
+        (splitHeader(0), "")
+      }
+    }
+
+    verb match {
+      case "POST" if body.isDefined => {
+        println("here with " + body.get)
+        Http(uri).option(HttpOptions.followRedirects(true)).method(verb).headers(splitHeaders).postData(body.get).asString
+      }
+      case _ => {
+        Http(uri).option(HttpOptions.followRedirects(true)).method(verb).headers(splitHeaders).asString
+      }
+    }
+
+
   }
 
 }

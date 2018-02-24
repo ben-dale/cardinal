@@ -7,7 +7,7 @@ import javafx.scene.control._
 import javafx.scene.input.{KeyCode, KeyEvent}
 import javafx.scene.layout._
 
-import uk.co.ridentbyte.view.util.GridConstraints
+import scala.collection.JavaConverters._
 
 class RequestInputPane extends GridPane {
 
@@ -20,7 +20,7 @@ class RequestInputPane extends GridPane {
   GridPane.setVgrow(inputUri, Priority.NEVER)
   GridPane.setHgrow(inputUri, Priority.ALWAYS)
   inputUri.setPromptText("http://localhost:8080")
-  inputUri.setText("https://google.com")
+  inputUri.setText("https://reqres.in/api/users")
   add(inputUri, 0, 0)
 
   val selectVerb = new ChoiceBox[String](FXCollections.observableArrayList("GET", "POST", "PUT", "DELETE", "HEAD", "CONNECT", "OPTIONS", "TRACE", "PATCH"))
@@ -80,6 +80,13 @@ class RequestInputPane extends GridPane {
   gridHeadersBody.add(labelBody, 0, 2)
 
   val textAreaBody = new TextArea()
+  textAreaBody.setText(
+    """
+      |{
+      |    "name": "morpheus",
+      |    "job": "leader"
+      |}
+    """.stripMargin)
   GridPane.setColumnSpan(textAreaBody, 2)
   GridPane.setHgrow(textAreaBody, Priority.ALWAYS)
   GridPane.setVgrow(textAreaBody, Priority.ALWAYS)
@@ -96,6 +103,14 @@ class RequestInputPane extends GridPane {
     """
       |-fx-font-size: 12;
     """.stripMargin
+  }
+
+  def getHeaders: List[String] = {
+    listHeaders.getItems.asScala.toList
+  }
+
+  def getBody: String = {
+    textAreaBody.getText.trim
   }
 
 }

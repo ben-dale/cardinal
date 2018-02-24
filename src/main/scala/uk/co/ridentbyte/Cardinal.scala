@@ -50,12 +50,12 @@ class Cardinal extends Application {
     alert.showAndWait
   }
 
-  def sendRequest(verb: String, uri: String): Unit = {
+  def sendRequest(verb: String, uri: String, headers: List[String], body: Option[String]): Unit = {
     try {
       val parsedUri = HttpUtil.parseURI(uri)
-      val response = HttpUtil.sendRequest(parsedUri, verb)
-      val headers = response.headers.map({ case (k, v) => Header(k, v.head) })
-      responsePane.loadResponse(response.code, headers, response.body)
+      val response = HttpUtil.sendRequest(parsedUri, verb, headers, body)
+      val responseHeaders = response.headers.map({ case (k, v) => Header(k, v.head) })
+      responsePane.loadResponse(response.code, responseHeaders, response.body)
     } catch {
       case _: ConnectException => showErrorDialog("Connection refused")
       case _: URISyntaxException => showErrorDialog("Invalid URL")
