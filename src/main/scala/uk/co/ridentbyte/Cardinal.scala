@@ -99,8 +99,7 @@ class Cardinal extends Application {
       bufferedSource.close()
       loadRequest(Request(rawRequest))
     } catch {
-      case e: Exception =>
-//        e.printStackTrace()
+      case _: Exception =>
         filePane.loadFiles(loadFiles())
         showErrorDialog("Error loading: " + filename)
     }

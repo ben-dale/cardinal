@@ -102,10 +102,11 @@ class RequestInputPane extends GridPane {
   def getUri: String = textUri.getText.trim
 
   def setVerb(verb: String): Unit = {
-    val matchingIndex = selectVerb.getItems.asScala.zipWithIndex.map {
-      case (item: String, i: Int) if item == verb => i
-      case _ => 0
-    }.headOption.getOrElse(0)
+    val matchingIndex = selectVerb.getItems.asScala.zipWithIndex.find {
+      case (item: String, _) => item == verb
+    }.map { verbWithIndex =>
+      verbWithIndex._2
+    }.getOrElse(0)
     selectVerb.getSelectionModel.select(matchingIndex)
   }
   def getVerb: String = selectVerb.getSelectionModel.getSelectedItem
