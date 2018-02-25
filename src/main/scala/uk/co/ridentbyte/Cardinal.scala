@@ -154,7 +154,15 @@ class Cardinal extends Application {
     val pw = new PrintWriter(fileDir + "/" + filename)
     pw.write(data)
     pw.close()
+    requestPane.setUnsavedChanges(false)
   }
 
+  private def deleteFile(filename: String): Unit = {
+    try {
+      new File(fileDir + "/" + filename).delete()
+    } catch {
+      case _: Exception =>
+    }
+  }
 
 }
