@@ -35,7 +35,7 @@ class Cardinal extends Application {
   rootGridPane.getRowConstraints.add(GridConstraints.maxHeightRowConstraint)
 
   val filePane = new FilePane
-  val requestPane = new RequestPane(sendRequest, clearAll)
+  val requestPane = new RequestPane(sendRequest, clearAll, save)
   val responsePane = new ResponsePane()
 
   override def start(primaryStage: Stage): Unit = {
@@ -80,7 +80,13 @@ class Cardinal extends Application {
     responsePane.clear()
   }
 
-  def loadFiles(): List[File] = {
+
+  def save(request: Request): Unit = {
+    saveFile(System.currentTimeMillis() + ".json", request.toJson)
+    filePane.loadFiles(loadFiles())
+  }
+
+  private def loadFiles(): List[File] = {
     val d = new File(fileDir)
     if (d.exists && d.isDirectory) {
       d.listFiles.filter(_.isFile).toList
@@ -90,14 +96,14 @@ class Cardinal extends Application {
     }
   }
 
-  def saveFile(): Unit = {
+  private def saveFile(filename: String, data: String): Unit = {
     val d = new File(fileDir)
     if (!d.exists || !d.isDirectory) {
       Files.createDirectories(Paths.get(fileDir))
     }
 
-    val pw = new PrintWriter(fileDir + "/" + System.currentTimeMillis() + ".json")
-    pw.write("Hello, world")
+    val pw = new PrintWriter(fileDir + "/" + filename)
+    pw.write(data)
     pw.close()
   }
 

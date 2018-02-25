@@ -5,7 +5,7 @@ import javafx.scene.layout._
 
 import uk.co.ridentbyte.model.Request
 
-class RequestPane(sendRequestCallback: (Request) => Unit, clearAllCallback: () => Unit) extends GridPane {
+class RequestPane(sendRequestCallback: (Request) => Unit, clearAllCallback: () => Unit, saveCallback: (Request) => Unit) extends GridPane {
 
   setStyle(
     """
@@ -19,7 +19,7 @@ class RequestPane(sendRequestCallback: (Request) => Unit, clearAllCallback: () =
   GridPane.setVgrow(requestInputPane, Priority.ALWAYS)
   add(requestInputPane, 0, 0)
 
-  val requestControlPane = new RequestControlPane(sendRequest, showAddHeader, clearAllCallback)
+  val requestControlPane = new RequestControlPane(sendRequest, showAddHeader, clearAllCallback, save)
   GridPane.setVgrow(requestControlPane, Priority.NEVER)
   GridPane.setHgrow(requestControlPane, Priority.ALWAYS)
   add(requestControlPane, 0, 1)
@@ -31,6 +31,15 @@ class RequestPane(sendRequestCallback: (Request) => Unit, clearAllCallback: () =
     val body = requestInputPane.getBody
     val request = Request(uri, verb, headers, body)
     sendRequestCallback(request)
+  }
+
+  def save(): Unit = {
+    val verb = requestInputPane.getVerb
+    val uri = requestInputPane.getUri
+    val headers = requestInputPane.getHeaders
+    val body = requestInputPane.getBody
+    val request = Request(uri, verb, headers, body)
+    saveCallback(request)
   }
 
   def showAddHeader(): Unit = {
@@ -45,4 +54,5 @@ class RequestPane(sendRequestCallback: (Request) => Unit, clearAllCallback: () =
   def clear(): Unit = {
     requestInputPane.clear()
   }
+
 }

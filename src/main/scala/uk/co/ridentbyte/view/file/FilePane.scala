@@ -21,6 +21,7 @@ class FilePane extends GridPane {
 
 
   def loadFiles(files: List[File]): Unit = {
+    listFiles.getItems.clear()
     files.foreach { file =>
       listFiles.getItems.add(file.getName)
     }
