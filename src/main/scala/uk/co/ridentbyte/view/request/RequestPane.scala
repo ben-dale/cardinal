@@ -1,6 +1,5 @@
 package uk.co.ridentbyte.view.request
 
-import javafx.scene.control._
 import javafx.scene.layout._
 
 import uk.co.ridentbyte.model.Request
@@ -55,6 +54,10 @@ class RequestPane(sendRequestCallback: (Request) => Unit, clearAllCallback: () =
     requestInputPane.setUri(request.uri)
     requestInputPane.setVerb(request.verb)
     requestInputPane.setBody(request.body)
+  }
+
+  def hasUnsavedChanges: Boolean = {
+    requestInputPane.hasUnsavedChanges
   }
 
 }

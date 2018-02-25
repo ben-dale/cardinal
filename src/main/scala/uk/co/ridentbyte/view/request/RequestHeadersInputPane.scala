@@ -8,7 +8,7 @@ import javafx.scene.layout.{GridPane, Priority}
 
 import scala.collection.JavaConverters._
 
-class RequestHeadersInputPane extends GridPane {
+class RequestHeadersInputPane(onEditCallback: () => Unit) extends GridPane {
 
   setHgap(5)
   setVgap(5)
@@ -81,6 +81,7 @@ class RequestHeadersInputPane extends GridPane {
     if (selectedIndex >= 0) {
       listHeaders.getItems.remove(selectedIndex)
     }
+    onEditCallback()
   }
 
   private def addNewHeaderAction(actionEvent: ActionEvent): Unit = {
@@ -88,6 +89,7 @@ class RequestHeadersInputPane extends GridPane {
     val index = listHeaders.getItems.size - 1
     listHeaders.requestFocus()
     listHeaders.getSelectionModel.select(index)
+    onEditCallback()
   }
 
 }
