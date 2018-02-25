@@ -2,7 +2,7 @@ package uk.co.ridentbyte.view.response
 
 import javafx.geometry.{HPos, Insets}
 import javafx.scene.control.Label
-import javafx.scene.layout.GridPane
+import javafx.scene.layout.{GridPane, Priority}
 
 class ResponseSummaryPane extends GridPane {
 
@@ -10,10 +10,14 @@ class ResponseSummaryPane extends GridPane {
   setHgap(10)
 
   val labelHttpCode = new Label()
+  GridPane.setVgrow(labelHttpCode, Priority.NEVER)
+  GridPane.setHgrow(labelHttpCode, Priority.ALWAYS)
   GridPane.setHalignment(labelHttpCode, HPos.LEFT)
   add(labelHttpCode, 0, 0)
 
   val labelRequestTiming = new Label()
+  GridPane.setVgrow(labelRequestTiming, Priority.NEVER)
+  GridPane.setHgrow(labelRequestTiming, Priority.NEVER)
   GridPane.setHalignment(labelRequestTiming, HPos.RIGHT)
   add(labelRequestTiming, 1, 0)
 

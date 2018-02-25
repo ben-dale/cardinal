@@ -5,8 +5,8 @@ import javafx.scene.layout._
 
 class RequestBodyInputPane extends GridPane {
 
-  setHgap(10)
-  setVgap(10)
+  setHgap(5)
+  setVgap(5)
 
   val labelBody = new Label("Body")
   labelBody.setStyle(labelStyle)

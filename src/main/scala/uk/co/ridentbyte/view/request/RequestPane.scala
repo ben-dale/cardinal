@@ -19,7 +19,7 @@ class RequestPane(sendRequestCallback: (Request) => Unit, clearAllCallback: () =
   GridPane.setVgrow(requestInputPane, Priority.ALWAYS)
   add(requestInputPane, 0, 0)
 
-  val requestControlPane = new RequestControlPane(sendRequest, showAddHeader, clearAllCallback, save)
+  val requestControlPane = new RequestControlPane(sendRequest, clearAllCallback, save)
   GridPane.setVgrow(requestControlPane, Priority.NEVER)
   GridPane.setHgrow(requestControlPane, Priority.ALWAYS)
   add(requestControlPane, 0, 1)
@@ -42,15 +42,6 @@ class RequestPane(sendRequestCallback: (Request) => Unit, clearAllCallback: () =
     val optFilename = if (filename.length == 0) None else Some(filename)
     val request = Request(optFilename, uri, verb, headers, body)
     saveCallback(request)
-  }
-
-  def showAddHeader(): Unit = {
-    val dialog = new TextInputDialog
-    dialog.setTitle("New header")
-    dialog.setHeaderText("New header")
-    dialog.setContentText("Header")
-    val result = dialog.showAndWait()
-    result.ifPresent((v) => if (v.trim.length > 0) requestInputPane.addHeader(v.trim))
   }
 
   def clear(): Unit = {
