@@ -2,9 +2,7 @@ package uk.co.ridentbyte.view.request
 
 import javafx.collections.FXCollections
 import javafx.geometry.Insets
-import javafx.scene.control.cell.TextFieldListCell
 import javafx.scene.control._
-import javafx.scene.input.{KeyCode, KeyEvent}
 import javafx.scene.layout._
 
 import scala.collection.JavaConverters._
@@ -15,13 +13,24 @@ class RequestInputPane extends GridPane {
   setVgap(10)
   setPadding(new Insets(10, 10, 10, 10))
 
+
+  val maxHeightRowContstraint = new RowConstraints()
+  maxHeightRowContstraint.setMaxHeight(220)
+
+  getRowConstraints.addAll(
+    new RowConstraints(),
+    new RowConstraints(),
+    maxHeightRowContstraint,
+    new RowConstraints()
+  )
+
+
   val textFilename = new TextField()
   GridPane.setVgrow(textFilename, Priority.NEVER)
   GridPane.setHgrow(textFilename, Priority.ALWAYS)
   GridPane.setColumnSpan(textFilename, 2)
   textFilename.setPromptText("example_filename")
   add(textFilename, 0, 0)
-
 
   val textUri = new TextField()
   GridPane.setVgrow(textUri, Priority.NEVER)
@@ -35,68 +44,17 @@ class RequestInputPane extends GridPane {
   selectVerb.getSelectionModel.selectFirst()
   add(selectVerb, 1, 1)
 
-  val labelRowConstraint = new RowConstraints(5)
-  labelRowConstraint.setVgrow(Priority.NEVER)
+  val headersInputPane = new RequestHeadersInputPane
+  GridPane.setVgrow(headersInputPane, Priority.ALWAYS)
+  GridPane.setHgrow(headersInputPane, Priority.ALWAYS)
+  GridPane.setColumnSpan(headersInputPane, 2)
+  add(headersInputPane, 0, 2)
 
-  val headerRowConstraint = new RowConstraints()
-  headerRowConstraint.setMaxHeight(200)
-  headerRowConstraint.setVgrow(Priority.ALWAYS)
-
-  val bodyRowConstraint = new RowConstraints()
-  bodyRowConstraint.setVgrow(Priority.ALWAYS)
-
-  val gridHeadersBody = new GridPane
-  gridHeadersBody.getRowConstraints.addAll(
-    labelRowConstraint,
-    headerRowConstraint,
-    labelRowConstraint,
-    bodyRowConstraint
-  )
-  gridHeadersBody.setVgap(10)
-  GridPane.setVgrow(gridHeadersBody, Priority.ALWAYS)
-  GridPane.setHgrow(gridHeadersBody, Priority.ALWAYS)
-  GridPane.setColumnSpan(gridHeadersBody, 2)
-  add(gridHeadersBody, 0, 2)
-
-  val labelHeaders = new Label("Headers")
-  labelHeaders.setStyle(labelStyle)
-  GridPane.setVgrow(labelHeaders, Priority.NEVER)
-  GridPane.setHgrow(labelHeaders, Priority.ALWAYS)
-  GridPane.setColumnSpan(labelHeaders, 2)
-  gridHeadersBody.add(labelHeaders, 0, 0)
-
-  val listHeaders = new ListView[String]()
-  listHeaders.setStyle(
-    """
-      |-fx-font-family: Monospaced;
-      |-fx-font-size: 13;
-      |-fx-font-weight: 600;
-    """.stripMargin
-  )
-  listHeaders.setCellFactory(TextFieldListCell.forListView())
-  listHeaders.addEventFilter(KeyEvent.KEY_RELEASED, (event: KeyEvent) => {
-    val selectedIndex = listHeaders.getSelectionModel.getSelectedIndex
-    if (event.getCode == KeyCode.BACK_SPACE && selectedIndex >= 0) {
-      listHeaders.getItems.remove(listHeaders.getSelectionModel.getSelectedIndex)
-    }
-  })
-  GridPane.setVgrow(listHeaders, Priority.ALWAYS)
-  GridPane.setHgrow(listHeaders, Priority.ALWAYS)
-  GridPane.setColumnSpan(listHeaders, 2)
-  gridHeadersBody.add(listHeaders, 0, 1)
-
-  val labelBody = new Label("Body")
-  labelBody.setStyle(labelStyle)
-  GridPane.setVgrow(labelBody, Priority.NEVER)
-  GridPane.setHgrow(labelBody, Priority.ALWAYS)
-  GridPane.setColumnSpan(labelBody, 2)
-  gridHeadersBody.add(labelBody, 0, 2)
-
-  val textAreaBody = new TextArea()
-  GridPane.setColumnSpan(textAreaBody, 2)
-  GridPane.setHgrow(textAreaBody, Priority.ALWAYS)
-  GridPane.setVgrow(textAreaBody, Priority.ALWAYS)
-  gridHeadersBody.add(textAreaBody, 0, 3)
+  val bodyInputPane = new RequestBodyInputPane
+  GridPane.setVgrow(bodyInputPane, Priority.ALWAYS)
+  GridPane.setHgrow(bodyInputPane, Priority.ALWAYS)
+  GridPane.setColumnSpan(bodyInputPane, 2)
+  add(bodyInputPane, 0, 3)
 
   def setUri(uri: String): Unit = textUri.setText(uri)
   def getUri: String = textUri.getText.trim
@@ -115,32 +73,26 @@ class RequestInputPane extends GridPane {
   def getFilename: String = textFilename.getText.trim
 
   def addHeaders(headers: List[String]): Unit = headers.foreach(addHeader)
-  def addHeader(header: String): Unit = listHeaders.getItems.add(header)
-
-  private def labelStyle: String = {
-    """
-      |-fx-font-size: 12;
-    """.stripMargin
-  }
-
-  def getHeaders: List[String] = {
-    listHeaders.getItems.asScala.toList
-  }
+  def addHeader(header: String): Unit = headersInputPane.addHeader(header)
 
   def setBody(body: Option[String]): Unit = {
-    body.foreach(textAreaBody.setText(_))
+    bodyInputPane.setBody(body)
   }
 
   def getBody: Option[String] = {
-    val contents = textAreaBody.getText.trim
-    if (contents.length == 0) None else Some(contents)
+    bodyInputPane.getBody
+  }
+
+  def getHeaders: List[String] = {
+    headersInputPane.getHeaders
   }
 
   def clear(): Unit = {
-    textAreaBody.clear()
-    listHeaders.getItems.clear()
-    selectVerb.getSelectionModel.select(0)
+    textFilename.clear()
     textUri.clear()
+    selectVerb.getSelectionModel.select(0)
+    headersInputPane.clear()
+    bodyInputPane.clear()
   }
 
 }
