@@ -15,18 +15,25 @@ class RequestInputPane extends GridPane {
   setVgap(10)
   setPadding(new Insets(10, 10, 10, 10))
 
+  val textFilename = new TextField()
+  GridPane.setVgrow(textFilename, Priority.NEVER)
+  GridPane.setHgrow(textFilename, Priority.ALWAYS)
+  GridPane.setColumnSpan(textFilename, 2)
+  textFilename.setPromptText("example_filename")
+  add(textFilename, 0, 0)
+
+
   val textUri = new TextField()
   GridPane.setVgrow(textUri, Priority.NEVER)
   GridPane.setHgrow(textUri, Priority.ALWAYS)
   textUri.setPromptText("http://localhost:8080")
-  textUri.setText("https://reqres.in/api/users")
-  add(textUri, 0, 0)
+  add(textUri, 0, 1)
 
   val selectVerb = new ChoiceBox[String](FXCollections.observableArrayList("GET", "POST", "PUT", "DELETE", "HEAD", "CONNECT", "OPTIONS", "TRACE", "PATCH"))
   GridPane.setVgrow(selectVerb, Priority.NEVER)
   GridPane.setHgrow(selectVerb, Priority.NEVER)
   selectVerb.getSelectionModel.selectFirst()
-  add(selectVerb, 1, 0)
+  add(selectVerb, 1, 1)
 
   val labelRowConstraint = new RowConstraints(5)
   labelRowConstraint.setVgrow(Priority.NEVER)
@@ -49,7 +56,7 @@ class RequestInputPane extends GridPane {
   GridPane.setVgrow(gridHeadersBody, Priority.ALWAYS)
   GridPane.setHgrow(gridHeadersBody, Priority.ALWAYS)
   GridPane.setColumnSpan(gridHeadersBody, 2)
-  add(gridHeadersBody, 0, 1)
+  add(gridHeadersBody, 0, 2)
 
   val labelHeaders = new Label("Headers")
   labelHeaders.setStyle(labelStyle)
@@ -86,23 +93,27 @@ class RequestInputPane extends GridPane {
   gridHeadersBody.add(labelBody, 0, 2)
 
   val textAreaBody = new TextArea()
-  textAreaBody.setText(
-    """
-      |{
-      |    "name": "morpheus",
-      |    "job": "leader"
-      |}
-    """.stripMargin)
   GridPane.setColumnSpan(textAreaBody, 2)
   GridPane.setHgrow(textAreaBody, Priority.ALWAYS)
   GridPane.setVgrow(textAreaBody, Priority.ALWAYS)
   gridHeadersBody.add(textAreaBody, 0, 3)
 
-
+  def setUri(uri: String): Unit = textUri.setText(uri)
   def getUri: String = textUri.getText.trim
 
+  def setVerb(verb: String): Unit = {
+    val matchingIndex = selectVerb.getItems.asScala.zipWithIndex.map {
+      case (item: String, i: Int) if item == verb => i
+      case _ => 0
+    }.headOption.getOrElse(0)
+    selectVerb.getSelectionModel.select(matchingIndex)
+  }
   def getVerb: String = selectVerb.getSelectionModel.getSelectedItem
 
+  def setFilename(filename: String): Unit = textFilename.setText(filename)
+  def getFilename: String = textFilename.getText.trim
+
+  def addHeaders(headers: List[String]): Unit = headers.foreach(addHeader)
   def addHeader(header: String): Unit = listHeaders.getItems.add(header)
 
   private def labelStyle: String = {
@@ -113,6 +124,10 @@ class RequestInputPane extends GridPane {
 
   def getHeaders: List[String] = {
     listHeaders.getItems.asScala.toList
+  }
+
+  def setBody(body: Option[String]): Unit = {
+    body.foreach(textAreaBody.setText(_))
   }
 
   def getBody: Option[String] = {

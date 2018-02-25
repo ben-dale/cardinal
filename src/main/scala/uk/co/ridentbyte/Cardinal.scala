@@ -18,6 +18,8 @@ import uk.co.ridentbyte.view.util.GridConstraints
 import uk.co.ridentbyte.view.request.RequestPane
 import uk.co.ridentbyte.view.response.ResponsePane
 
+import scala.io.Source
+
 object Cardinal {
   def main(args: Array[String]): Unit = {
     Application.launch(classOf[Cardinal], args: _*)
@@ -34,7 +36,7 @@ class Cardinal extends Application {
   rootGridPane.getColumnConstraints.add(GridConstraints.widthColumnConstraint(45))
   rootGridPane.getRowConstraints.add(GridConstraints.maxHeightRowConstraint)
 
-  val filePane = new FilePane
+  val filePane = new FilePane(loadFile)
   val requestPane = new RequestPane(sendRequest, clearAll, save)
   val responsePane = new ResponsePane()
 
@@ -82,8 +84,30 @@ class Cardinal extends Application {
 
 
   def save(request: Request): Unit = {
-    saveFile(System.currentTimeMillis() + ".json", request.toJson)
-    filePane.loadFiles(loadFiles())
+    if (request.name.isDefined) {
+      saveFile(request.name.get + ".json", request.toJson)
+      filePane.loadFiles(loadFiles())
+    } else {
+      showErrorDialog("Please enter a filename")
+    }
+  }
+
+  def loadFile(filename: String): Unit = {
+    try {
+      val bufferedSource = Source.fromFile(fileDir + "/" + filename)
+      val rawRequest = bufferedSource.getLines.mkString
+      bufferedSource.close()
+      loadRequest(Request(rawRequest))
+    } catch {
+      case e: Exception =>
+//        e.printStackTrace()
+        filePane.loadFiles(loadFiles())
+        showErrorDialog("Error loading: " + filename)
+    }
+  }
+
+  private def loadRequest(request: Request): Unit = {
+    requestPane.load(request)
   }
 
   private def loadFiles(): List[File] = {

@@ -29,7 +29,7 @@ class RequestPane(sendRequestCallback: (Request) => Unit, clearAllCallback: () =
     val uri = requestInputPane.getUri
     val headers = requestInputPane.getHeaders
     val body = requestInputPane.getBody
-    val request = Request(uri, verb, headers, body)
+    val request = Request(None, uri, verb, headers, body)
     sendRequestCallback(request)
   }
 
@@ -38,7 +38,9 @@ class RequestPane(sendRequestCallback: (Request) => Unit, clearAllCallback: () =
     val uri = requestInputPane.getUri
     val headers = requestInputPane.getHeaders
     val body = requestInputPane.getBody
-    val request = Request(uri, verb, headers, body)
+    val filename = requestInputPane.getFilename
+    val optFilename = if (filename.length == 0) None else Some(filename)
+    val request = Request(optFilename, uri, verb, headers, body)
     saveCallback(request)
   }
 
@@ -53,6 +55,15 @@ class RequestPane(sendRequestCallback: (Request) => Unit, clearAllCallback: () =
 
   def clear(): Unit = {
     requestInputPane.clear()
+  }
+
+  def load(request: Request): Unit = {
+    clear()
+    requestInputPane.setFilename(request.name.getOrElse(""))
+    requestInputPane.addHeaders(request.headers)
+    requestInputPane.setUri(request.uri)
+    requestInputPane.setVerb(request.verb)
+    requestInputPane.setBody(request.body)
   }
 
 }
