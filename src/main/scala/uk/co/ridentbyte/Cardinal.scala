@@ -94,6 +94,7 @@ class Cardinal extends Application {
 
   def loadFile(filename: String): Unit = {
     try {
+      clearAll()
       val bufferedSource = Source.fromFile(fileDir + "/" + filename)
       val rawRequest = bufferedSource.getLines.mkString
       bufferedSource.close()
