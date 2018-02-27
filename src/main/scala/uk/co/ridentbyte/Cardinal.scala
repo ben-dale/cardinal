@@ -62,16 +62,6 @@ class Cardinal extends Application {
     alert.showAndWait
   }
 
-  /**
-    * Returns true if user wants to discard changes
-    */
-  def confirmUnsavedChanges(): Boolean = {
-    val alert = new Alert(AlertType.CONFIRMATION)
-    alert.setContentText("Discard unsaved changes?")
-    val result = alert.showAndWait()
-    result.get() == ButtonType.OK
-  }
-
   def sendRequest(request: Request): Unit = {
     try {
       val startTime = System.currentTimeMillis()
@@ -88,15 +78,8 @@ class Cardinal extends Application {
   }
 
   def clearAll(): Unit = {
-    val confirmed = if (requestPane.hasUnsavedChanges) {
-      confirmUnsavedChanges()
-    } else {
-      true
-    }
-    if (confirmed) {
-      requestPane.clear()
-      responsePane.clear()
-    }
+    requestPane.clear()
+    responsePane.clear()
   }
 
 
@@ -110,24 +93,15 @@ class Cardinal extends Application {
   }
 
   def loadFile(filename: String): Unit = {
-    val confirmed = if (requestPane.hasUnsavedChanges) {
-      confirmUnsavedChanges()
-    } else {
-      true
-    }
-
-    if (confirmed) {
-      try {
-        clearAll()
-        val bufferedSource = Source.fromFile(fileDir + "/" + filename)
-        val rawRequest = bufferedSource.getLines.mkString
-        bufferedSource.close()
-        loadRequest(Request(rawRequest))
-      } catch {
-        case _: Exception =>
-          filePane.loadFiles(loadFiles())
-          showErrorDialog("Error loading: " + filename)
-      }
+    try {
+      val bufferedSource = Source.fromFile(fileDir + "/" + filename)
+      val rawRequest = bufferedSource.getLines.mkString
+      bufferedSource.close()
+      loadRequest(Request(rawRequest))
+    } catch {
+      case _: Exception =>
+        filePane.loadFiles(loadFiles())
+        showErrorDialog("Error loading: " + filename)
     }
   }
 
@@ -155,6 +129,5 @@ class Cardinal extends Application {
     pw.write(data)
     pw.close()
   }
-
 
 }

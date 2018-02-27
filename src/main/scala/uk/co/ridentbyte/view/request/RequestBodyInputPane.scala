@@ -3,7 +3,7 @@ package uk.co.ridentbyte.view.request
 import javafx.scene.control.{Label, TextArea}
 import javafx.scene.layout._
 
-class RequestBodyInputPane(onEditCallback: () => Unit) extends GridPane {
+class RequestBodyInputPane extends GridPane {
 
   setHgap(5)
   setVgap(5)
@@ -15,7 +15,6 @@ class RequestBodyInputPane(onEditCallback: () => Unit) extends GridPane {
   add(labelBody, 0, 0)
 
   val textAreaBody = new TextArea()
-  textAreaBody.setOnKeyPressed((_) => onEditCallback())
   GridPane.setVgrow(textAreaBody, Priority.ALWAYS)
   GridPane.setHgrow(textAreaBody, Priority.ALWAYS)
   add(textAreaBody, 0, 1)
