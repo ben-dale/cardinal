@@ -60,8 +60,4 @@ class RequestPane(sendRequestCallback: (Request) => Unit, clearAllCallback: () =
     requestInputPane.hasUnsavedChanges
   }
 
-  def setUnsavedChanges(unsavedChanges: Boolean): Unit = {
-    requestInputPane.setUnsavedChanges(unsavedChanges)
-  }
-
 }
