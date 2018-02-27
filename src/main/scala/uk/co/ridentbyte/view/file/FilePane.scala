@@ -19,7 +19,7 @@ class FilePane(loadFileCallback: (String) => Unit) extends GridPane {
   listFiles.getSelectionModel.selectedItemProperty().addListener(new ChangeListener[String] {
     override def changed(observable: ObservableValue[_ <: String], oldValue: String, newValue: String): Unit = {
       if (newValue != null) {
-        loadFileCallback(listFiles.getSelectionModel.getSelectedItem)
+        loadFileCallback(listFiles.getSelectionModel.getSelectedItem + ".json")
       }
     }
   })
@@ -31,7 +31,7 @@ class FilePane(loadFileCallback: (String) => Unit) extends GridPane {
   def loadFiles(files: List[File]): Unit = {
     listFiles.getItems.clear()
     files.foreach { file =>
-      listFiles.getItems.add(file.getName)
+      listFiles.getItems.add(file.getName.replaceFirst(".json", ""))
     }
   }
 
