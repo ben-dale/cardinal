@@ -15,7 +15,7 @@ import uk.co.ridentbyte.model.{HttpResponseWrapper, Request}
 import uk.co.ridentbyte.util.HttpUtil
 import uk.co.ridentbyte.view.file.FilePane
 import uk.co.ridentbyte.view.util.GridConstraints
-import uk.co.ridentbyte.view.request.RequestPane
+import uk.co.ridentbyte.view.request.{RequestControlPane, RequestInputPane}
 import uk.co.ridentbyte.view.response.ResponsePane
 
 import scala.io.Source
@@ -31,29 +31,60 @@ class Cardinal extends Application {
   val fileDir = "cardinal_files"
 
   val rootGridPane = new GridPane()
-  rootGridPane.getColumnConstraints.add(GridConstraints.widthColumnConstraint(20))
-  rootGridPane.getColumnConstraints.add(GridConstraints.widthColumnConstraint(35))
-  rootGridPane.getColumnConstraints.add(GridConstraints.widthColumnConstraint(45))
-  rootGridPane.getRowConstraints.add(GridConstraints.maxHeightRowConstraint)
+  rootGridPane.getColumnConstraints.add(GridConstraints.widthColumnConstraint(25))
+  rootGridPane.getColumnConstraints.add(GridConstraints.widthColumnConstraint(75))
+  rootGridPane.getRowConstraints.addAll(GridConstraints.maxHeightRowConstraint)
 
   val filePane = new FilePane(loadFile)
-  val requestPane = new RequestPane(sendRequest, clearAll, save)
+  val requestInputPane = new RequestInputPane
   val responsePane = new ResponsePane()
+  val requestControlPane = new RequestControlPane(sendRequest, clearAll, save)
 
   override def start(primaryStage: Stage): Unit = {
     primaryStage.setTitle("Cardinal")
     primaryStage.setMinHeight(400)
     primaryStage.setMinWidth(800)
 
+    val grid2 = new GridPane
+    grid2.getColumnConstraints.add(GridConstraints.widthColumnConstraint(40))
+    grid2.getColumnConstraints.add(GridConstraints.widthColumnConstraint(60))
+    grid2.getRowConstraints.add(GridConstraints.maxHeightRowConstraint)
+    grid2.getRowConstraints.add(GridConstraints.noGrowRowConstraint)
+
+    grid2.add(requestInputPane, 0, 0)
+    grid2.add(responsePane, 1, 0)
+
+    GridPane.setColumnSpan(requestControlPane, 2)
+    grid2.add(requestControlPane, 0, 1)
+
     rootGridPane.add(filePane, 0, 0)
-    rootGridPane.add(requestPane, 1, 0)
-    rootGridPane.add(responsePane, 2, 0)
+    rootGridPane.add(grid2, 1, 0)
 
     val scene = new Scene(rootGridPane, 1000, 500)
     primaryStage.setScene(scene)
     primaryStage.show()
 
     filePane.loadFiles(loadFiles())
+  }
+
+  def sendRequest(): Unit = {
+    val verb = requestInputPane.getVerb
+    val uri = requestInputPane.getUri
+    val headers = requestInputPane.getHeaders
+    val body = requestInputPane.getBody
+    val request = Request(None, uri, verb, headers, body)
+    sendRequest(request)
+  }
+
+  def save(): Unit = {
+    val verb = requestInputPane.getVerb
+    val uri = requestInputPane.getUri
+    val headers = requestInputPane.getHeaders
+    val body = requestInputPane.getBody
+    val filename = requestInputPane.getFilename
+    val optFilename = if (filename.length == 0) None else Some(filename)
+    val request = Request(optFilename, uri, verb, headers, body)
+    save(request)
   }
 
   def showErrorDialog(errorMessage: String): Unit = {
@@ -78,7 +109,7 @@ class Cardinal extends Application {
   }
 
   def clearAll(): Unit = {
-    requestPane.clear()
+    requestInputPane.clear()
     responsePane.clear()
   }
 
@@ -107,7 +138,12 @@ class Cardinal extends Application {
   }
 
   private def loadRequest(request: Request): Unit = {
-    requestPane.load(request)
+    clearAll()
+    requestInputPane.setFilename(request.name.getOrElse(""))
+    requestInputPane.addHeaders(request.headers)
+    requestInputPane.setUri(request.uri)
+    requestInputPane.setVerb(request.verb)
+    requestInputPane.setBody(request.body)
   }
 
   private def loadFiles(): List[File] = {

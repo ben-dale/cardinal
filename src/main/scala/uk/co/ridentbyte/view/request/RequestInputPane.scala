@@ -9,10 +9,17 @@ import scala.collection.JavaConverters._
 
 class RequestInputPane extends GridPane {
 
+  setStyle(
+    """
+      |-fx-border-width: 0 1 0 0;
+      |-fx-border-color: #DDDDDD;
+      |-fx-border-style: hidden solid hidden hidden;
+    """.stripMargin
+  )
+
   setHgap(10)
   setVgap(10)
   setPadding(new Insets(10, 10, 10, 10))
-
 
   val maxHeightRowContstraint = new RowConstraints()
   maxHeightRowContstraint.setMaxHeight(220)
@@ -23,7 +30,6 @@ class RequestInputPane extends GridPane {
     maxHeightRowContstraint,
     new RowConstraints()
   )
-
 
   val textFilename = new TextField()
   GridPane.setVgrow(textFilename, Priority.NEVER)

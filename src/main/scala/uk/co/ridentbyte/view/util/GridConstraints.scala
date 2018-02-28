@@ -10,6 +10,12 @@ object GridConstraints {
     row
   }
 
+  def noGrowRowConstraint: RowConstraints = {
+    val row = new RowConstraints()
+    row.setVgrow(Priority.NEVER)
+    row
+  }
+
   def widthColumnConstraint(percentage: Int): ColumnConstraints = {
     val column = new ColumnConstraints()
     column.setPercentWidth(percentage)
