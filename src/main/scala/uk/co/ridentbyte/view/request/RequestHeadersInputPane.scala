@@ -37,10 +37,7 @@ class RequestHeadersInputPane extends GridPane {
 
   val buttonRemoveHeader = new Button("-")
   buttonRemoveHeader.setOnAction(removeHeaderAction)
-  buttonRemoveHeader.setStyle(
-    """
-      |-fx-padding: 2 6 2 6;
-    """.stripMargin)
+  buttonRemoveHeader.setStyle("-fx-padding: 2 6 2 6;")
   GridPane.setColumnSpan(buttonRemoveHeader, 1)
   GridPane.setHalignment(buttonRemoveHeader, HPos.RIGHT)
   GridPane.setVgrow(buttonRemoveHeader, Priority.NEVER)
@@ -49,10 +46,7 @@ class RequestHeadersInputPane extends GridPane {
 
   val buttonAddHeader = new Button("+")
   buttonAddHeader.setOnAction(addNewHeaderAction)
-  buttonAddHeader.setStyle(
-    """
-      |-fx-padding: 2 6 2 6;
-    """.stripMargin)
+  buttonAddHeader.setStyle("-fx-padding: 2 6 2 6;")
   GridPane.setColumnSpan(buttonAddHeader, 1)
   GridPane.setVgrow(buttonAddHeader, Priority.NEVER)
   GridPane.setHgrow(buttonAddHeader, Priority.NEVER)

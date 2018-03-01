@@ -11,9 +11,9 @@ class RequestInputPane extends GridPane {
 
   setStyle(
     """
-      |-fx-border-width: 0 1 0 0;
+      |-fx-border-width: 0 1 0 1;
       |-fx-border-color: #DDDDDD;
-      |-fx-border-style: hidden solid hidden hidden;
+      |-fx-border-style: hidden solid hidden solid;
     """.stripMargin
   )
 

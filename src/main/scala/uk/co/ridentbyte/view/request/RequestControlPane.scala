@@ -3,17 +3,22 @@ package uk.co.ridentbyte.view.request
 import javafx.geometry.{HPos, Insets}
 import javafx.scene.control.Button
 import javafx.scene.layout._
-import javafx.scene.paint.Color
 
 class RequestControlPane(sendRequestCallback: () => Unit,
                          clearAllCallback: () => Unit,
                          saveCallback: () => Unit) extends GridPane {
 
+  setStyle(
+    """
+      |-fx-border-width: 1 0 0 1;
+      |-fx-border-color: #DDDDDD;
+      |-fx-border-style: solid hidden hidden solid;
+    """.stripMargin
+  )
+
   setHgap(10)
   setVgap(10)
   setPadding(new Insets(10, 10, 10, 10))
-
-  setBackground(new Background(new BackgroundFill(Color.web("#DDDDDD"), CornerRadii.EMPTY, Insets.EMPTY)))
 
   val buttonNew = new Button("New")
   GridPane.setVgrow(buttonNew, Priority.NEVER)

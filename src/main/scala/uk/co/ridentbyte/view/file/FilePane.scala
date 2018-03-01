@@ -2,18 +2,15 @@ package uk.co.ridentbyte.view.file
 
 import java.io.File
 import javafx.beans.value.{ChangeListener, ObservableValue}
-import javafx.geometry.Insets
-import javafx.scene.control.ListView
+import javafx.geometry.{HPos, Insets}
+import javafx.scene.control.{Button, ListView}
 import javafx.scene.layout._
-import javafx.scene.paint.Color
 
 class FilePane(loadFileCallback: (String) => Unit) extends GridPane {
 
-  setHgap(10)
-  setVgap(10)
+  setHgap(5)
+  setVgap(5)
   setPadding(new Insets(10, 10, 10, 10))
-
-  setBackground(new Background(new BackgroundFill(Color.web("#DDDDDD"), CornerRadii.EMPTY, Insets.EMPTY)))
 
   val listFiles = new ListView[String]
   listFiles.getSelectionModel.selectedItemProperty().addListener(new ChangeListener[String] {
@@ -25,8 +22,21 @@ class FilePane(loadFileCallback: (String) => Unit) extends GridPane {
   })
   GridPane.setHgrow(listFiles, Priority.ALWAYS)
   GridPane.setVgrow(listFiles, Priority.ALWAYS)
+  GridPane.setColumnSpan(listFiles, 2)
   add(listFiles, 0, 0)
 
+  val buttonRemove = new Button("-")
+  buttonRemove.setStyle("-fx-padding: 2 6 2 6;")
+  GridPane.setHgrow(buttonRemove, Priority.ALWAYS)
+  GridPane.setVgrow(buttonRemove, Priority.NEVER)
+  GridPane.setHalignment(buttonRemove, HPos.RIGHT)
+  add(buttonRemove, 0, 1)
+
+  val buttonAdd = new Button("+")
+  buttonAdd.setStyle("-fx-padding: 2 6 2 6;")
+  GridPane.setHgrow(buttonAdd, Priority.NEVER)
+  GridPane.setVgrow(buttonAdd, Priority.NEVER)
+  add(buttonAdd, 1, 1)
 
   def loadFiles(files: List[File]): Unit = {
     listFiles.getItems.clear()
