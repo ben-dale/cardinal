@@ -6,7 +6,9 @@ import javafx.geometry.{HPos, Insets}
 import javafx.scene.control.{Button, ListView}
 import javafx.scene.layout._
 
-class FilePane(loadFileCallback: (String) => Unit, deleteFileCallback: (String) => Unit) extends GridPane {
+class FilePane(loadFileCallback: (String) => Unit,
+               deleteFileCallback: (String) => Unit,
+               duplicateFileCallback: (String) => Unit) extends GridPane {
 
   setHgap(5)
   setVgap(5)
@@ -25,26 +27,30 @@ class FilePane(loadFileCallback: (String) => Unit, deleteFileCallback: (String) 
   GridPane.setColumnSpan(listFiles, 2)
   add(listFiles, 0, 0)
 
-  private val buttonRemove = new Button("-")
-  buttonRemove.setStyle("-fx-padding: 2 6 2 6;")
-  buttonRemove.setOnAction((_) => {
+  private val buttonDelete = new Button("Delete")
+  buttonDelete.setStyle("-fx-padding: 2 6 2 6;")
+  buttonDelete.setOnAction((_) => {
     val selectedIndex = listFiles.getSelectionModel.getSelectedIndex
-    println(selectedIndex)
-    println(listFiles.getFocusModel.getFocusedIndex)
     if (selectedIndex >= 0) {
       deleteFileCallback(listFiles.getSelectionModel.getSelectedItem + ".json")
     }
   })
-  GridPane.setHgrow(buttonRemove, Priority.ALWAYS)
-  GridPane.setVgrow(buttonRemove, Priority.NEVER)
-  GridPane.setHalignment(buttonRemove, HPos.RIGHT)
-  add(buttonRemove, 0, 1)
+  GridPane.setHgrow(buttonDelete, Priority.ALWAYS)
+  GridPane.setVgrow(buttonDelete, Priority.NEVER)
+  GridPane.setHalignment(buttonDelete, HPos.RIGHT)
+  add(buttonDelete, 0, 1)
 
-  private val buttonAdd = new Button("+")
-  buttonAdd.setStyle("-fx-padding: 2 6 2 6;")
-  GridPane.setHgrow(buttonAdd, Priority.NEVER)
-  GridPane.setVgrow(buttonAdd, Priority.NEVER)
-  add(buttonAdd, 1, 1)
+  private val buttonDuplicate = new Button("Duplicate")
+  buttonDuplicate.setStyle("-fx-padding: 2 6 2 6;")
+  buttonDuplicate.setOnAction((_) => {
+    val selectedIndex = listFiles.getSelectionModel.getSelectedIndex
+    if (selectedIndex >= 0) {
+      duplicateFileCallback(listFiles.getSelectionModel.getSelectedItem + ".json")
+    }
+  })
+  GridPane.setHgrow(buttonDuplicate, Priority.NEVER)
+  GridPane.setVgrow(buttonDuplicate, Priority.NEVER)
+  add(buttonDuplicate, 1, 1)
 
   def loadFiles(files: List[File]): Unit = {
     listFiles.getItems.clear()

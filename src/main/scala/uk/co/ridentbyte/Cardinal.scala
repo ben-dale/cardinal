@@ -3,6 +3,7 @@ package uk.co.ridentbyte
 import java.io.{File, PrintWriter}
 import java.net.{ConnectException, URISyntaxException, UnknownHostException}
 import java.nio.file.{Files, Paths}
+import java.util.UUID
 import javafx.application.Application
 import javafx.scene.Scene
 import javafx.scene.control.Alert.AlertType
@@ -35,7 +36,7 @@ class Cardinal extends Application {
   rootGridPane.getColumnConstraints.add(ColumnConstraintsBuilder().withHgrow(Priority.ALWAYS).withPercentageWidth(75).build)
   rootGridPane.getRowConstraints.add(RowConstraintsBuilder().withVgrow(Priority.ALWAYS).build)
 
-  private val filePane = new FilePane(loadFile, deleteFile)
+  private val filePane = new FilePane(loadFile, deleteFile, duplicate)
   private val requestInputPane = new RequestInputPane
   private val responsePane = new ResponsePane()
   private val requestControlPane = new RequestControlPane(sendRequest, clearAll, save)
@@ -162,6 +163,32 @@ class Cardinal extends Application {
     } else {
       Files.createDirectories(Paths.get(fileDir))
       List.empty[File]
+    }
+  }
+
+  private def loadFileAsRequest(filename: String): Option[Request] = {
+    try {
+      clearAll()
+      val bufferedSource = Source.fromFile(fileDir + "/" + filename)
+      val rawRequest = bufferedSource.getLines.mkString
+      bufferedSource.close()
+      Some(Request(rawRequest))
+    } catch {
+      case _: Exception =>
+        filePane.loadFiles(loadFiles())
+        showErrorDialog("Error duplicating: " + filename)
+        None
+    }
+  }
+
+  private def duplicate(filename: String): Unit = {
+    val request = loadFileAsRequest(filename)
+    if (request.isDefined) {
+      val newName = showInputDialog
+      if (newName.isDefined) {
+        save(request.get.withName(newName.get))
+        filePane.loadFiles(loadFiles())
+      }
     }
   }
 

@@ -1,6 +1,7 @@
 package uk.co.ridentbyte.util
 
 import java.net._
+import java.util.UUID
 
 import uk.co.ridentbyte.model.Request
 
@@ -35,8 +36,11 @@ object HttpUtil {
 
     request.verb match {
       case "POST" if request.body.isDefined => {
-        println("here with " + request.body.get)
-        Http(parsedUri).option(HttpOptions.followRedirects(true)).method(request.verb).headers(splitHeaders).postData(request.body.get).asString
+        var body = request.body.get
+        0.until("#\\{randomString\\}".r.findAllMatchIn(body).length).foreach { i =>
+          body = body.replaceFirst("#\\{randomString\\}", UUID.randomUUID.toString.split("-")(0))
+        }
+        Http(parsedUri).option(HttpOptions.followRedirects(true)).method(request.verb).headers(splitHeaders).postData(body).asString
       }
       case _ => {
         Http(parsedUri).option(HttpOptions.followRedirects(true)).method(request.verb).headers(splitHeaders).asString
