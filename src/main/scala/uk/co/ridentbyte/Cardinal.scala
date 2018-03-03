@@ -28,17 +28,17 @@ object Cardinal {
 
 class Cardinal extends Application {
 
-  val fileDir = "cardinal_files"
+  private val fileDir = "cardinal_files"
 
-  val rootGridPane = new GridPane()
+  private val rootGridPane = new GridPane()
   rootGridPane.getColumnConstraints.add(ColumnConstraintsBuilder().withHgrow(Priority.ALWAYS).withPercentageWidth(25).build)
   rootGridPane.getColumnConstraints.add(ColumnConstraintsBuilder().withHgrow(Priority.ALWAYS).withPercentageWidth(75).build)
   rootGridPane.getRowConstraints.add(RowConstraintsBuilder().withVgrow(Priority.ALWAYS).build)
 
-  val filePane = new FilePane(loadFile)
-  val requestInputPane = new RequestInputPane
-  val responsePane = new ResponsePane()
-  val requestControlPane = new RequestControlPane(sendRequest, clearAll, save)
+  private val filePane = new FilePane(loadFile)
+  private val requestInputPane = new RequestInputPane
+  private val responsePane = new ResponsePane()
+  private val requestControlPane = new RequestControlPane(sendRequest, clearAll, save)
 
   override def start(primaryStage: Stage): Unit = {
     primaryStage.setTitle("Cardinal")
@@ -67,21 +67,21 @@ class Cardinal extends Application {
     filePane.loadFiles(loadFiles())
   }
 
-  def sendRequest(): Unit = {
+  private def sendRequest(): Unit = {
     sendRequest(requestInputPane.getRequest)
   }
 
-  def save(): Unit = {
+  private def save(): Unit = {
     save(requestInputPane.getRequest)
   }
 
-  def showErrorDialog(errorMessage: String): Unit = {
+  private def showErrorDialog(errorMessage: String): Unit = {
     val alert = new Alert(AlertType.ERROR)
     alert.setContentText(errorMessage)
     alert.showAndWait
   }
 
-  def showInputDialog: Option[String] = {
+  private def showInputDialog: Option[String] = {
     val alert = new TextInputDialog()
     alert.setContentText("Please enter filename")
     val result = alert.showAndWait()
@@ -92,7 +92,7 @@ class Cardinal extends Application {
     }
   }
 
-  def sendRequest(request: Request): Unit = {
+  private def sendRequest(request: Request): Unit = {
     try {
       val startTime = System.currentTimeMillis()
       val response = HttpUtil.sendRequest(request)
@@ -107,13 +107,12 @@ class Cardinal extends Application {
     }
   }
 
-  def clearAll(): Unit = {
+  private def clearAll(): Unit = {
     requestInputPane.clear()
     responsePane.clear()
   }
 
-
-  def save(request: Request): Unit = {
+  private def save(request: Request): Unit = {
     if (request.name.isDefined) {
       saveFile(request.name.get + ".json", request.toJson)
       filePane.loadFiles(loadFiles())
@@ -123,35 +122,6 @@ class Cardinal extends Application {
         saveFile(result.get + ".json", request.withName(result.get).toJson)
         filePane.loadFiles(loadFiles())
       }
-    }
-  }
-
-  def loadFile(filename: String): Unit = {
-    try {
-      clearAll()
-      val bufferedSource = Source.fromFile(fileDir + "/" + filename)
-      val rawRequest = bufferedSource.getLines.mkString
-      bufferedSource.close()
-      loadRequest(Request(rawRequest))
-    } catch {
-      case _: Exception =>
-        filePane.loadFiles(loadFiles())
-        showErrorDialog("Error loading: " + filename)
-    }
-  }
-
-  private def loadRequest(request: Request): Unit = {
-    clearAll()
-    requestInputPane.loadRequest(request)
-  }
-
-  private def loadFiles(): List[File] = {
-    val d = new File(fileDir)
-    if (d.exists && d.isDirectory) {
-      d.listFiles.filter(_.isFile).toList
-    } else {
-      Files.createDirectories(Paths.get(fileDir))
-      List.empty[File]
     }
   }
 
@@ -165,5 +135,36 @@ class Cardinal extends Application {
     pw.write(data)
     pw.close()
   }
+
+  private def loadRequest(request: Request): Unit = {
+    clearAll()
+    requestInputPane.loadRequest(request)
+  }
+
+  private def loadFile(filename: String): Unit = {
+    try {
+      clearAll()
+      val bufferedSource = Source.fromFile(fileDir + "/" + filename)
+      val rawRequest = bufferedSource.getLines.mkString
+      bufferedSource.close()
+      loadRequest(Request(rawRequest))
+    } catch {
+      case _: Exception =>
+        filePane.loadFiles(loadFiles())
+        showErrorDialog("Error loading: " + filename)
+    }
+  }
+
+  private def loadFiles(): List[File] = {
+    val d = new File(fileDir)
+    if (d.exists && d.isDirectory) {
+      d.listFiles.filter(_.isFile).toList
+    } else {
+      Files.createDirectories(Paths.get(fileDir))
+      List.empty[File]
+    }
+  }
+
+
 
 }

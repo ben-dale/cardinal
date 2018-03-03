@@ -8,13 +8,13 @@ class RequestBodyInputPane extends GridPane {
   setHgap(5)
   setVgap(5)
 
-  val labelBody = new Label("Body")
+  private val labelBody = new Label("Body")
   labelBody.setStyle(labelStyle)
   GridPane.setVgrow(labelBody, Priority.NEVER)
   GridPane.setHgrow(labelBody, Priority.ALWAYS)
   add(labelBody, 0, 0)
 
-  val textAreaBody = new TextArea()
+  private val textAreaBody = new TextArea()
   GridPane.setVgrow(textAreaBody, Priority.ALWAYS)
   GridPane.setHgrow(textAreaBody, Priority.ALWAYS)
   add(textAreaBody, 0, 1)

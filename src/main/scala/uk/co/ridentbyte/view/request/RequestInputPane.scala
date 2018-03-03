@@ -25,7 +25,7 @@ class RequestInputPane extends GridPane {
   setVgap(10)
   setPadding(new Insets(10, 10, 10, 10))
 
-  val maxHeightRowContstraint = new RowConstraints()
+  private val maxHeightRowContstraint = new RowConstraints()
   maxHeightRowContstraint.setMaxHeight(220)
 
   getRowConstraints.addAll(
@@ -34,31 +34,31 @@ class RequestInputPane extends GridPane {
     new RowConstraints()
   )
 
-  val textUri = new TextField()
+  private val textUri = new TextField()
   GridPane.setVgrow(textUri, Priority.NEVER)
   GridPane.setHgrow(textUri, Priority.ALWAYS)
   textUri.setPromptText("http://localhost:8080")
   add(textUri, 0, 0)
 
-  val selectVerb = new ChoiceBox[String](FXCollections.observableArrayList("GET", "POST", "PUT", "DELETE", "HEAD", "CONNECT", "OPTIONS", "TRACE", "PATCH"))
+  private val selectVerb = new ChoiceBox[String](FXCollections.observableArrayList("GET", "POST", "PUT", "DELETE", "HEAD", "CONNECT", "OPTIONS", "TRACE", "PATCH"))
   GridPane.setVgrow(selectVerb, Priority.NEVER)
   GridPane.setHgrow(selectVerb, Priority.NEVER)
   selectVerb.getSelectionModel.selectFirst()
   add(selectVerb, 1, 0)
 
-  val headersInputPane = new RequestHeadersInputPane
+  private val headersInputPane = new RequestHeadersInputPane
   GridPane.setVgrow(headersInputPane, Priority.ALWAYS)
   GridPane.setHgrow(headersInputPane, Priority.ALWAYS)
   GridPane.setColumnSpan(headersInputPane, 2)
   add(headersInputPane, 0, 1)
 
-  val bodyInputPane = new RequestBodyInputPane
+  private val bodyInputPane = new RequestBodyInputPane
   GridPane.setVgrow(bodyInputPane, Priority.ALWAYS)
   GridPane.setHgrow(bodyInputPane, Priority.ALWAYS)
   GridPane.setColumnSpan(bodyInputPane, 2)
   add(bodyInputPane, 0, 2)
 
-  def setVerb(verb: String): Unit = {
+  private def setVerb(verb: String): Unit = {
     val matchingIndex = selectVerb.getItems.asScala.zipWithIndex.find {
       case (item: String, _) => item == verb
     }.map { verbWithIndex =>

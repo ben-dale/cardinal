@@ -20,25 +20,23 @@ class RequestControlPane(sendRequestCallback: () => Unit,
   setVgap(10)
   setPadding(new Insets(10, 10, 10, 10))
 
-  val buttonNew = new Button("New")
+  private val buttonNew = new Button("New")
   GridPane.setVgrow(buttonNew, Priority.NEVER)
   GridPane.setHgrow(buttonNew, Priority.NEVER)
   buttonNew.setOnAction((_) => clearAllCallback())
   add(buttonNew, 0, 0)
 
-  val buttonSave = new Button("Save")
+  private val buttonSave = new Button("Save")
   GridPane.setVgrow(buttonSave, Priority.NEVER)
   GridPane.setHgrow(buttonSave, Priority.NEVER)
   buttonSave.setOnAction((_) => saveCallback())
   add(buttonSave, 1, 0)
 
-  val buttonSendRequest = new Button("Send Request")
+  private val buttonSendRequest = new Button("Send Request")
   GridPane.setVgrow(buttonSendRequest, Priority.NEVER)
   GridPane.setHgrow(buttonSendRequest, Priority.ALWAYS)
   GridPane.setHalignment(buttonSendRequest, HPos.RIGHT)
   buttonSendRequest.setOnAction((_) => sendRequestCallback())
   add(buttonSendRequest, 2, 0)
-
-
 
 }

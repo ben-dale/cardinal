@@ -13,14 +13,14 @@ class RequestHeadersInputPane extends GridPane {
   setHgap(5)
   setVgap(5)
 
-  val labelHeaders = new Label("Headers")
+  private val labelHeaders = new Label("Headers")
   labelHeaders.setStyle(labelStyle)
   GridPane.setColumnSpan(labelHeaders, 2)
   GridPane.setVgrow(labelHeaders, Priority.NEVER)
   GridPane.setHgrow(labelHeaders, Priority.ALWAYS)
   add(labelHeaders, 0, 0)
 
-  val listHeaders = new ListView[String]()
+  private val listHeaders = new ListView[String]()
   listHeaders.setEditable(true)
   listHeaders.setStyle(
     """
@@ -35,7 +35,7 @@ class RequestHeadersInputPane extends GridPane {
   GridPane.setHgrow(listHeaders, Priority.ALWAYS)
   add(listHeaders, 0, 1)
 
-  val buttonRemoveHeader = new Button("-")
+  private val buttonRemoveHeader = new Button("-")
   buttonRemoveHeader.setOnAction(removeHeaderAction)
   buttonRemoveHeader.setStyle("-fx-padding: 2 6 2 6;")
   GridPane.setColumnSpan(buttonRemoveHeader, 1)
@@ -44,19 +44,13 @@ class RequestHeadersInputPane extends GridPane {
   GridPane.setHgrow(buttonRemoveHeader, Priority.ALWAYS)
   add(buttonRemoveHeader, 0, 2)
 
-  val buttonAddHeader = new Button("+")
+  private val buttonAddHeader = new Button("+")
   buttonAddHeader.setOnAction(addNewHeaderAction)
   buttonAddHeader.setStyle("-fx-padding: 2 6 2 6;")
   GridPane.setColumnSpan(buttonAddHeader, 1)
   GridPane.setVgrow(buttonAddHeader, Priority.NEVER)
   GridPane.setHgrow(buttonAddHeader, Priority.NEVER)
   add(buttonAddHeader, 1, 2)
-
-  private def labelStyle: String = {
-    """
-      |-fx-font-size: 12;
-    """.stripMargin
-  }
 
   def getHeaders: List[String] = {
     listHeaders.getItems.asScala.toList
@@ -82,6 +76,12 @@ class RequestHeadersInputPane extends GridPane {
     val index = listHeaders.getItems.size - 1
     listHeaders.requestFocus()
     listHeaders.getSelectionModel.select(index)
+  }
+
+  private def labelStyle: String = {
+    """
+      |-fx-font-size: 12;
+    """.stripMargin
   }
 
 }

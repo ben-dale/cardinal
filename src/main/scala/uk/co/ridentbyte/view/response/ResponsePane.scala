@@ -7,10 +7,10 @@ import uk.co.ridentbyte.model.HttpResponseWrapper
 
 class ResponsePane extends GridPane {
 
-  val summaryPane = new ResponseSummaryPane
+  private val summaryPane = new ResponseSummaryPane
   add(summaryPane, 0, 0)
 
-  val textAreaBody = new TextArea()
+  private val textAreaBody = new TextArea()
   textAreaBody.setEditable(false)
   textAreaBody.setStyle(
     """
@@ -20,7 +20,7 @@ class ResponsePane extends GridPane {
     """.stripMargin
   )
 
-  val listHeaders = new ListView[String]()
+  private val listHeaders = new ListView[String]()
   listHeaders.setStyle(
     """
       |-fx-font-family: Monospaced;
@@ -29,14 +29,14 @@ class ResponsePane extends GridPane {
     """.stripMargin
   )
 
-  val tabPaneBodyHeaders = new TabPane()
+  private val tabPaneBodyHeaders = new TabPane()
 
-  val tabBody = new Tab("Body")
+  private val tabBody = new Tab("Body")
   tabBody.setClosable(false)
   tabBody.setContent(textAreaBody)
   tabPaneBodyHeaders.getTabs.add(tabBody)
 
-  val tabHeaders = new Tab("Headers")
+  private val tabHeaders = new Tab("Headers")
   tabHeaders.setClosable(false)
   tabHeaders.setContent(listHeaders)
   tabPaneBodyHeaders.getTabs.add(tabHeaders)

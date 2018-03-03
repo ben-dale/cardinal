@@ -12,7 +12,7 @@ class FilePane(loadFileCallback: (String) => Unit) extends GridPane {
   setVgap(5)
   setPadding(new Insets(10, 10, 10, 10))
 
-  val listFiles = new ListView[String]
+  private val listFiles = new ListView[String]
   listFiles.getSelectionModel.selectedItemProperty().addListener(new ChangeListener[String] {
     override def changed(observable: ObservableValue[_ <: String], oldValue: String, newValue: String): Unit = {
       if (newValue != null) {
@@ -25,14 +25,14 @@ class FilePane(loadFileCallback: (String) => Unit) extends GridPane {
   GridPane.setColumnSpan(listFiles, 2)
   add(listFiles, 0, 0)
 
-  val buttonRemove = new Button("-")
+  private val buttonRemove = new Button("-")
   buttonRemove.setStyle("-fx-padding: 2 6 2 6;")
   GridPane.setHgrow(buttonRemove, Priority.ALWAYS)
   GridPane.setVgrow(buttonRemove, Priority.NEVER)
   GridPane.setHalignment(buttonRemove, HPos.RIGHT)
   add(buttonRemove, 0, 1)
 
-  val buttonAdd = new Button("+")
+  private val buttonAdd = new Button("+")
   buttonAdd.setStyle("-fx-padding: 2 6 2 6;")
   GridPane.setHgrow(buttonAdd, Priority.NEVER)
   GridPane.setVgrow(buttonAdd, Priority.NEVER)
