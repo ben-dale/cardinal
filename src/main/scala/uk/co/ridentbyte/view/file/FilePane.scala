@@ -54,7 +54,7 @@ class FilePane(loadFileCallback: (String) => Unit,
 
   def loadFiles(files: List[File]): Unit = {
     listFiles.getItems.clear()
-    files.foreach { file =>
+    files.sorted.foreach { file =>
       listFiles.getItems.add(file.getName.replaceFirst(".json", ""))
     }
   }
