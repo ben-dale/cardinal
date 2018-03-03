@@ -68,29 +68,28 @@ class Cardinal extends Application {
   }
 
   def sendRequest(): Unit = {
-    val verb = requestInputPane.getVerb
-    val uri = requestInputPane.getUri
-    val headers = requestInputPane.getHeaders
-    val body = requestInputPane.getBody
-    val request = Request(None, uri, verb, headers, body)
-    sendRequest(request)
+    sendRequest(requestInputPane.getRequest)
   }
 
   def save(): Unit = {
-    val verb = requestInputPane.getVerb
-    val uri = requestInputPane.getUri
-    val headers = requestInputPane.getHeaders
-    val body = requestInputPane.getBody
-    val filename = requestInputPane.getFilename
-    val optFilename = if (filename.length == 0) None else Some(filename)
-    val request = Request(optFilename, uri, verb, headers, body)
-    save(request)
+    save(requestInputPane.getRequest)
   }
 
   def showErrorDialog(errorMessage: String): Unit = {
     val alert = new Alert(AlertType.ERROR)
     alert.setContentText(errorMessage)
     alert.showAndWait
+  }
+
+  def showInputDialog: Option[String] = {
+    val alert = new TextInputDialog()
+    alert.setContentText("Please enter filename")
+    val result = alert.showAndWait()
+    if (result.isPresent) {
+      Some(result.get)
+    } else {
+      None
+    }
   }
 
   def sendRequest(request: Request): Unit = {
@@ -119,7 +118,11 @@ class Cardinal extends Application {
       saveFile(request.name.get + ".json", request.toJson)
       filePane.loadFiles(loadFiles())
     } else {
-      showErrorDialog("Please enter a filename")
+      val result = showInputDialog
+      if (result.isDefined) {
+        saveFile(result.get + ".json", request.withName(result.get).toJson)
+        filePane.loadFiles(loadFiles())
+      }
     }
   }
 
@@ -139,11 +142,7 @@ class Cardinal extends Application {
 
   private def loadRequest(request: Request): Unit = {
     clearAll()
-    requestInputPane.setFilename(request.name.getOrElse(""))
-    requestInputPane.addHeaders(request.headers)
-    requestInputPane.setUri(request.uri)
-    requestInputPane.setVerb(request.verb)
-    requestInputPane.setBody(request.body)
+    requestInputPane.loadRequest(request)
   }
 
   private def loadFiles(): List[File] = {
