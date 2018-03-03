@@ -3,23 +3,33 @@ package uk.co.ridentbyte.view.file
 import java.io.File
 import javafx.beans.value.{ChangeListener, ObservableValue}
 import javafx.geometry.{HPos, Insets}
+import javafx.scene.control.cell.TextFieldListCell
 import javafx.scene.control.{Button, ListView}
 import javafx.scene.layout._
 
 class FilePane(loadFileCallback: (String) => Unit,
                deleteFileCallback: (String) => Unit,
-               duplicateFileCallback: (String) => Unit) extends GridPane {
+               duplicateFileCallback: (String) => Unit,
+               renameFileCallback: (String, String) => Unit) extends GridPane {
 
   setHgap(5)
   setVgap(5)
   setPadding(new Insets(10, 10, 10, 10))
 
   private val listFiles = new ListView[String]
+  listFiles.setEditable(true)
+  listFiles.setCellFactory(TextFieldListCell.forListView())
   listFiles.getSelectionModel.selectedItemProperty().addListener(new ChangeListener[String] {
     override def changed(observable: ObservableValue[_ <: String], oldValue: String, newValue: String): Unit = {
       if (newValue != null) {
         loadFileCallback(listFiles.getSelectionModel.getSelectedItem + ".json")
       }
+    }
+  })
+  listFiles.setOnEditCommit((result) => {
+    val selectedName = listFiles.getSelectionModel.getSelectedItem
+    if (result.getNewValue != null && result.getNewValue.trim.length > 0) {
+      renameFileCallback(selectedName + ".json", result.getNewValue)
     }
   })
   GridPane.setHgrow(listFiles, Priority.ALWAYS)
