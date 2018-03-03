@@ -7,14 +7,14 @@ import javafx.application.Application
 import javafx.scene.Scene
 import javafx.scene.control.Alert.AlertType
 import javafx.scene.control._
-import javafx.scene.layout._
+import javafx.scene.layout.{GridPane, Priority}
 import javafx.stage.Stage
 import javax.net.ssl.SSLHandshakeException
 
 import uk.co.ridentbyte.model.{HttpResponseWrapper, Request}
 import uk.co.ridentbyte.util.HttpUtil
 import uk.co.ridentbyte.view.file.FilePane
-import uk.co.ridentbyte.view.util.GridConstraints
+import uk.co.ridentbyte.view.util.{ColumnConstraintsBuilder, RowConstraintsBuilder}
 import uk.co.ridentbyte.view.request.{RequestControlPane, RequestInputPane}
 import uk.co.ridentbyte.view.response.ResponsePane
 
@@ -31,9 +31,9 @@ class Cardinal extends Application {
   val fileDir = "cardinal_files"
 
   val rootGridPane = new GridPane()
-  rootGridPane.getColumnConstraints.add(GridConstraints.widthColumnConstraint(25))
-  rootGridPane.getColumnConstraints.add(GridConstraints.widthColumnConstraint(75))
-  rootGridPane.getRowConstraints.addAll(GridConstraints.maxHeightRowConstraint)
+  rootGridPane.getColumnConstraints.add(ColumnConstraintsBuilder().withHgrow(Priority.ALWAYS).withPercentageWidth(25).build)
+  rootGridPane.getColumnConstraints.add(ColumnConstraintsBuilder().withHgrow(Priority.ALWAYS).withPercentageWidth(75).build)
+  rootGridPane.getRowConstraints.add(RowConstraintsBuilder().withVgrow(Priority.ALWAYS).build)
 
   val filePane = new FilePane(loadFile)
   val requestInputPane = new RequestInputPane
@@ -46,10 +46,10 @@ class Cardinal extends Application {
     primaryStage.setMinWidth(800)
 
     val grid2 = new GridPane
-    grid2.getColumnConstraints.add(GridConstraints.widthColumnConstraint(40))
-    grid2.getColumnConstraints.add(GridConstraints.widthColumnConstraint(60))
-    grid2.getRowConstraints.add(GridConstraints.maxHeightRowConstraint)
-    grid2.getRowConstraints.add(GridConstraints.noGrowRowConstraint)
+    grid2.getColumnConstraints.add(ColumnConstraintsBuilder().withHgrow(Priority.ALWAYS).withPercentageWidth(40).build)
+    grid2.getColumnConstraints.add(ColumnConstraintsBuilder().withHgrow(Priority.ALWAYS).withPercentageWidth(60).build)
+    grid2.getRowConstraints.add(RowConstraintsBuilder().withVgrow(Priority.ALWAYS).build)
+    grid2.getRowConstraints.add(RowConstraintsBuilder().withVgrow(Priority.NEVER).build)
 
     grid2.add(requestInputPane, 0, 0)
     grid2.add(responsePane, 1, 0)
