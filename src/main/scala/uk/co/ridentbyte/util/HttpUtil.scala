@@ -55,11 +55,11 @@ object HttpUtil {
       bodyCopy = bodyCopy.replaceFirst("#\\{randomChars\\}", UUID.randomUUID.toString.split("-")(0))
     }
 
-    0.until("#\\{randomFloat\\}".r.findAllMatchIn(body).length).foreach { _ =>
+    0.until("#\\{randomInt\\}".r.findAllMatchIn(body).length).foreach { _ =>
       bodyCopy = bodyCopy.replaceFirst("#\\{randomInt\\}", Random.nextInt.toString)
     }
 
-    0.until("#\\{randomDouble\\}".r.findAllMatchIn(body).length).foreach { _ =>
+    0.until("#\\{randomFloat\\}".r.findAllMatchIn(body).length).foreach { _ =>
       bodyCopy = bodyCopy.replaceFirst("#\\{randomFloat\\}", Random.nextFloat().toString)
     }
 
