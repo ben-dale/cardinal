@@ -6,7 +6,7 @@ import javafx.geometry.{HPos, Insets}
 import javafx.scene.control.{Button, ListView}
 import javafx.scene.layout._
 
-class FilePane(loadFileCallback: (String) => Unit) extends GridPane {
+class FilePane(loadFileCallback: (String) => Unit, deleteFileCallback: (String) => Unit) extends GridPane {
 
   setHgap(5)
   setVgap(5)
@@ -27,6 +27,14 @@ class FilePane(loadFileCallback: (String) => Unit) extends GridPane {
 
   private val buttonRemove = new Button("-")
   buttonRemove.setStyle("-fx-padding: 2 6 2 6;")
+  buttonRemove.setOnAction((_) => {
+    val selectedIndex = listFiles.getSelectionModel.getSelectedIndex
+    println(selectedIndex)
+    println(listFiles.getFocusModel.getFocusedIndex)
+    if (selectedIndex >= 0) {
+      deleteFileCallback(listFiles.getSelectionModel.getSelectedItem + ".json")
+    }
+  })
   GridPane.setHgrow(buttonRemove, Priority.ALWAYS)
   GridPane.setVgrow(buttonRemove, Priority.NEVER)
   GridPane.setHalignment(buttonRemove, HPos.RIGHT)

@@ -35,7 +35,7 @@ class Cardinal extends Application {
   rootGridPane.getColumnConstraints.add(ColumnConstraintsBuilder().withHgrow(Priority.ALWAYS).withPercentageWidth(75).build)
   rootGridPane.getRowConstraints.add(RowConstraintsBuilder().withVgrow(Priority.ALWAYS).build)
 
-  private val filePane = new FilePane(loadFile)
+  private val filePane = new FilePane(loadFile, deleteFile)
   private val requestInputPane = new RequestInputPane
   private val responsePane = new ResponsePane()
   private val requestControlPane = new RequestControlPane(sendRequest, clearAll, save)
@@ -165,6 +165,13 @@ class Cardinal extends Application {
     }
   }
 
-
-
+  private def deleteFile(filename: String): Unit = {
+    try {
+      new File(fileDir + "/" + filename).delete()
+      filePane.loadFiles(loadFiles())
+      clearAll()
+    } catch {
+      case _: Exception =>
+    }
+  }
 }
