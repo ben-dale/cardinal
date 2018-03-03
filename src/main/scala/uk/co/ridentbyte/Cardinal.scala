@@ -13,7 +13,7 @@ import javafx.stage.Stage
 import javax.net.ssl.SSLHandshakeException
 
 import uk.co.ridentbyte.model.{HttpResponseWrapper, Request}
-import uk.co.ridentbyte.util.HttpUtil
+import uk.co.ridentbyte.util.{HttpUtil, Names}
 import uk.co.ridentbyte.view.file.FilePane
 import uk.co.ridentbyte.view.util.{ColumnConstraintsBuilder, RowConstraintsBuilder}
 import uk.co.ridentbyte.view.request.{RequestControlPane, RequestInputPane}

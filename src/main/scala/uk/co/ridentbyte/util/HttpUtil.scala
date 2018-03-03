@@ -5,6 +5,7 @@ import java.util.UUID
 
 import uk.co.ridentbyte.model.Request
 
+import scala.util.Random
 import scalaj.http.{Http, HttpOptions, HttpResponse}
 
 object HttpUtil {
@@ -36,10 +37,7 @@ object HttpUtil {
 
     request.verb match {
       case "POST" if request.body.isDefined => {
-        var body = request.body.get
-        0.until("#\\{randomString\\}".r.findAllMatchIn(body).length).foreach { i =>
-          body = body.replaceFirst("#\\{randomString\\}", UUID.randomUUID.toString.split("-")(0))
-        }
+        val body = processBody(request.body.get)
         Http(parsedUri).option(HttpOptions.followRedirects(true)).method(request.verb).headers(splitHeaders).postData(body).asString
       }
       case _ => {
@@ -48,6 +46,28 @@ object HttpUtil {
     }
 
 
+  }
+
+  def processBody(body: String): String = {
+    var bodyCopy: String = body
+
+    0.until("#\\{randomChars\\}".r.findAllMatchIn(body).length).foreach { _ =>
+      bodyCopy = bodyCopy.replaceFirst("#\\{randomChars\\}", UUID.randomUUID.toString.split("-")(0))
+    }
+
+    0.until("#\\{randomFloat\\}".r.findAllMatchIn(body).length).foreach { _ =>
+      bodyCopy = bodyCopy.replaceFirst("#\\{randomInt\\}", Random.nextInt.toString)
+    }
+
+    0.until("#\\{randomDouble\\}".r.findAllMatchIn(body).length).foreach { _ =>
+      bodyCopy = bodyCopy.replaceFirst("#\\{randomFloat\\}", Random.nextFloat().toString)
+    }
+
+    0.until("#\\{randomName\\}".r.findAllMatchIn(body).length).foreach { _ =>
+      bodyCopy = bodyCopy.replaceFirst("#\\{randomName\\}", Names.getRandomName)
+    }
+
+    bodyCopy
   }
 
 }
