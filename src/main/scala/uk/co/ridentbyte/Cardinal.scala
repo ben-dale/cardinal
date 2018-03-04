@@ -202,12 +202,8 @@ class Cardinal extends Application {
   }
 
   private def deleteFile(filename: String): Unit = {
-    try {
-      new File(fileDir + "/" + filename).delete()
-      filePane.loadFiles(loadFiles())
-      clearAll()
-    } catch {
-      case _: Exception =>
-    }
+    Files.deleteIfExists(Paths.get(fileDir + "/" + filename))
+    filePane.loadFiles(loadFiles())
+    clearAll()
   }
 }
