@@ -16,7 +16,7 @@ import uk.co.ridentbyte.model.{HttpResponseWrapper, Request}
 import uk.co.ridentbyte.util.{HttpUtil, IOUtil}
 import uk.co.ridentbyte.view.file.FilePane
 import uk.co.ridentbyte.view.util.{ColumnConstraintsBuilder, RowConstraintsBuilder}
-import uk.co.ridentbyte.view.request.{RequestControlPane, RequestInputPane}
+import uk.co.ridentbyte.view.request.{BulkRequestDialog, RequestControlPane, RequestInputPane}
 import uk.co.ridentbyte.view.response.ResponsePane
 
 import scala.io.Source
@@ -39,7 +39,7 @@ class Cardinal extends Application {
   private val filePane = new FilePane(loadFile, deleteFile, duplicateFile, renameFile)
   private val requestInputPane = new RequestInputPane
   private val responsePane = new ResponsePane()
-  private val requestControlPane = new RequestControlPane(sendRequest, clearInputOutputPanes, save)
+  private val requestControlPane = new RequestControlPane(sendRequest, showBulkRequestDialog, clearInputOutputPanes, save)
 
   override def start(primaryStage: Stage): Unit = {
     primaryStage.setTitle("Cardinal")
@@ -106,6 +106,19 @@ class Cardinal extends Application {
       case _: UnknownHostException => showErrorDialog("Unknown Host")
       case _: SSLHandshakeException => showErrorDialog("SSL Handshake failed. Remote host closed connection during handshake.")
     }
+  }
+
+  private def showBulkRequestDialog(): Unit = {
+    val dialog = new BulkRequestDialog
+    val results = dialog.showAndWait()
+    if (results.isPresent) {
+      println(results.get.getKey)
+      println(results.get.getValue)
+    }
+  }
+
+  private def sendBulkRequest(request: Request): Unit = {
+
   }
 
   private def clearInputOutputPanes(): Unit = {

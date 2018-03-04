@@ -5,6 +5,7 @@ import javafx.scene.control.Button
 import javafx.scene.layout._
 
 class RequestControlPane(sendRequestCallback: () => Unit,
+                         showBulkRequestDialog: () => Unit,
                          clearAllCallback: () => Unit,
                          saveCallback: () => Unit) extends GridPane {
 
@@ -32,11 +33,17 @@ class RequestControlPane(sendRequestCallback: () => Unit,
   buttonSave.setOnAction((_) => saveCallback())
   add(buttonSave, 1, 0)
 
+  private val buttonSendBulkRequest = new Button("Send Bulk Request...")
+  GridPane.setVgrow(buttonSendBulkRequest, Priority.NEVER)
+  GridPane.setHgrow(buttonSendBulkRequest, Priority.ALWAYS)
+  GridPane.setHalignment(buttonSendBulkRequest, HPos.RIGHT)
+  buttonSendBulkRequest.setOnAction((_) => showBulkRequestDialog())
+  add(buttonSendBulkRequest, 2, 0)
+
   private val buttonSendRequest = new Button("Send Request")
   GridPane.setVgrow(buttonSendRequest, Priority.NEVER)
-  GridPane.setHgrow(buttonSendRequest, Priority.ALWAYS)
-  GridPane.setHalignment(buttonSendRequest, HPos.RIGHT)
+  GridPane.setHgrow(buttonSendRequest, Priority.NEVER)
   buttonSendRequest.setOnAction((_) => sendRequestCallback())
-  add(buttonSendRequest, 2, 0)
+  add(buttonSendRequest, 3, 0)
 
 }
