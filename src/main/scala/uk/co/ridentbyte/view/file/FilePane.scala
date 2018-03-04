@@ -22,14 +22,14 @@ class FilePane(loadFileCallback: (String) => Unit,
   listFiles.getSelectionModel.selectedItemProperty().addListener(new ChangeListener[String] {
     override def changed(observable: ObservableValue[_ <: String], oldValue: String, newValue: String): Unit = {
       if (newValue != null) {
-        loadFileCallback(listFiles.getSelectionModel.getSelectedItem + ".json")
+        loadFileCallback(listFiles.getSelectionModel.getSelectedItem)
       }
     }
   })
   listFiles.setOnEditCommit((result) => {
     val selectedName = listFiles.getSelectionModel.getSelectedItem
     if (result.getNewValue != null && result.getNewValue.trim.length > 0) {
-      renameFileCallback(selectedName + ".json", result.getNewValue)
+      renameFileCallback(selectedName, result.getNewValue)
     }
   })
   GridPane.setHgrow(listFiles, Priority.ALWAYS)
@@ -42,7 +42,7 @@ class FilePane(loadFileCallback: (String) => Unit,
   buttonDelete.setOnAction((_) => {
     val selectedIndex = listFiles.getSelectionModel.getSelectedIndex
     if (selectedIndex >= 0) {
-      deleteFileCallback(listFiles.getSelectionModel.getSelectedItem + ".json")
+      deleteFileCallback(listFiles.getSelectionModel.getSelectedItem)
     }
   })
   GridPane.setHgrow(buttonDelete, Priority.ALWAYS)
@@ -55,17 +55,17 @@ class FilePane(loadFileCallback: (String) => Unit,
   buttonDuplicate.setOnAction((_) => {
     val selectedIndex = listFiles.getSelectionModel.getSelectedIndex
     if (selectedIndex >= 0) {
-      duplicateFileCallback(listFiles.getSelectionModel.getSelectedItem + ".json")
+      duplicateFileCallback(listFiles.getSelectionModel.getSelectedItem)
     }
   })
   GridPane.setHgrow(buttonDuplicate, Priority.NEVER)
   GridPane.setVgrow(buttonDuplicate, Priority.NEVER)
   add(buttonDuplicate, 1, 1)
 
-  def loadFiles(files: List[File]): Unit = {
+  def setListContentTo(files: List[String]): Unit = {
     listFiles.getItems.clear()
     files.sorted.foreach { file =>
-      listFiles.getItems.add(file.getName.replaceFirst(".json", ""))
+      listFiles.getItems.add(file.replaceFirst(".json", ""))
     }
   }
 

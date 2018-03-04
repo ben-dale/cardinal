@@ -13,7 +13,7 @@ import javafx.stage.Stage
 import javax.net.ssl.SSLHandshakeException
 
 import uk.co.ridentbyte.model.{HttpResponseWrapper, Request}
-import uk.co.ridentbyte.util.{HttpUtil, Names}
+import uk.co.ridentbyte.util.{HttpUtil, IOUtil}
 import uk.co.ridentbyte.view.file.FilePane
 import uk.co.ridentbyte.view.util.{ColumnConstraintsBuilder, RowConstraintsBuilder}
 import uk.co.ridentbyte.view.request.{RequestControlPane, RequestInputPane}
@@ -36,10 +36,10 @@ class Cardinal extends Application {
   rootGridPane.getColumnConstraints.add(ColumnConstraintsBuilder().withHgrow(Priority.ALWAYS).withPercentageWidth(75).build)
   rootGridPane.getRowConstraints.add(RowConstraintsBuilder().withVgrow(Priority.ALWAYS).build)
 
-  private val filePane = new FilePane(loadFile, deleteFile, duplicate, rename)
+  private val filePane = new FilePane(loadFile, deleteFile, duplicateFile, renameFile)
   private val requestInputPane = new RequestInputPane
   private val responsePane = new ResponsePane()
-  private val requestControlPane = new RequestControlPane(sendRequest, clearAll, save)
+  private val requestControlPane = new RequestControlPane(sendRequest, clearInputOutputPanes, save)
 
   override def start(primaryStage: Stage): Unit = {
     primaryStage.setTitle("Cardinal")
@@ -65,7 +65,7 @@ class Cardinal extends Application {
     primaryStage.setScene(scene)
     primaryStage.show()
 
-    filePane.loadFiles(loadFiles())
+    filePane.setListContentTo(IOUtil.listFileNames(fileDir))
   }
 
   private def sendRequest(): Unit = {
@@ -108,102 +108,77 @@ class Cardinal extends Application {
     }
   }
 
-  private def clearAll(): Unit = {
+  private def clearInputOutputPanes(): Unit = {
     requestInputPane.clear()
     responsePane.clear()
   }
 
   private def save(request: Request): Unit = {
     if (request.name.isDefined) {
-      saveFile(request.name.get + ".json", request.toJson)
-      filePane.loadFiles(loadFiles())
+      IOUtil.writeToFile(fileDir, request.name.get + ".json", request.toJson)
+      filePane.setListContentTo(IOUtil.listFileNames(fileDir))
     } else {
       val result = showInputDialog
       if (result.isDefined) {
-        saveFile(result.get + ".json", request.withName(result.get).toJson)
-        filePane.loadFiles(loadFiles())
+        IOUtil.writeToFile(fileDir, result.get + ".json", request.withName(result.get).toJson)
+        filePane.setListContentTo(IOUtil.listFileNames(fileDir))
       }
     }
   }
 
-  private def saveFile(filename: String, data: String): Unit = {
-    val d = new File(fileDir)
-    if (!d.exists || !d.isDirectory) {
-      Files.createDirectories(Paths.get(fileDir))
-    }
-
-    val pw = new PrintWriter(fileDir + "/" + filename)
-    pw.write(data)
-    pw.close()
-  }
-
   private def loadRequest(request: Request): Unit = {
-    clearAll()
+    clearInputOutputPanes()
     requestInputPane.loadRequest(request)
   }
 
   private def loadFile(filename: String): Unit = {
     try {
-      clearAll()
-      val bufferedSource = Source.fromFile(fileDir + "/" + filename)
-      val rawRequest = bufferedSource.getLines.mkString
-      bufferedSource.close()
-      loadRequest(Request(rawRequest))
+      clearInputOutputPanes()
+      val data = IOUtil.loadFileData(fileDir + "/" + filename + ".json")
+      loadRequest(Request(data))
     } catch {
       case _: Exception =>
-        filePane.loadFiles(loadFiles())
+        filePane.setListContentTo(IOUtil.listFileNames(fileDir))
         showErrorDialog("Error loading: " + filename)
-    }
-  }
-
-  private def loadFiles(): List[File] = {
-    val d = new File(fileDir)
-    if (d.exists && d.isDirectory) {
-      d.listFiles.filter(_.isFile).toList
-    } else {
-      Files.createDirectories(Paths.get(fileDir))
-      List.empty[File]
     }
   }
 
   private def loadFileAsRequest(filename: String): Option[Request] = {
     try {
-      clearAll()
-      val bufferedSource = Source.fromFile(fileDir + "/" + filename)
-      val rawRequest = bufferedSource.getLines.mkString
-      bufferedSource.close()
-      Some(Request(rawRequest))
+      clearInputOutputPanes()
+      val data = IOUtil.loadFileData(fileDir + "/" + filename + ".json")
+      Some(Request(data))
     } catch {
       case _: Exception =>
-        filePane.loadFiles(loadFiles())
-        showErrorDialog("Error duplicating: " + filename)
+        filePane.setListContentTo(IOUtil.listFileNames(fileDir))
+        showErrorDialog("Error loading: " + filename)
         None
     }
   }
 
-  private def duplicate(filename: String): Unit = {
+  private def duplicateFile(filename: String): Unit = {
     val request = loadFileAsRequest(filename)
     if (request.isDefined) {
       val newName = showInputDialog
       if (newName.isDefined) {
         save(request.get.withName(newName.get))
-        filePane.loadFiles(loadFiles())
+        filePane.setListContentTo(IOUtil.listFileNames(fileDir))
       }
     }
   }
 
-  private def rename(filename: String, newFilename: String): Unit = {
+  private def renameFile(filename: String, newFilename: String): Unit = {
     val original = loadFileAsRequest(filename)
     if (original.isDefined) {
       save(original.get.withName(newFilename))
       deleteFile(filename)
-      filePane.loadFiles(loadFiles())
+      filePane.setListContentTo(IOUtil.listFileNames(fileDir))
     }
   }
 
   private def deleteFile(filename: String): Unit = {
-    Files.deleteIfExists(Paths.get(fileDir + "/" + filename))
-    filePane.loadFiles(loadFiles())
-    clearAll()
+    IOUtil.deleteFile(fileDir + "/" + filename + ".json")
+    filePane.setListContentTo(IOUtil.listFileNames(fileDir))
+    clearInputOutputPanes()
   }
 }
