@@ -1,9 +1,6 @@
 package uk.co.ridentbyte
 
-import java.io.{File, PrintWriter}
 import java.net.{ConnectException, URISyntaxException, UnknownHostException}
-import java.nio.file.{Files, Paths}
-import java.util.UUID
 import javafx.application.Application
 import javafx.scene.Scene
 import javafx.scene.control.Alert.AlertType
@@ -18,8 +15,6 @@ import uk.co.ridentbyte.view.file.FilePane
 import uk.co.ridentbyte.view.util.{ColumnConstraintsBuilder, RowConstraintsBuilder}
 import uk.co.ridentbyte.view.request.{BulkRequestDialog, RequestControlPane, RequestInputPane}
 import uk.co.ridentbyte.view.response.ResponsePane
-
-import scala.io.Source
 
 object Cardinal {
   def main(args: Array[String]): Unit = {
@@ -112,8 +107,8 @@ class Cardinal extends Application {
     val dialog = new BulkRequestDialog
     val results = dialog.showAndWait()
     if (results.isPresent) {
-      println(results.get.getKey)
-      println(results.get.getValue)
+      println(results.get._1)
+      println(results.get._2)
     }
   }
 

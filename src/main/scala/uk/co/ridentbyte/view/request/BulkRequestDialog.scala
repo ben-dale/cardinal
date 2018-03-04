@@ -4,10 +4,9 @@ import javafx.geometry.HPos
 import javafx.scene.control.ButtonBar.ButtonData
 import javafx.scene.control.{ButtonType, Dialog, Label, TextField}
 import javafx.scene.layout.GridPane
-import javafx.util.{Callback, Pair}
 import javafx.application.Platform
 
-class BulkRequestDialog extends Dialog[Pair[String, String]] {
+class BulkRequestDialog extends Dialog[(String, String)] {
 
   setTitle("Bulk Request")
 
@@ -36,13 +35,11 @@ class BulkRequestDialog extends Dialog[Pair[String, String]] {
 
   Platform.runLater(() => textDelay.requestFocus())
 
-  setResultConverter(new Callback[ButtonType, Pair[String, String]] {
-    override def call(button: ButtonType): Pair[String, String] = {
-      if (button == buttonSendBulkRequest) {
-        new Pair[String, String](textDelay.getText, textNumOfRequests.getText)
-      } else {
-        null
-      }
+  setResultConverter((buttonType) => {
+    if (buttonType == buttonSendBulkRequest) {
+      (textDelay.getText, textNumOfRequests.getText)
+    } else {
+      null
     }
   })
 }
