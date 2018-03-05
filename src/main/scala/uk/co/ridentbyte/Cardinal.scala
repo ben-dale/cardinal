@@ -13,7 +13,7 @@ import uk.co.ridentbyte.model.{HttpResponseWrapper, Request}
 import uk.co.ridentbyte.util.{HttpUtil, IOUtil}
 import uk.co.ridentbyte.view.file.FilePane
 import uk.co.ridentbyte.view.util.{ColumnConstraintsBuilder, RowConstraintsBuilder}
-import uk.co.ridentbyte.view.request.{BulkRequestDialog, RequestControlPane, RequestInputPane}
+import uk.co.ridentbyte.view.request.{BulkRequestInputDialog, BulkRequestProcessingDialog, RequestControlPane, RequestInputPane}
 import uk.co.ridentbyte.view.response.ResponsePane
 
 object Cardinal {
@@ -34,7 +34,7 @@ class Cardinal extends Application {
   private val filePane = new FilePane(loadFile, deleteFile, duplicateFile, renameFile)
   private val requestInputPane = new RequestInputPane
   private val responsePane = new ResponsePane()
-  private val requestControlPane = new RequestControlPane(sendRequest, showBulkRequestDialog, clearInputOutputPanes, save)
+  private val requestControlPane = new RequestControlPane(sendRequestAndLoadResponse, showBulkRequestDialog, clearInputOutputPanes, save)
 
   override def start(primaryStage: Stage): Unit = {
     primaryStage.setTitle("Cardinal")
@@ -63,9 +63,6 @@ class Cardinal extends Application {
     filePane.setListContentTo(IOUtil.listFileNames(fileDir))
   }
 
-  private def sendRequest(): Unit = {
-    sendRequest(requestInputPane.getRequest)
-  }
 
   private def save(): Unit = {
     save(requestInputPane.getRequest)
@@ -88,12 +85,16 @@ class Cardinal extends Application {
     }
   }
 
-  private def sendRequest(request: Request): Unit = {
+  private def sendRequest(request: Request): HttpResponseWrapper = {
+    val startTime = System.currentTimeMillis()
+    val response = HttpUtil.sendRequest(request)
+    val totalTime = System.currentTimeMillis() - startTime
+    HttpResponseWrapper(response, totalTime)
+  }
+
+  private def sendRequestAndLoadResponse(): Unit = {
     try {
-      val startTime = System.currentTimeMillis()
-      val response = HttpUtil.sendRequest(request)
-      val totalTime = System.currentTimeMillis() - startTime
-      val httpResponse = HttpResponseWrapper(response, totalTime)
+      val httpResponse = sendRequest(requestInputPane.getRequest)
       responsePane.loadResponse(httpResponse)
     } catch {
       case _: ConnectException => showErrorDialog("Connection refused")
@@ -104,16 +105,14 @@ class Cardinal extends Application {
   }
 
   private def showBulkRequestDialog(): Unit = {
-    val dialog = new BulkRequestDialog
+    val request = requestInputPane.getRequest
+    val dialog = new BulkRequestInputDialog
     val results = dialog.showAndWait()
     if (results.isPresent) {
-      println(results.get._1)
-      println(results.get._2)
+      val throttle = results.get._1.toInt
+      val count = results.get._2.toInt
+      new BulkRequestProcessingDialog(count, throttle, request, sendRequest).showAndWait()
     }
-  }
-
-  private def sendBulkRequest(request: Request): Unit = {
-
   }
 
   private def clearInputOutputPanes(): Unit = {

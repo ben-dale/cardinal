@@ -6,7 +6,7 @@ import javafx.scene.control.{ButtonType, Dialog, Label, TextField}
 import javafx.scene.layout.GridPane
 import javafx.application.Platform
 
-class BulkRequestDialog extends Dialog[(String, String)] {
+class BulkRequestInputDialog extends Dialog[(String, String)] {
 
   setTitle("Bulk Request")
 
