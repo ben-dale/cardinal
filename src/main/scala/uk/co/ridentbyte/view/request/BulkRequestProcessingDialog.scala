@@ -1,5 +1,6 @@
 package uk.co.ridentbyte.view.request
 
+import javafx.application.Platform
 import javafx.concurrent.Task
 import javafx.geometry.HPos
 import javafx.scene.control.{ButtonType, Dialog, Label, ProgressBar}
@@ -10,19 +11,25 @@ import uk.co.ridentbyte.model.{HttpResponseWrapper, Request}
 class BulkRequestProcessingDialog(requestCount: Int,
                                   throttle: Long,
                                   request: Request,
-                                  sendRequestCallback: (Request) => HttpResponseWrapper) extends Dialog {
+                                  sendRequestCallback: (Request) => HttpResponseWrapper,
+                                  finishedBulkRequestCallback: (List[Option[HttpResponseWrapper]]) => Unit) extends Dialog[Void] {
 
-  private var allResponses = collection.mutable.ListBuffer.empty[HttpResponseWrapper]
+  private var allResponses = collection.mutable.ListBuffer.empty[Option[HttpResponseWrapper]]
 
   private val task = new Task[Boolean]() {
     override def call(): Boolean = {
       1 to requestCount foreach { i =>
         Thread.sleep(throttle)
-        val response = sendRequestCallback(request)
-        allResponses += response
+        try {
+          val response = sendRequestCallback(request)
+          allResponses += Some(response)
+        } catch {
+          case _: Exception => allResponses += None
+        }
         updateProgress(i, requestCount)
       }
-      println(allResponses)
+      finishedBulkRequestCallback(allResponses.toList)
+      Platform.runLater(() => close())
       true
     }
   }

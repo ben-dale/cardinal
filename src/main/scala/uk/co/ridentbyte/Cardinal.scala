@@ -1,7 +1,7 @@
 package uk.co.ridentbyte
 
 import java.net.{ConnectException, URISyntaxException, UnknownHostException}
-import javafx.application.Application
+import javafx.application.{Application, Platform}
 import javafx.scene.Scene
 import javafx.scene.control.Alert.AlertType
 import javafx.scene.control._
@@ -97,11 +97,24 @@ class Cardinal extends Application {
       val httpResponse = sendRequest(requestInputPane.getRequest)
       responsePane.loadResponse(httpResponse)
     } catch {
-      case _: ConnectException => showErrorDialog("Connection refused")
-      case _: URISyntaxException => showErrorDialog("Invalid URL")
-      case _: UnknownHostException => showErrorDialog("Unknown Host")
+      case _: ConnectException => showErrorDialog("Connection refused.")
+      case _: URISyntaxException => showErrorDialog("Invalid URL.")
+      case _: UnknownHostException => showErrorDialog("Unknown Host.")
       case _: SSLHandshakeException => showErrorDialog("SSL Handshake failed. Remote host closed connection during handshake.")
+      case _: Exception => showErrorDialog("Unknown error occurred.")
     }
+  }
+
+  private def showBulkRequestResultDialog(responses: List[Option[HttpResponseWrapper]]): Unit = {
+    Platform.runLater(() => {
+      val alert = new Alert(AlertType.INFORMATION)
+      alert.setTitle("Bulk Request Complete")
+      alert.setHeaderText("Bulk Request Complete")
+      val completeRequests = responses.filter(_.isDefined)
+      val failedRequests = responses.filter(_.isEmpty)
+      alert.setContentText(s"Completed ${completeRequests.size} requests\nFailed ${failedRequests.size} requests")
+      alert.show()
+    })
   }
 
   private def showBulkRequestDialog(): Unit = {
@@ -111,7 +124,7 @@ class Cardinal extends Application {
     if (results.isPresent) {
       val throttle = results.get._1.toInt
       val count = results.get._2.toInt
-      new BulkRequestProcessingDialog(count, throttle, request, sendRequest).showAndWait()
+      new BulkRequestProcessingDialog(count, throttle, request, sendRequest, showBulkRequestResultDialog).show()
     }
   }
 
