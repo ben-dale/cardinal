@@ -6,7 +6,7 @@ import javafx.scene.control.{ButtonType, Dialog, Label, TextField}
 import javafx.scene.layout.GridPane
 import javafx.application.Platform
 
-class BulkRequestInputDialog extends Dialog[(String, String)] {
+class BulkRequestInputDialog extends Dialog[(String, String, String)] {
 
   setTitle("Bulk Request")
 
@@ -31,13 +31,20 @@ class BulkRequestInputDialog extends Dialog[(String, String)] {
   val textNumOfRequests = new TextField
   grid.add(textNumOfRequests, 1, 1)
 
+  val labelForEachIn = new Label("For each in")
+  GridPane.setHalignment(labelForEachIn, HPos.RIGHT)
+  grid.add(labelForEachIn, 0, 2)
+
+  val textForEachIn = new TextField
+  grid.add(textForEachIn, 1, 2)
+
   getDialogPane.setContent(grid)
 
   Platform.runLater(() => textDelay.requestFocus())
 
   setResultConverter((buttonType) => {
     if (buttonType == buttonSendBulkRequest) {
-      (textDelay.getText, textNumOfRequests.getText)
+      (textDelay.getText, textNumOfRequests.getText, textForEachIn.getText)
     } else {
       null
     }

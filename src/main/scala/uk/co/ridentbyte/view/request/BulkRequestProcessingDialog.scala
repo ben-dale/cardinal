@@ -8,8 +8,9 @@ import javafx.scene.layout.{GridPane, Priority}
 
 import uk.co.ridentbyte.model.{HttpResponseWrapper, Request}
 
-class BulkRequestProcessingDialog(requestCount: Int,
-                                  throttle: Long,
+class BulkRequestProcessingDialog(requestCount: Option[Int],
+                                  throttle: Option[Long],
+                                  ids: List[String],
                                   request: Request,
                                   sendRequestCallback: (Request) => HttpResponseWrapper,
                                   finishedBulkRequestCallback: (List[Option[HttpResponseWrapper]]) => Unit) extends Dialog[Void] {
@@ -18,19 +19,38 @@ class BulkRequestProcessingDialog(requestCount: Int,
 
   private val task = new Task[Boolean]() {
     override def call(): Boolean = {
-      1 to requestCount foreach { i =>
-        Thread.sleep(throttle)
-        try {
-          val response = sendRequestCallback(request)
-          allResponses += Some(response)
-        } catch {
-          case _: Exception => allResponses += None
+      if (throttle.isDefined && requestCount.isDefined) {
+        1 to requestCount.get foreach { i =>
+          Thread.sleep(throttle.get)
+          try {
+            val response = sendRequestCallback(request)
+            allResponses += Some(response)
+          } catch {
+            case _: Exception => allResponses += None
+          }
+          updateProgress(i, requestCount.get)
         }
-        updateProgress(i, requestCount)
+        finishedBulkRequestCallback(allResponses.toList)
+        Platform.runLater(() => close())
+        true
+      } else if (throttle.isDefined) {
+        ids.zipWithIndex.foreach { case (id, i) =>
+          Thread.sleep(throttle.get)
+          try {
+            val r = request.withId(id)
+            val response = sendRequestCallback(r)
+            allResponses += Some(response)
+          } catch {
+            case _: Exception => allResponses += None
+          }
+          updateProgress(i + 1, ids.length.toDouble)
+        }
+        finishedBulkRequestCallback(allResponses.toList)
+        Platform.runLater(() => close())
+        true
+      } else {
+        false
       }
-      finishedBulkRequestCallback(allResponses.toList)
-      Platform.runLater(() => close())
-      true
     }
   }
 

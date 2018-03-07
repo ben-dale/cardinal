@@ -38,7 +38,11 @@ object HttpUtil {
     request.verb match {
       case "POST" if request.body.isDefined => {
         val body = processBody(request.body.get)
-        Http(parsedUri).option(HttpOptions.followRedirects(true)).method(request.verb).headers(splitHeaders).postData(body).asString
+        Http(parsedUri).option(HttpOptions.followRedirects(true)).headers(splitHeaders).postData(body).asString
+      }
+      case "PUT" if request.body.isDefined => {
+        val body = processBody(request.body.get)
+        Http(parsedUri).option(HttpOptions.followRedirects(true)).headers(splitHeaders).put(body).asString
       }
       case _ => {
         Http(parsedUri).option(HttpOptions.followRedirects(true)).method(request.verb).headers(splitHeaders).asString

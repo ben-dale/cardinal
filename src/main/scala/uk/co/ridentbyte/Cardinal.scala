@@ -122,9 +122,10 @@ class Cardinal extends Application {
     val dialog = new BulkRequestInputDialog
     val results = dialog.showAndWait()
     if (results.isPresent) {
-      val throttle = results.get._1.toInt
-      val count = results.get._2.toInt
-      new BulkRequestProcessingDialog(count, throttle, request, sendRequest, showBulkRequestResultDialog).show()
+      val throttle = if (results.get._1.trim.length > 0) Some(results.get._1.trim.toLong) else None
+      val count = if (results.get._2.trim.length > 0) Some(results.get._2.trim.toInt) else None
+      val ids = results.get._3.split(",").map(_.trim).toList
+      new BulkRequestProcessingDialog(count, throttle, ids, request, sendRequest, showBulkRequestResultDialog).show()
     }
   }
 
