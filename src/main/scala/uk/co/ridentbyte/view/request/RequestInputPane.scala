@@ -1,13 +1,9 @@
 package uk.co.ridentbyte.view.request
 
-import javafx.collections.FXCollections
 import javafx.geometry.Insets
-import javafx.scene.control._
 import javafx.scene.layout._
 
 import uk.co.ridentbyte.model.Request
-
-import scala.collection.JavaConverters._
 
 class RequestInputPane extends GridPane {
 
@@ -25,70 +21,36 @@ class RequestInputPane extends GridPane {
   setVgap(10)
   setPadding(new Insets(10, 10, 10, 10))
 
-  private val maxHeightRowContstraint = new RowConstraints()
-  maxHeightRowContstraint.setMaxHeight(220)
+  private val uriVerbInputPane = new RequestUriVerbInputPane
+  GridPane.setVgrow(uriVerbInputPane, Priority.NEVER)
+  GridPane.setHgrow(uriVerbInputPane, Priority.ALWAYS)
+  add(uriVerbInputPane, 0, 0)
 
-  getRowConstraints.addAll(
-    new RowConstraints(),
-    maxHeightRowContstraint,
-    new RowConstraints()
-  )
-
-  private val textUri = new TextField()
-  GridPane.setVgrow(textUri, Priority.NEVER)
-  GridPane.setHgrow(textUri, Priority.ALWAYS)
-  textUri.setPromptText("http://localhost:8080")
-  add(textUri, 0, 0)
-
-  private val selectVerb = new ChoiceBox[String](FXCollections.observableArrayList("GET", "POST", "PUT", "DELETE", "HEAD", "CONNECT", "OPTIONS", "TRACE", "PATCH"))
-  GridPane.setVgrow(selectVerb, Priority.NEVER)
-  GridPane.setHgrow(selectVerb, Priority.NEVER)
-  selectVerb.getSelectionModel.selectFirst()
-  add(selectVerb, 1, 0)
-
-  private val headersInputPane = new RequestHeadersInputPane
-  GridPane.setVgrow(headersInputPane, Priority.ALWAYS)
-  GridPane.setHgrow(headersInputPane, Priority.ALWAYS)
-  GridPane.setColumnSpan(headersInputPane, 2)
-  add(headersInputPane, 0, 1)
-
-  private val bodyInputPane = new RequestBodyInputPane
-  GridPane.setVgrow(bodyInputPane, Priority.ALWAYS)
-  GridPane.setHgrow(bodyInputPane, Priority.ALWAYS)
-  GridPane.setColumnSpan(bodyInputPane, 2)
-  add(bodyInputPane, 0, 2)
-
-  private def setVerb(verb: String): Unit = {
-    val matchingIndex = selectVerb.getItems.asScala.zipWithIndex.find {
-      case (item: String, _) => item == verb
-    }.map { verbWithIndex =>
-      verbWithIndex._2
-    }.getOrElse(0)
-    selectVerb.getSelectionModel.select(matchingIndex)
-  }
+  private val headersBodyInputPane = new RequestHeadersBodyInputPane
+  GridPane.setVgrow(headersBodyInputPane, Priority.ALWAYS)
+  GridPane.setHgrow(headersBodyInputPane, Priority.ALWAYS)
+  add(headersBodyInputPane, 0, 1)
 
   def clear(): Unit = {
     currentRequest = None
-    textUri.clear()
-    selectVerb.getSelectionModel.select(0)
-    headersInputPane.clear()
-    bodyInputPane.clear()
+    uriVerbInputPane.clear()
+    headersBodyInputPane.clear()
   }
 
   def loadRequest(request: Request): Unit = {
     currentRequest = Some(request)
-    bodyInputPane.setBody(request.body)
-    request.headers.foreach(headersInputPane.addHeader)
-    setVerb(request.verb)
-    textUri.setText(request.uri)
+    headersBodyInputPane.setBody(request.body)
+    headersBodyInputPane.setHeaders(request.headers)
+    uriVerbInputPane.setVerb(request.verb)
+    uriVerbInputPane.setUri(request.uri)
   }
 
   def getRequest: Request = {
-    val body = bodyInputPane.getBody
-    val headers = headersInputPane.getHeaders
-    val verb = selectVerb.getSelectionModel.getSelectedItem
+    val body = headersBodyInputPane.getBody
+    val headers = headersBodyInputPane.getHeaders
+    val verb = uriVerbInputPane.getVerb
     val fileName = if (currentRequest.isDefined) currentRequest.get.name else None
-    val uri = textUri.getText.trim
+    val uri = uriVerbInputPane.getUri
     Request(fileName, uri, verb, headers, body)
   }
 

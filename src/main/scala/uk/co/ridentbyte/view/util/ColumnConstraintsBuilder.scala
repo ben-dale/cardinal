@@ -4,7 +4,7 @@ import javafx.scene.layout.{ColumnConstraints, Priority}
 
 case class ColumnConstraintsBuilder() {
 
-  val columnConstraints = new ColumnConstraints
+  private val columnConstraints = new ColumnConstraints
 
   def withHgrow(priority: Priority): ColumnConstraintsBuilder = {
     columnConstraints.setHgrow(priority)

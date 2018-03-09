@@ -4,10 +4,15 @@ import javafx.scene.layout.{Priority, RowConstraints}
 
 case class RowConstraintsBuilder() {
 
-  val rowConstraints = new RowConstraints
+  private val rowConstraints = new RowConstraints
 
   def withVgrow(priority: Priority): RowConstraintsBuilder = {
     rowConstraints.setVgrow(priority)
+    this
+  }
+
+  def withMaxHeight(maxHeight: Int): RowConstraintsBuilder = {
+    rowConstraints.setMaxHeight(maxHeight)
     this
   }
 
