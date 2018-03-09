@@ -1,6 +1,5 @@
 package uk.co.ridentbyte.view.file
 
-import java.io.File
 import javafx.beans.value.{ChangeListener, ObservableValue}
 import javafx.geometry.{HPos, Insets}
 import javafx.scene.control.cell.TextFieldListCell
