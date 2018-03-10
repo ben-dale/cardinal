@@ -3,6 +3,7 @@ package uk.co.ridentbyte.view.request
 import javafx.application.Platform
 import javafx.concurrent.Task
 import javafx.geometry.HPos
+import javafx.scene.control.ButtonBar.ButtonData
 import javafx.scene.control.{ButtonType, Dialog, Label, ProgressBar}
 import javafx.scene.layout.{GridPane, Priority}
 
@@ -76,8 +77,12 @@ class BulkRequestProcessingDialog(requestCount: Option[Int],
   grid.add(progressBar, 0, 1)
 
   getDialogPane.setContent(grid)
+  getDialogPane.getButtonTypes.addAll(new ButtonType("Abort", ButtonData.CANCEL_CLOSE))
 
-  getDialogPane.getButtonTypes.addAll(ButtonType.CANCEL)
+  setOnCloseRequest((_) => {
+    task.cancel()
+  })
 
+  // Start the process
   new Thread(task).start()
 }
