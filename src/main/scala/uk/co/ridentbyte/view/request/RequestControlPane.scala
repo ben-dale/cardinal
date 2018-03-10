@@ -21,7 +21,7 @@ class RequestControlPane(sendRequestCallback: () => Unit,
   setVgap(10)
   setPadding(new Insets(10, 10, 10, 10))
 
-  private val buttonNew = new Button("New")
+  private val buttonNew = new Button("Clear All")
   GridPane.setVgrow(buttonNew, Priority.NEVER)
   GridPane.setHgrow(buttonNew, Priority.NEVER)
   buttonNew.setOnAction((_) => clearAllCallback())
