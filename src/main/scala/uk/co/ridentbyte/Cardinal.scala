@@ -96,7 +96,7 @@ class Cardinal extends Application {
 
   private def sendRequestAndLoadResponse(): Unit = {
     try {
-      val httpResponse = sendRequest(requestInputPane.getRequest)
+      val httpResponse = sendRequest(requestInputPane.getRequest.processConstants())
       responsePane.loadResponse(httpResponse)
     } catch {
       case _: ConnectException => showErrorDialog("Connection refused.")

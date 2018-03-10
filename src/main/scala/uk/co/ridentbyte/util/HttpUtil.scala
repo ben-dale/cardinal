@@ -37,41 +37,28 @@ object HttpUtil {
 
     request.verb match {
       case "POST" if request.body.isDefined => {
-        val body = processBody(request.body.get)
-        Http(parsedUri).option(HttpOptions.followRedirects(true)).headers(splitHeaders).postData(body).asString
+        Http(parsedUri)
+          .option(HttpOptions.followRedirects(true))
+          .headers(splitHeaders)
+          .postData(request.body.get)
+          .asString
       }
       case "PUT" if request.body.isDefined => {
-        val body = processBody(request.body.get)
-        Http(parsedUri).option(HttpOptions.followRedirects(true)).headers(splitHeaders).put(body).asString
+        Http(parsedUri)
+          .option(HttpOptions.followRedirects(true))
+          .headers(splitHeaders)
+          .put(request.body.get)
+          .asString
       }
       case _ => {
-        Http(parsedUri).option(HttpOptions.followRedirects(true)).method(request.verb).headers(splitHeaders).asString
+        Http(parsedUri)
+          .option(HttpOptions.followRedirects(true))
+          .method(request.verb)
+          .headers(splitHeaders)
+          .asString
       }
     }
 
-
-  }
-
-  def processBody(body: String): String = {
-    var bodyCopy: String = body
-
-    0.until("#\\{randomChars\\}".r.findAllMatchIn(body).length).foreach { _ =>
-      bodyCopy = bodyCopy.replaceFirst("#\\{randomChars\\}", UUID.randomUUID.toString.split("-")(0))
-    }
-
-    0.until("#\\{randomInt\\}".r.findAllMatchIn(body).length).foreach { _ =>
-      bodyCopy = bodyCopy.replaceFirst("#\\{randomInt\\}", Random.nextInt.toString)
-    }
-
-    0.until("#\\{randomFloat\\}".r.findAllMatchIn(body).length).foreach { _ =>
-      bodyCopy = bodyCopy.replaceFirst("#\\{randomFloat\\}", Random.nextFloat().toString)
-    }
-
-    0.until("#\\{randomName\\}".r.findAllMatchIn(body).length).foreach { _ =>
-      bodyCopy = bodyCopy.replaceFirst("#\\{randomName\\}", Names.getRandomName)
-    }
-
-    bodyCopy
   }
 
 }

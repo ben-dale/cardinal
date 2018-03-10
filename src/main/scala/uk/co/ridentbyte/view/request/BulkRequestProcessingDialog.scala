@@ -38,7 +38,7 @@ class BulkRequestProcessingDialog(requestCount: Option[Int],
         ids.get.zipWithIndex.foreach { case (id, i) =>
           Thread.sleep(throttle.get)
           try {
-            val r = request.withId(id)
+            val r = request.withId(id).processConstants()
             val response = sendRequestCallback(r)
             allResponses += Some(response)
           } catch {
