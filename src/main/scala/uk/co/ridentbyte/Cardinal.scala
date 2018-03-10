@@ -34,7 +34,7 @@ class Cardinal extends Application {
   private val filePane = new FilePane(loadFile, deleteFile, duplicateFile, renameFile)
   private val requestInputPane = new RequestInputPane
   private val responsePane = new ResponsePane()
-  private val requestControlPane = new RequestControlPane(sendRequestAndLoadResponse, showBulkRequestDialog, clearInputOutputPanes, save)
+  private val requestControlPane = new RequestControlPane(sendRequestAndLoadResponse, showBulkRequestDialogNoArgs, clearInputOutputPanes, save)
 
   override def start(primaryStage: Stage): Unit = {
     primaryStage.setTitle("Cardinal")
@@ -117,15 +117,25 @@ class Cardinal extends Application {
     })
   }
 
-  private def showBulkRequestDialog(): Unit = {
+  private def showBulkRequestDialogNoArgs(): Unit = {
+    showBulkRequestDialog()
+  }
+
+  private def showBulkRequestDialog(data: (Option[Long], Option[Int], Option[String]) = (None, None, None)): Unit = {
     val request = requestInputPane.getRequest
-    val dialog = new BulkRequestInputDialog
+    val dialog = new BulkRequestInputDialog(data)
     val results = dialog.showAndWait()
     if (results.isPresent) {
       val throttle = if (results.get._1.trim.length > 0) Some(results.get._1.trim.toLong) else None
       val count = if (results.get._2.trim.length > 0) Some(results.get._2.trim.toInt) else None
       val ids = results.get._3.split(",").map(_.trim).toList
-      new BulkRequestProcessingDialog(count, throttle, ids, request, sendRequest, showBulkRequestResultDialog).show()
+
+      if (count.isDefined && ids.nonEmpty) {
+        showErrorDialog("Enter only a for each in value or count value.")
+        showBulkRequestDialog((throttle, count, Some(ids.mkString(", "))))
+      } else {
+        new BulkRequestProcessingDialog(count, throttle, ids, request, sendRequest, showBulkRequestResultDialog).show()
+      }
     }
   }
 
