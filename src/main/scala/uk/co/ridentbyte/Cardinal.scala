@@ -44,8 +44,8 @@ class Cardinal extends Application {
     primaryStage.setMinWidth(800)
 
     val grid2 = new GridPane
-    grid2.getColumnConstraints.add(ColumnConstraintsBuilder().withHgrow(Priority.ALWAYS).withPercentageWidth(40).build)
-    grid2.getColumnConstraints.add(ColumnConstraintsBuilder().withHgrow(Priority.ALWAYS).withPercentageWidth(60).build)
+    grid2.getColumnConstraints.add(ColumnConstraintsBuilder().withHgrow(Priority.ALWAYS).withPercentageWidth(45).build)
+    grid2.getColumnConstraints.add(ColumnConstraintsBuilder().withHgrow(Priority.ALWAYS).withPercentageWidth(55).build)
     grid2.getRowConstraints.add(RowConstraintsBuilder().withVgrow(Priority.ALWAYS).build)
     grid2.getRowConstraints.add(RowConstraintsBuilder().withVgrow(Priority.NEVER).build)
 
