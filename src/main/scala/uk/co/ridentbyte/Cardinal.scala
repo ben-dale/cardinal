@@ -200,6 +200,7 @@ class Cardinal extends Application {
       if (newName.isDefined) {
         save(request.get.withName(newName.get))
         filePane.setListContentTo(IOUtil.listFileNames(fileDir))
+        filePane.highlight(newName.get)
       }
     }
   }

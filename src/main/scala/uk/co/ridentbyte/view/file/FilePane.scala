@@ -5,6 +5,8 @@ import javafx.geometry.Insets
 import javafx.scene.control._
 import javafx.scene.layout._
 
+import scala.collection.JavaConverters._
+
 class FilePane(loadFileCallback: (String) => Unit,
                deleteFileCallback: (String) => Unit,
                duplicateFileCallback: (String) => Unit,
@@ -50,6 +52,14 @@ class FilePane(loadFileCallback: (String) => Unit,
       rootItem.getChildren.add(new TreeItem[String](file.replaceFirst(".json", "")))
     }
     treeFiles.setRoot(rootItem)
+  }
+
+  def highlight(item: String): Unit = {
+    treeFiles.getRoot.getChildren.asScala.zipWithIndex.foreach { case (c, i) =>
+      if (c.getValue == item) {
+        treeFiles.getSelectionModel.select(i)
+      }
+    }
   }
 
 }
