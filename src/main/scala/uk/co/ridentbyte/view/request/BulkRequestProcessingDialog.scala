@@ -10,7 +10,7 @@ import uk.co.ridentbyte.model.{HttpResponseWrapper, Request}
 
 class BulkRequestProcessingDialog(requestCount: Option[Int],
                                   throttle: Option[Long],
-                                  ids: List[String],
+                                  ids: Option[List[String]],
                                   request: Request,
                                   sendRequestCallback: (Request) => HttpResponseWrapper,
                                   finishedBulkRequestCallback: (List[Option[HttpResponseWrapper]]) => Unit) extends Dialog[Void] {
@@ -33,8 +33,8 @@ class BulkRequestProcessingDialog(requestCount: Option[Int],
         finishedBulkRequestCallback(allResponses.toList)
         Platform.runLater(() => close())
         true
-      } else if (throttle.isDefined) {
-        ids.zipWithIndex.foreach { case (id, i) =>
+      } else if (throttle.isDefined && ids.isDefined) {
+        ids.get.zipWithIndex.foreach { case (id, i) =>
           Thread.sleep(throttle.get)
           try {
             val r = request.withId(id)
@@ -43,7 +43,7 @@ class BulkRequestProcessingDialog(requestCount: Option[Int],
           } catch {
             case _: Exception => allResponses += None
           }
-          updateProgress(i + 1, ids.length.toDouble)
+          updateProgress(i + 1, ids.get.length.toDouble)
         }
         finishedBulkRequestCallback(allResponses.toList)
         Platform.runLater(() => close())

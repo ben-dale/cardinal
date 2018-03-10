@@ -9,12 +9,14 @@ import javafx.scene.layout.{GridPane, Priority}
 import javafx.stage.Stage
 import javax.net.ssl.SSLHandshakeException
 
-import uk.co.ridentbyte.model.{HttpResponseWrapper, Request}
+import uk.co.ridentbyte.model.{BulkRequest, HttpResponseWrapper, Request}
 import uk.co.ridentbyte.util.{HttpUtil, IOUtil}
 import uk.co.ridentbyte.view.file.FilePane
 import uk.co.ridentbyte.view.util.{ColumnConstraintsBuilder, RowConstraintsBuilder}
 import uk.co.ridentbyte.view.request.{BulkRequestInputDialog, BulkRequestProcessingDialog, RequestControlPane, RequestInputPane}
 import uk.co.ridentbyte.view.response.ResponsePane
+
+import scala.annotation.tailrec
 
 object Cardinal {
   def main(args: Array[String]): Unit = {
@@ -121,18 +123,22 @@ class Cardinal extends Application {
     showBulkRequestDialog()
   }
 
-  private def showBulkRequestDialog(data: (Option[Long], Option[Int], Option[String]) = (None, None, None)): Unit = {
+  @tailrec
+  private def showBulkRequestDialog(bulkRequest: BulkRequest = BulkRequest()): Unit = {
     val request = requestInputPane.getRequest
-    val dialog = new BulkRequestInputDialog(data)
+    val dialog = new BulkRequestInputDialog(bulkRequest)
     val results = dialog.showAndWait()
     if (results.isPresent) {
-      val throttle = if (results.get._1.trim.length > 0) Some(results.get._1.trim.toLong) else None
-      val count = if (results.get._2.trim.length > 0) Some(results.get._2.trim.toInt) else None
-      val ids = results.get._3.split(",").map(_.trim).toList
+      val throttle = results.get.throttle
+      val count = results.get.count
+      val ids = results.get.ids
 
-      if (count.isDefined && ids.nonEmpty) {
-        showErrorDialog("Enter only a for each in value or count value.")
-        showBulkRequestDialog((throttle, count, Some(ids.mkString(", "))))
+      if (count.isEmpty && ids.isEmpty) {
+        showErrorDialog("Enter a for each value or count value.")
+        showBulkRequestDialog(BulkRequest(throttle, count, ids))
+      } else if (count.isDefined && ids.nonEmpty) {
+        showErrorDialog("Enter only a for each value or count value.")
+        showBulkRequestDialog(BulkRequest(throttle, count, ids))
       } else {
         new BulkRequestProcessingDialog(count, throttle, ids, request, sendRequest, showBulkRequestResultDialog).show()
       }

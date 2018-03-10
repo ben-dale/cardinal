@@ -6,7 +6,9 @@ import javafx.scene.control._
 import javafx.scene.layout.GridPane
 import javafx.application.Platform
 
-class BulkRequestInputDialog(data: (Option[Long], Option[Int], Option[String]) = (None, None, None)) extends Dialog[(String, String, String)] {
+import uk.co.ridentbyte.model.BulkRequest
+
+class BulkRequestInputDialog(bulkRequest: BulkRequest) extends Dialog[BulkRequest] {
 
   setTitle("Bulk Request")
 
@@ -22,7 +24,7 @@ class BulkRequestInputDialog(data: (Option[Long], Option[Int], Option[String]) =
   grid.add(labelDelay, 0, 0)
 
   val textDelay = new TextField
-  textDelay.setText(if (data._1.isDefined) data._1.get.toString else "")
+  textDelay.setText(bulkRequest.getThrottleAsString)
   textDelay.setText("500")
   grid.add(textDelay, 1, 0)
 
@@ -35,7 +37,7 @@ class BulkRequestInputDialog(data: (Option[Long], Option[Int], Option[String]) =
   grid.add(labelNumOfRequests, 0, 2)
 
   val textNumOfRequests = new TextField
-  textNumOfRequests.setText(if (data._2.isDefined) data._2.get.toString else "")
+  textNumOfRequests.setText(bulkRequest.getCountAsString)
   grid.add(textNumOfRequests, 1, 2)
 
   val labelOr = new Label("- OR -")
@@ -43,14 +45,14 @@ class BulkRequestInputDialog(data: (Option[Long], Option[Int], Option[String]) =
   GridPane.setHalignment(labelOr, HPos.CENTER)
   grid.add(labelOr, 0, 3)
 
-  val labelForEachIn = new Label("For each in")
-  GridPane.setHalignment(labelForEachIn, HPos.RIGHT)
-  grid.add(labelForEachIn, 0, 4)
+  val labelForEach = new Label("For each")
+  GridPane.setHalignment(labelForEach, HPos.RIGHT)
+  grid.add(labelForEach, 0, 4)
 
-  val textForEachIn = new TextField
-  textForEachIn.setText(data._3.getOrElse(""))
-  textForEachIn.setPromptText("325, 454, 432...")
-  grid.add(textForEachIn, 1, 4)
+  val textForEach = new TextField
+  textForEach.setText(bulkRequest.getIdsAsString)
+  textForEach.setPromptText("325, 454, 432...")
+  grid.add(textForEach, 1, 4)
 
   getDialogPane.setContent(grid)
 
@@ -58,7 +60,27 @@ class BulkRequestInputDialog(data: (Option[Long], Option[Int], Option[String]) =
 
   setResultConverter((buttonType) => {
     if (buttonType == buttonSendBulkRequest) {
-      (textDelay.getText, textNumOfRequests.getText, textForEachIn.getText)
+      BulkRequest(
+        if (textDelay.getText.trim.length == 0) {
+          None
+        } else {
+          try {
+            Some(textDelay.getText.trim.toLong)
+          } catch {
+            case _: Exception => None
+          }
+        },
+        if (textNumOfRequests.getText.trim.length == 0) {
+          None
+        } else {
+          try {
+            Some(textNumOfRequests.getText.trim.toInt)
+          } catch {
+            case _: Exception => None
+          }
+        },
+        if (textForEach.getText.trim.length == 0) None else Some(textForEach.getText.trim.split(",").toList)
+      )
     } else {
       null
     }
