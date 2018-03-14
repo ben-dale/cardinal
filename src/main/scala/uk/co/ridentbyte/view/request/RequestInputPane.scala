@@ -49,9 +49,8 @@ class RequestInputPane extends GridPane {
     val body = headersBodyInputPane.getBody
     val headers = headersBodyInputPane.getHeaders
     val verb = uriVerbInputPane.getVerb
-    val fileName = if (currentRequest.isDefined) currentRequest.get.name else None
     val uri = uriVerbInputPane.getUri
-    Request(fileName, uri, verb, headers, body)
+    Request(uri, verb, headers, body)
   }
 
 }

@@ -7,12 +7,14 @@ import scala.io.Source
 
 object IOUtil {
 
-  def loadFileData(path: String): String = {
-    val bufferedSource = Source.fromFile(path)
+  def readFileContents(file: File): String = {
+    val bufferedSource = Source.fromFile(file)
     val rawRequest = bufferedSource.getLines.mkString
     bufferedSource.close()
     rawRequest
   }
+
+  def loadFile(path: String): File = new File(path)
 
   def deleteFile(path: String): Unit = {
     Files.deleteIfExists(Paths.get(path))

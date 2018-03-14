@@ -9,8 +9,7 @@ import scala.collection.JavaConverters._
 
 class FilePane(loadFileCallback: (String) => Unit,
                deleteFileCallback: (String) => Unit,
-               duplicateFileCallback: (String) => Unit,
-               renameFileCallback: (String, String) => Unit) extends GridPane {
+               duplicateFileCallback: (String) => Unit) extends GridPane {
 
   setPadding(new Insets(10, 10, 10, 10))
 

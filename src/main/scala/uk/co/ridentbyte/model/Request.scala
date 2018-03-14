@@ -9,16 +9,13 @@ import uk.co.ridentbyte.util.Names
 
 import scala.util.Random
 
-case class Request(name: Option[String], uri: String, verb: String, headers: List[String], body: Option[String]) {
+case class Request(uri: String, verb: String, headers: List[String], body: Option[String]) {
   private implicit val formats: DefaultFormats = DefaultFormats
-
-  def withName(name: String): Request = Request(Some(name), uri, verb, headers, body)
 
   def toJson: String = writePretty(this)
 
   def withId(id: String): Request = {
     Request(
-      name,
       uri.replaceAll("#\\{id\\}", id),
       verb,
       headers,
@@ -70,7 +67,7 @@ case class Request(name: Option[String], uri: String, verb: String, headers: Lis
     newUri = newUri.replaceAll("#\\{firstName\\}", firstName)
     newUri = newUri.replaceAll("#\\{lastName\\}", lastName)
 
-    Request(name, newUri, verb, headers, newBody)
+    Request(newUri, verb, headers, newBody)
 
   }
 

@@ -1,5 +1,6 @@
 package uk.co.ridentbyte
 
+import java.io.File
 import java.net.{ConnectException, URISyntaxException, UnknownHostException}
 import javafx.application.{Application, Platform}
 import javafx.scene.Scene
@@ -26,6 +27,8 @@ object Cardinal {
 
 class Cardinal extends Application {
 
+  private var currentFile: Option[File] = None
+
   private val fileDir = "cardinal_files"
 
   private val rootGridPane = new GridPane()
@@ -33,10 +36,10 @@ class Cardinal extends Application {
   rootGridPane.getColumnConstraints.add(ColumnConstraintsBuilder().withHgrow(Priority.ALWAYS).withPercentageWidth(75).build)
   rootGridPane.getRowConstraints.add(RowConstraintsBuilder().withVgrow(Priority.ALWAYS).build)
 
-  private val filePane = new FilePane(loadFile, deleteFile, duplicateFile, renameFile)
+  private val filePane = new FilePane(loadFile, deleteFile, duplicateFile)
   private val requestInputPane = new RequestInputPane
   private val responsePane = new ResponsePane()
-  private val requestControlPane = new RequestControlPane(sendRequestAndLoadResponse, showBulkRequestDialogNoArgs, clearInputOutputPanes, save)
+  private val requestControlPane = new RequestControlPane(sendRequestAndLoadResponse, showBulkRequestDialogNoArgs, clearAll, save)
 
   override def start(primaryStage: Stage): Unit = {
     primaryStage.setTitle("Cardinal")
@@ -145,33 +148,38 @@ class Cardinal extends Application {
     }
   }
 
-  private def clearInputOutputPanes(): Unit = {
+  private def clearAll(): Unit = {
+    currentFile = None
     requestInputPane.clear()
     responsePane.clear()
   }
 
-  private def save(request: Request): Unit = {
-    if (request.name.isDefined) {
-      IOUtil.writeToFile(fileDir, request.name.get + ".json", request.toJson)
+  private def save(request: Request, filename: Option[String] = None): Unit = {
+    if (filename.isDefined) {
+      IOUtil.writeToFile(fileDir, filename.get + ".json", request.toJson)
+      filePane.setListContentTo(IOUtil.listFileNames(fileDir))
+    } else if (currentFile.isDefined) {
+      IOUtil.writeToFile(fileDir, currentFile.get.getName, request.toJson)
       filePane.setListContentTo(IOUtil.listFileNames(fileDir))
     } else {
       val result = showInputDialog
       if (result.isDefined) {
-        IOUtil.writeToFile(fileDir, result.get + ".json", request.withName(result.get).toJson)
+        IOUtil.writeToFile(fileDir, result.get + ".json", request.toJson)
         filePane.setListContentTo(IOUtil.listFileNames(fileDir))
       }
     }
   }
 
   private def loadRequest(request: Request): Unit = {
-    clearInputOutputPanes()
+    clearAll()
     requestInputPane.loadRequest(request)
   }
 
   private def loadFile(filename: String): Unit = {
     try {
-      clearInputOutputPanes()
-      val data = IOUtil.loadFileData(fileDir + "/" + filename + ".json")
+      clearAll()
+      currentFile = Some(IOUtil.loadFile(fileDir + "/" + filename + ".json"))
+      val data = IOUtil.readFileContents(currentFile.get)
       loadRequest(Request(data))
     } catch {
       case _: Exception =>
@@ -182,8 +190,9 @@ class Cardinal extends Application {
 
   private def loadFileAsRequest(filename: String): Option[Request] = {
     try {
-      clearInputOutputPanes()
-      val data = IOUtil.loadFileData(fileDir + "/" + filename + ".json")
+      clearAll()
+      currentFile = Some(IOUtil.loadFile(fileDir + "/" + filename + ".json"))
+      val data = IOUtil.readFileContents(currentFile.get)
       Some(Request(data))
     } catch {
       case _: Exception =>
@@ -198,25 +207,17 @@ class Cardinal extends Application {
     if (request.isDefined) {
       val newName = showInputDialog
       if (newName.isDefined) {
-        save(request.get.withName(newName.get))
+        save(request.get, Some(newName.get))
+        currentFile = Some(IOUtil.loadFile(newName.get))
         filePane.setListContentTo(IOUtil.listFileNames(fileDir))
         filePane.highlight(newName.get)
       }
     }
   }
 
-  private def renameFile(filename: String, newFilename: String): Unit = {
-    val original = loadFileAsRequest(filename)
-    if (original.isDefined) {
-      save(original.get.withName(newFilename))
-      deleteFile(filename)
-      filePane.setListContentTo(IOUtil.listFileNames(fileDir))
-    }
-  }
-
   private def deleteFile(filename: String): Unit = {
     IOUtil.deleteFile(fileDir + "/" + filename + ".json")
     filePane.setListContentTo(IOUtil.listFileNames(fileDir))
-    clearInputOutputPanes()
+    clearAll()
   }
 }
