@@ -1,6 +1,6 @@
 package uk.co.ridentbyte.util
 
-import java.io.{File, PrintWriter}
+import java.io.{File, FileWriter, PrintWriter}
 import java.nio.file.{Files, Paths}
 
 import scala.io.Source
@@ -29,14 +29,13 @@ object IOUtil {
     }
   }
 
-  def writeToFile(dir: String, filename: String, data: String): Unit = {
-    val d = new File(dir)
-    if (!d.exists || !d.isDirectory) {
-      Files.createDirectories(Paths.get(dir))
-    }
-    val pw = new PrintWriter(dir + "/" + filename)
-    pw.write(data)
-    pw.close()
+  def writeToFile(filename: String, data: String): Unit = {
+    val f = new File(filename)
+    f.getParentFile.mkdirs()
+
+    val fileWriter = new FileWriter(f)
+    fileWriter.write(data)
+    fileWriter.close()
   }
 
 

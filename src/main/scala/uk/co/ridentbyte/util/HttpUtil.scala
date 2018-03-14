@@ -1,11 +1,7 @@
 package uk.co.ridentbyte.util
 
 import java.net._
-import java.util.UUID
-
 import uk.co.ridentbyte.model.Request
-
-import scala.util.Random
 import scalaj.http.{Http, HttpOptions, HttpResponse}
 
 object HttpUtil {

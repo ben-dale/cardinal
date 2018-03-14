@@ -69,10 +69,6 @@ class Cardinal extends Application {
   }
 
 
-  private def save(): Unit = {
-    save(requestInputPane.getRequest)
-  }
-
   private def showErrorDialog(errorMessage: String): Unit = {
     val alert = new Alert(AlertType.ERROR)
     alert.setContentText(errorMessage)
@@ -154,24 +150,27 @@ class Cardinal extends Application {
     responsePane.clear()
   }
 
+  private def save(): Unit = {
+    save(requestInputPane.getRequest)
+  }
+
   private def save(request: Request, filename: Option[String] = None): Unit = {
     if (filename.isDefined) {
-      IOUtil.writeToFile(fileDir, filename.get + ".json", request.toJson)
+      IOUtil.writeToFile(fileDir + "/" + filename.get + ".json", request.toJson)
       filePane.setListContentTo(IOUtil.listFileNames(fileDir))
     } else if (currentFile.isDefined) {
-      IOUtil.writeToFile(fileDir, currentFile.get.getName, request.toJson)
+      IOUtil.writeToFile(fileDir + "/" + currentFile.get.getName, request.toJson)
       filePane.setListContentTo(IOUtil.listFileNames(fileDir))
     } else {
       val result = showInputDialog
       if (result.isDefined) {
-        IOUtil.writeToFile(fileDir, result.get + ".json", request.toJson)
+        IOUtil.writeToFile(fileDir + "/" + result.get + ".json", request.toJson)
         filePane.setListContentTo(IOUtil.listFileNames(fileDir))
       }
     }
   }
 
   private def loadRequest(request: Request): Unit = {
-    clearAll()
     requestInputPane.loadRequest(request)
   }
 
@@ -179,6 +178,7 @@ class Cardinal extends Application {
     try {
       clearAll()
       currentFile = Some(IOUtil.loadFile(fileDir + "/" + filename + ".json"))
+      println(currentFile.get.getName)
       val data = IOUtil.readFileContents(currentFile.get)
       loadRequest(Request(data))
     } catch {
