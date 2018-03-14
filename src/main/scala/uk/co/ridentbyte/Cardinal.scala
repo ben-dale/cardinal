@@ -159,8 +159,7 @@ class Cardinal extends Application {
       IOUtil.writeToFile(fileDir + "/" + filename.get + ".json", request.toJson)
       filePane.setListContentTo(IOUtil.listFileNames(fileDir))
     } else if (currentFile.isDefined) {
-      IOUtil.writeToFile(fileDir + "/" + currentFile.get.getName, request.toJson)
-      filePane.setListContentTo(IOUtil.listFileNames(fileDir))
+      IOUtil.writeToFile( currentFile.get.getPath, request.toJson)
     } else {
       val result = showInputDialog
       if (result.isDefined) {
@@ -178,7 +177,6 @@ class Cardinal extends Application {
     try {
       clearAll()
       currentFile = Some(IOUtil.loadFile(fileDir + "/" + filename + ".json"))
-      println(currentFile.get.getName)
       val data = IOUtil.readFileContents(currentFile.get)
       loadRequest(Request(data))
     } catch {

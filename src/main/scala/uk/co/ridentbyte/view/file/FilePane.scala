@@ -19,8 +19,8 @@ class FilePane(loadFileCallback: (String) => Unit,
   GridPane.setVgrow(treeFiles, Priority.ALWAYS)
   treeFiles.getSelectionModel.selectedItemProperty().addListener(new ChangeListener[TreeItem[String]] {
     override def changed(observable: ObservableValue[_ <: TreeItem[String]], oldValue: TreeItem[String], newValue: TreeItem[String]): Unit = {
-      if (newValue != null && newValue != treeFiles.getRoot) {
-        loadFileCallback(newValue.getValue)
+      if (newValue != null && newValue != treeFiles.getRoot && newValue.getChildren.isEmpty) {
+        loadFileCallback(getFullPathFor(newValue))
       }
     }
   })
@@ -46,11 +46,35 @@ class FilePane(loadFileCallback: (String) => Unit,
 
   def setListContentTo(files: List[String]): Unit = {
     val rootItem = new TreeItem[String]()
-    rootItem.setExpanded(true)
-    files.sorted.foreach { file =>
-      rootItem.getChildren.add(new TreeItem[String](file.replaceFirst(".json", "")))
+    files.foreach { file =>
+      processPath(file, rootItem)
     }
     treeFiles.setRoot(rootItem)
+  }
+
+  def processPath(path: String, parent: TreeItem[String]): Unit = {
+    val tail = path.split("/")
+    if (tail.length == 1) {
+      parent.getChildren.add(new TreeItem(tail(0).replace(".json", "")))
+    } else {
+      val existingMatchingParentChildren = parent.getChildren.asScala.filter(!_.getChildren.isEmpty)
+      existingMatchingParentChildren.find(_.getValue == tail(0)) match {
+        case Some(child) =>
+          processPath(tail.tail.mkString("/"), child)
+        case _ =>
+          val newParent = new TreeItem(tail(0))
+          parent.getChildren.add(newParent)
+          processPath(tail.tail.mkString("/"), newParent)
+      }
+    }
+  }
+
+  def getFullPathFor(treeItem: TreeItem[String], acc: List[String] = List()): String = {
+    if (treeItem.getParent == null) {
+      acc.mkString("/")
+    } else {
+      getFullPathFor(treeItem.getParent, treeItem.getValue +: acc)
+    }
   }
 
   def highlight(item: String): Unit = {

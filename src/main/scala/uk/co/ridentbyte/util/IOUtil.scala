@@ -1,10 +1,10 @@
 package uk.co.ridentbyte.util
 
-import java.io.{File, FileWriter, PrintWriter}
-import java.nio.file.{Files, Paths}
+import java.io.{File, FileWriter}
+import java.nio.file.{FileSystems, Files, Paths}
 
 import scala.io.Source
-
+import scala.collection.JavaConverters._
 object IOUtil {
 
   def readFileContents(file: File): String = {
@@ -21,12 +21,12 @@ object IOUtil {
   }
 
   def listFileNames(path: String): List[String] = {
-    val d = new File(path)
-    if (d.exists && d.isDirectory) {
-      d.listFiles.filter(_.isFile).map(_.getName).toList
-    } else {
-      List.empty[String]
-    }
+    Files
+      .walk(FileSystems.getDefault.getPath(path))
+      .iterator()
+      .asScala
+      .filter(Files.isRegularFile(_))
+      .map(_.toString.replace(path + "/", "")).toList
   }
 
   def writeToFile(filename: String, data: String): Unit = {
