@@ -29,7 +29,7 @@ class FilePane(loadFileCallback: (String) => Unit,
   menuItemClone.setOnAction((_) => {
     val selectedIndex = treeFiles.getSelectionModel.getSelectedIndex
     if (selectedIndex >= 0) {
-      duplicateFileCallback(treeFiles.getSelectionModel.getSelectedItem.getValue)
+      duplicateFileCallback(getFullPathFor(treeFiles.getSelectionModel.getSelectedItem))
     }
   })
 
@@ -37,7 +37,7 @@ class FilePane(loadFileCallback: (String) => Unit,
   menuItemDelete.setOnAction((_) => {
     val selectedIndex = treeFiles.getSelectionModel.getSelectedIndex
     if (selectedIndex >= 0) {
-      deleteFileCallback(treeFiles.getSelectionModel.getSelectedItem.getValue)
+      deleteFileCallback(getFullPathFor(treeFiles.getSelectionModel.getSelectedItem))
     }
   })
 
