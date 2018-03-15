@@ -77,8 +77,8 @@ class Cardinal extends Application {
     alert.showAndWait
   }
 
-  private def showInputDialog: Option[String] = {
-    val alert = new TextInputDialog()
+  private def showInputDialog(defaultValue: String = ""): Option[String] = {
+    val alert = new TextInputDialog(defaultValue)
     alert.setContentText("Please enter filename")
     val result = alert.showAndWait()
     if (result.isPresent) {
@@ -163,7 +163,7 @@ class Cardinal extends Application {
     } else if (currentFile.isDefined) {
       IOUtil.writeToFile( currentFile.get.getPath, request.toJson)
     } else {
-      val result = showInputDialog
+      val result = showInputDialog()
       if (result.isDefined) {
         IOUtil.writeToFile(fileDir + "/" + result.get + ".json", request.toJson)
         filePane.setListContentTo(IOUtil.listFileNames(fileDir))
@@ -205,7 +205,7 @@ class Cardinal extends Application {
   private def duplicateFile(filename: String): Unit = {
     val request = loadFileAsRequest(filename)
     if (request.isDefined) {
-      val newName = showInputDialog
+      val newName = showInputDialog(filename)
       if (newName.isDefined) {
         save(request.get, Some(newName.get))
         currentFile = Some(IOUtil.loadFile(newName.get))

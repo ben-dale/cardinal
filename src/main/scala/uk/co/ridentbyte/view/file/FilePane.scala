@@ -5,6 +5,7 @@ import javafx.geometry.Insets
 import javafx.scene.control._
 import javafx.scene.layout._
 
+import scala.annotation.tailrec
 import scala.collection.JavaConverters._
 
 class FilePane(loadFileCallback: (String) => Unit,
@@ -44,6 +45,14 @@ class FilePane(loadFileCallback: (String) => Unit,
   treeFiles.setContextMenu(new ContextMenu(menuItemClone, menuItemDelete))
   add(treeFiles, 0, 0)
 
+  def highlight(item: String): Unit = {
+    treeFiles.getRoot.getChildren.asScala.zipWithIndex.foreach { case (c, i) =>
+      if (c.getValue == item) {
+        treeFiles.getSelectionModel.select(i)
+      }
+    }
+  }
+
   def setListContentTo(files: List[String]): Unit = {
     val rootItem = new TreeItem[String]()
     files.foreach { file =>
@@ -52,7 +61,8 @@ class FilePane(loadFileCallback: (String) => Unit,
     treeFiles.setRoot(rootItem)
   }
 
-  def processPath(path: String, parent: TreeItem[String]): Unit = {
+  @tailrec
+  private def processPath(path: String, parent: TreeItem[String]): Unit = {
     val tail = path.split("/")
     if (tail.length == 1) {
       parent.getChildren.add(new TreeItem(tail(0).replace(".json", "")))
@@ -69,19 +79,12 @@ class FilePane(loadFileCallback: (String) => Unit,
     }
   }
 
-  def getFullPathFor(treeItem: TreeItem[String], acc: List[String] = List()): String = {
+  @tailrec
+  private def getFullPathFor(treeItem: TreeItem[String], acc: List[String] = List()): String = {
     if (treeItem.getParent == null) {
       acc.mkString("/")
     } else {
       getFullPathFor(treeItem.getParent, treeItem.getValue +: acc)
-    }
-  }
-
-  def highlight(item: String): Unit = {
-    treeFiles.getRoot.getChildren.asScala.zipWithIndex.foreach { case (c, i) =>
-      if (c.getValue == item) {
-        treeFiles.getSelectionModel.select(i)
-      }
     }
   }
 
