@@ -41,6 +41,8 @@ class Cardinal extends Application {
   private val responsePane = new ResponsePane()
   private val requestControlPane = new RequestControlPane(sendRequestAndLoadResponse, showBulkRequestDialogNoArgs, clearAll, save)
 
+  private val httpUtil = new HttpUtil
+
   override def start(primaryStage: Stage): Unit = {
     primaryStage.setTitle("Cardinal")
     primaryStage.setMinHeight(400)
@@ -88,7 +90,7 @@ class Cardinal extends Application {
 
   private def sendRequest(request: Request): HttpResponseWrapper = {
     val startTime = System.currentTimeMillis()
-    val response = HttpUtil.sendRequest(request)
+    val response = httpUtil.sendRequest(request)
     val totalTime = System.currentTimeMillis() - startTime
     HttpResponseWrapper(response, totalTime)
   }

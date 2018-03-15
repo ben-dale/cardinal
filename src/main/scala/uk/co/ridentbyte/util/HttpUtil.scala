@@ -4,7 +4,7 @@ import java.net._
 import uk.co.ridentbyte.model.Request
 import scalaj.http.{Http, HttpOptions, HttpResponse}
 
-object HttpUtil {
+class HttpUtil {
 
   def parseURI(rawUri: String): String = {
     val rawUriWithProtocol = try {
@@ -21,7 +21,7 @@ object HttpUtil {
   }
 
   def sendRequest(request: Request): HttpResponse[String] = {
-    val parsedUri = HttpUtil.parseURI(request.uri)
+    val parsedUri = parseURI(request.uri)
     val splitHeaders = request.headers.map { header =>
       val splitHeader = header.split(":")
       if (splitHeader.length == 2) {
