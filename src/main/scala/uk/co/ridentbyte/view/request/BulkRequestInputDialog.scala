@@ -51,7 +51,7 @@ class BulkRequestInputDialog(bulkRequest: BulkRequest) extends Dialog[BulkReques
 
   val textForEach = new TextField
   textForEach.setText(bulkRequest.getIdsAsString)
-  textForEach.setPromptText("325, 454, 432...")
+  textForEach.setPromptText("325, 454, 432 or 12..54")
   grid.add(textForEach, 1, 4)
 
   getDialogPane.setContent(grid)
@@ -79,7 +79,15 @@ class BulkRequestInputDialog(bulkRequest: BulkRequest) extends Dialog[BulkReques
             case _: Exception => None
           }
         },
-        if (textForEach.getText.trim.length == 0) None else Some(textForEach.getText.trim.split(",").toList)
+        if (textForEach.getText.trim.length == 0) {
+          None
+        } else {
+          val matcher = "([0-9]+)..([0-9]+)".r
+          textForEach.getText.trim match {
+            case matcher(a, b) => Some(a.toInt.to(b.toInt).map(_.toString).toList)
+            case v => Some(v.split(",").toList)
+          }
+        }
       )
     } else {
       null

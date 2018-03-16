@@ -35,17 +35,27 @@ case class Request(uri: String, verb: String, headers: List[String], body: Optio
       var bodyCopy: String = body.get
 
       // Random values for each instance
-      bodyCopy = replaceEachIn(bodyCopy, "#\\{randomChars\\}", UUID.randomUUID.toString.split("-")(0))
-      bodyCopy = replaceEachIn(bodyCopy, "#\\{randomInt\\}", Random.nextInt.toString)
-      bodyCopy = replaceEachIn(bodyCopy, "#\\{randomFloat\\}", Random.nextFloat().toString)
-      bodyCopy = replaceEachIn(bodyCopy, "#\\{randomName\\}", Names.getRandomName)
+      bodyCopy = replaceEachIn(bodyCopy, "#\\{randomChars\\}", () => UUID.randomUUID.toString.split("-")(0))
+      bodyCopy = replaceEachIn(bodyCopy, "#\\{randomInt\\}", () => Random.nextInt.toString)
+      bodyCopy = replaceEachIn(bodyCopy, "#\\{randomFloat\\}", () => Random.nextFloat().toString)
+      bodyCopy = replaceEachIn(bodyCopy, "#\\{randomName\\}", () => Names.getRandomName)
+
+      bodyCopy = replaceEachIn(bodyCopy, "#\\{([0-9]+)..([0-9]+)\\}", () => {
+        val matchedValue = "#\\{([0-9]+)..([0-9]+)\\}".r.findFirstMatchIn(bodyCopy).get
+        val int1 = matchedValue.group(1).toInt
+        val int2 = matchedValue.group(2).toInt
+        (int1 + Random.nextInt(int2 - int1)).toString
+      })
 
       // Constant (random) values for each instance
       bodyCopy = bodyCopy.replaceAll("#\\{chars\\}", chars)
       bodyCopy = bodyCopy.replaceAll("#\\{int\\}", int)
       bodyCopy = bodyCopy.replaceAll("#\\{float\\}", float)
       bodyCopy = bodyCopy.replaceAll("#\\{firstName\\}", firstName)
+      bodyCopy = bodyCopy.replaceAll("#\\{firstNameLower\\}", firstName.toLowerCase)
+
       bodyCopy = bodyCopy.replaceAll("#\\{lastName\\}", lastName)
+      bodyCopy = bodyCopy.replaceAll("#\\{lastNameLower\\}", lastName.toLowerCase)
 
       Some(bodyCopy)
     } else {
@@ -55,10 +65,10 @@ case class Request(uri: String, verb: String, headers: List[String], body: Optio
     var newUri = uri
 
     // Random values for each instance
-    newUri = replaceEachIn(newUri, "#\\{randomChars\\}", UUID.randomUUID.toString.split("-")(0))
-    newUri = replaceEachIn(newUri, "#\\{randomInt\\}", Random.nextInt.toString)
-    newUri = replaceEachIn(newUri, "#\\{randomFloat\\}", Random.nextFloat().toString)
-    newUri = replaceEachIn(newUri, "#\\{randomName\\}", Names.getRandomName)
+    newUri = replaceEachIn(newUri, "#\\{randomChars\\}", () => UUID.randomUUID.toString.split("-")(0))
+    newUri = replaceEachIn(newUri, "#\\{randomInt\\}", () => Random.nextInt.toString)
+    newUri = replaceEachIn(newUri, "#\\{randomFloat\\}", () => Random.nextFloat().toString)
+    newUri = replaceEachIn(newUri, "#\\{randomName\\}", () => Names.getRandomName)
 
     // Constant (random) values for each instance
     newUri = newUri.replaceAll("#\\{chars\\}", chars)
@@ -71,10 +81,10 @@ case class Request(uri: String, verb: String, headers: List[String], body: Optio
 
   }
 
-  private def replaceEachIn(body: String, replace: String, replaceValue: String): String = {
+  private def replaceEachIn(body: String, replace: String, valueGenerator: () => String): String = {
     var bodyCopy = body
     0.until(replace.r.findAllMatchIn(body).length).foreach { _ =>
-      bodyCopy = bodyCopy.replaceFirst(replace, replaceValue)
+      bodyCopy = bodyCopy.replaceFirst(replace, valueGenerator())
     }
     bodyCopy
   }
