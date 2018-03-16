@@ -5,8 +5,7 @@ import javafx.concurrent.Task
 import javafx.geometry.HPos
 import javafx.scene.control.ButtonBar.ButtonData
 import javafx.scene.control._
-import javafx.scene.layout.{Background, BackgroundFill, GridPane, Priority}
-import javafx.scene.paint.Color
+import javafx.scene.layout.GridPane
 
 import uk.co.ridentbyte.model.{HttpResponseWrapper, Request}
 
@@ -27,7 +26,6 @@ class BulkRequestProcessingDialog(requestCount: Option[Int],
           val r = request.withId(i.toString).processConstants()
           val response = sendRequestCallback(r)
           allResponses += response
-          textAreaConsole.appendText("[HTTP " + response.httpResponse.code + "] - " + r.verb + " " + r.uri + "\n")
           updateProgress(i, requestCount.get)
         }
         finishedBulkRequestCallback(allResponses.toList)
@@ -39,7 +37,6 @@ class BulkRequestProcessingDialog(requestCount: Option[Int],
           val r = request.withId(id).processConstants()
           val response = sendRequestCallback(r)
           allResponses += response
-          textAreaConsole.appendText("[HTTP " + response.httpResponse.code + "] - " + r.verb + " " + r.uri + "\n")
           updateProgress(i + 1, ids.get.length.toDouble)
         }
         finishedBulkRequestCallback(allResponses.toList)
@@ -56,7 +53,7 @@ class BulkRequestProcessingDialog(requestCount: Option[Int],
   val grid = new GridPane
   grid.setHgap(10)
   grid.setVgap(10)
-  grid.setMinWidth(500)
+  grid.setMinWidth(400)
 
   val labelSendingRequest = new Label("Sending requests...")
   GridPane.setHalignment(labelSendingRequest, HPos.CENTER)
@@ -66,19 +63,9 @@ class BulkRequestProcessingDialog(requestCount: Option[Int],
   val progressBar = new ProgressBar()
   progressBar.progressProperty().unbind()
   progressBar.progressProperty().bind(task.progressProperty())
-  progressBar.setMaxWidth(java.lang.Double.MAX_VALUE)
+  progressBar.setPrefWidth(400)
   GridPane.setFillWidth(progressBar, true)
   grid.add(progressBar, 0, 1)
-
-  val textAreaConsole = new TextArea
-  textAreaConsole.setStyle(
-    """
-      |-fx-font-family: Monospaced;
-      |-fx-font-size: 12;
-    """.stripMargin
-  )
-  GridPane.setHgrow(textAreaConsole, Priority.ALWAYS)
-  grid.add(textAreaConsole, 0, 2)
 
   getDialogPane.setContent(grid)
   getDialogPane.getButtonTypes.addAll(new ButtonType("Abort", ButtonData.CANCEL_CLOSE))
