@@ -2,6 +2,7 @@ package uk.co.ridentbyte
 
 import java.io.File
 import java.net.{ConnectException, URISyntaxException, UnknownHostException}
+
 import javafx.application.{Application, Platform}
 import javafx.scene.Scene
 import javafx.scene.control.Alert.AlertType
@@ -9,13 +10,12 @@ import javafx.scene.control._
 import javafx.scene.layout.{GridPane, Priority}
 import javafx.stage.Stage
 import javax.net.ssl.SSLHandshakeException
-
 import uk.co.ridentbyte.model.{BulkRequest, HttpResponseWrapper, Request}
 import uk.co.ridentbyte.util.{HttpUtil, IOUtil}
 import uk.co.ridentbyte.view.file.FilePane
 import uk.co.ridentbyte.view.util.{ColumnConstraintsBuilder, RowConstraintsBuilder}
 import uk.co.ridentbyte.view.request.{BulkRequestInputDialog, BulkRequestProcessingDialog, RequestControlPane, RequestInputPane}
-import uk.co.ridentbyte.view.response.ResponsePane
+import uk.co.ridentbyte.view.response.{BulkRequestOutputDialog, ResponsePane}
 
 import scala.annotation.tailrec
 
@@ -108,14 +108,9 @@ class Cardinal extends Application {
     }
   }
 
-  private def showBulkRequestResultDialog(responses: List[Option[HttpResponseWrapper]]): Unit = {
+  private def showBulkRequestResultDialog(responses: List[HttpResponseWrapper]): Unit = {
     Platform.runLater(() => {
-      val alert = new Alert(AlertType.INFORMATION)
-      alert.setTitle("Bulk Request Complete")
-      alert.setHeaderText("Bulk Request Complete")
-      val completeRequests = responses.filter(_.isDefined)
-      val failedRequests = responses.filter(_.isEmpty)
-      alert.setContentText(s"Completed ${completeRequests.size} requests\nFailed ${failedRequests.size} requests")
+      val alert = new BulkRequestOutputDialog(responses)
       alert.show()
     })
   }

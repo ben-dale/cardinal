@@ -15,23 +15,19 @@ class BulkRequestProcessingDialog(requestCount: Option[Int],
                                   ids: Option[List[String]],
                                   request: Request,
                                   sendRequestCallback: (Request) => HttpResponseWrapper,
-                                  finishedBulkRequestCallback: (List[Option[HttpResponseWrapper]]) => Unit) extends Dialog[Void] {
+                                  finishedBulkRequestCallback: (List[HttpResponseWrapper]) => Unit) extends Dialog[Void] {
 
-  private var allResponses = collection.mutable.ListBuffer.empty[Option[HttpResponseWrapper]]
+  private var allResponses = collection.mutable.ListBuffer.empty[HttpResponseWrapper]
 
   private val task = new Task[Boolean]() {
     override def call(): Boolean = {
       if (throttle.isDefined && requestCount.isDefined) {
         1 to requestCount.get foreach { i =>
           Thread.sleep(throttle.get)
-          try {
-            val r = request.withId(i.toString).processConstants()
-            val response = sendRequestCallback(r)
-            allResponses += Some(response)
-            textAreaConsole.appendText("[HTTP " + response.httpResponse.code + "] - " + r.verb + " " + r.uri + "\n")
-          } catch {
-            case _: Exception => allResponses += None
-          }
+          val r = request.withId(i.toString).processConstants()
+          val response = sendRequestCallback(r)
+          allResponses += response
+          textAreaConsole.appendText("[HTTP " + response.httpResponse.code + "] - " + r.verb + " " + r.uri + "\n")
           updateProgress(i, requestCount.get)
         }
         finishedBulkRequestCallback(allResponses.toList)
@@ -40,14 +36,10 @@ class BulkRequestProcessingDialog(requestCount: Option[Int],
       } else if (throttle.isDefined && ids.isDefined) {
         ids.get.zipWithIndex.foreach { case (id, i) =>
           Thread.sleep(throttle.get)
-          try {
-            val r = request.withId(id).processConstants()
-            val response = sendRequestCallback(r)
-            allResponses += Some(response)
-            textAreaConsole.appendText("[HTTP " + response.httpResponse.code + "] - " + r.verb + " " + r.uri + "\n")
-          } catch {
-            case _: Exception => allResponses += None
-          }
+          val r = request.withId(id).processConstants()
+          val response = sendRequestCallback(r)
+          allResponses += response
+          textAreaConsole.appendText("[HTTP " + response.httpResponse.code + "] - " + r.verb + " " + r.uri + "\n")
           updateProgress(i + 1, ids.get.length.toDouble)
         }
         finishedBulkRequestCallback(allResponses.toList)
