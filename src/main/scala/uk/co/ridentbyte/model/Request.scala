@@ -40,8 +40,8 @@ case class Request(uri: String, verb: String, headers: List[String], body: Optio
       bodyCopy = replaceEachIn(bodyCopy, "#\\{randomFloat\\}", () => Random.nextFloat().toString)
       bodyCopy = replaceEachIn(bodyCopy, "#\\{randomName\\}", () => Names.getRandomName)
 
-      0.until("#\\{([0-9]+)..([0-9]+)\\}".r.findAllMatchIn(bodyCopy).length).foreach { _ =>
-        val matchedValue = "#\\{([0-9]+)..([0-9]+)\\}".r.findFirstMatchIn(bodyCopy).get
+      0.until("#\\{rand\\(([0-9]+)..([0-9]+)\\)\\}".r.findAllMatchIn(bodyCopy).length).foreach { _ =>
+        val matchedValue = "#\\{rand\\(([0-9]+)..([0-9]+)\\)\\}".r.findFirstMatchIn(bodyCopy).get
         val int1 = matchedValue.group(1).toInt
         val int2 = matchedValue.group(2).toInt
         bodyCopy = bodyCopy.replace(matchedValue.toString(), (int1 + Random.nextInt(int2 - int1)).toString)
