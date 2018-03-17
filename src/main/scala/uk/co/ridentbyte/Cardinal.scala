@@ -39,6 +39,16 @@ class Cardinal extends Application {
     HttpResponseWrapper(response, totalTime)
   }
 
+  private def loadFileAsRequest(filename: String): Option[Request] = {
+    try {
+      currentFile = Some(IOUtil.loadFile(fileDir + "/" + filename + ".json"))
+      val data = IOUtil.readFileContents(currentFile.get)
+      Some(Request(data))
+    } catch {
+      case _: Exception => None
+    }
+  }
+
   private def save(request: Request, filename: Option[String] = None): Unit = {
     if (filename.isDefined) {
       IOUtil.writeToFile(fileDir + "/" + filename.get + ".json", request.toJson)
@@ -55,29 +65,13 @@ class Cardinal extends Application {
   }
 
   private def loadFile(filename: String): Unit = {
-    try {
+    val request = loadFileAsRequest(filename)
+    if (request.isDefined) {
       cardinalView.clearRequestResponsePanes()
-      currentFile = Some(IOUtil.loadFile(fileDir + "/" + filename + ".json"))
-      val data = IOUtil.readFileContents(currentFile.get)
-      cardinalView.loadRequest(Request(data))
-    } catch {
-      case _: Exception =>
-        cardinalView.setFileList(IOUtil.listFileNames(fileDir))
-        cardinalView.showErrorDialog("Error loading: " + filename)
-    }
-  }
-
-  private def loadFileAsRequest(filename: String): Option[Request] = {
-    try {
-      cardinalView.clearRequestResponsePanes()
-      currentFile = Some(IOUtil.loadFile(fileDir + "/" + filename + ".json"))
-      val data = IOUtil.readFileContents(currentFile.get)
-      Some(Request(data))
-    } catch {
-      case _: Exception =>
-        cardinalView.setFileList(IOUtil.listFileNames(fileDir))
-        cardinalView.showErrorDialog("Error loading: " + filename)
-        None
+      cardinalView.loadRequest(request.get)
+    } else {
+      cardinalView.setFileList(IOUtil.listFileNames(fileDir))
+      cardinalView.showErrorDialog("Error loading: " + filename)
     }
   }
 

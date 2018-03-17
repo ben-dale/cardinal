@@ -21,7 +21,6 @@ class FilePane(loadFileCallback: (String) => Unit,
   treeFiles.getSelectionModel.selectedItemProperty().addListener(new ChangeListener[TreeItem[String]] {
     override def changed(observable: ObservableValue[_ <: TreeItem[String]], oldValue: TreeItem[String], newValue: TreeItem[String]): Unit = {
       if (newValue != null && newValue != treeFiles.getRoot && newValue.getChildren.isEmpty) {
-        println("loading file for " + newValue)
         loadFileCallback(getFullPathFor(newValue))
       }
     }
