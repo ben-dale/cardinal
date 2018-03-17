@@ -27,6 +27,7 @@ class BulkRequestProcessingDialog(requestCount: Option[Int],
           val response = sendRequestCallback(r)
           allResponses += response
           updateProgress(i, requestCount.get)
+          Platform.runLater(() => labelDelta.setText(allResponses.length.toString))
         }
         finishedBulkRequestCallback(allResponses.toList)
         Platform.runLater(() => close())
@@ -38,6 +39,7 @@ class BulkRequestProcessingDialog(requestCount: Option[Int],
           val response = sendRequestCallback(r)
           allResponses += response
           updateProgress(i + 1, ids.get.length.toDouble)
+          Platform.runLater(() => labelDelta.setText(allResponses.length.toString))
         }
         finishedBulkRequestCallback(allResponses.toList)
         Platform.runLater(() => close())
@@ -66,6 +68,11 @@ class BulkRequestProcessingDialog(requestCount: Option[Int],
   progressBar.setPrefWidth(400)
   GridPane.setFillWidth(progressBar, true)
   grid.add(progressBar, 0, 1)
+
+  val labelDelta = new Label()
+  GridPane.setHalignment(labelDelta, HPos.CENTER)
+  GridPane.setFillWidth(labelDelta, true)
+  grid.add(labelDelta, 0, 2)
 
   getDialogPane.setContent(grid)
   getDialogPane.getButtonTypes.addAll(new ButtonType("Abort", ButtonData.CANCEL_CLOSE))

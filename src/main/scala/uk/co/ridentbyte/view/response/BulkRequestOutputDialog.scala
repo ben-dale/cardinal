@@ -22,15 +22,16 @@ class BulkRequestOutputDialog(responses: List[HttpResponseWrapper]) extends Dial
   }
 
   val xAxis = new CategoryAxis
-  xAxis.setLabel("Requests")
+  xAxis.setLabel("Request")
 
   val yAxis = new NumberAxis
-  yAxis.setLabel("Time")
+  yAxis.setLabel("Time (ms)")
 
   val lineChart = new LineChart[String, Number](xAxis, yAxis)
   lineChart.setCreateSymbols(false)
   lineChart.setLegendVisible(false)
   lineChart.getData.add(timeSeries)
+  lineChart.setMaxHeight(200)
   GridPane.setHgrow(lineChart, Priority.ALWAYS)
   grid.add(lineChart, 0, 1)
 

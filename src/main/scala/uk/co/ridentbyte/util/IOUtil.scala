@@ -25,7 +25,7 @@ object IOUtil {
       .walk(FileSystems.getDefault.getPath(path))
       .iterator()
       .asScala
-      .filter(Files.isRegularFile(_))
+      .filter(f => Files.isRegularFile(f) && f.getFileName.toFile.getName.endsWith(".json"))
       .map(_.toString.replace(path + "/", "")).toList
   }
 
