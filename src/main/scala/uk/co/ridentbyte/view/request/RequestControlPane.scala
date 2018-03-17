@@ -9,17 +9,9 @@ class RequestControlPane(sendRequestCallback: () => Unit,
                          clearAllCallback: () => Unit,
                          saveCallback: () => Unit) extends GridPane {
 
-  setStyle(
-    """
-      |-fx-border-width: 1 0 0 1;
-      |-fx-border-color: #DDDDDD;
-      |-fx-border-style: solid hidden hidden solid;
-    """.stripMargin
-  )
-
   setHgap(10)
   setVgap(10)
-  setPadding(new Insets(10, 10, 10, 10))
+  setPadding(new Insets(0, 10, 10, 0))
 
   private val buttonNew = new Button("Clear All")
   GridPane.setVgrow(buttonNew, Priority.NEVER)

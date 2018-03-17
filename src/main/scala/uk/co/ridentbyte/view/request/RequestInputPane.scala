@@ -9,17 +9,9 @@ class RequestInputPane extends GridPane {
 
   private var currentRequest: Option[Request] = None
 
-  setStyle(
-    """
-      |-fx-border-width: 0 1 0 1;
-      |-fx-border-color: #DDDDDD;
-      |-fx-border-style: hidden solid hidden solid;
-    """.stripMargin
-  )
-
   setHgap(10)
   setVgap(10)
-  setPadding(new Insets(10, 10, 10, 10))
+  setPadding(new Insets(10, 10, 10, 0))
 
   private val uriVerbInputPane = new RequestUriVerbInputPane
   GridPane.setVgrow(uriVerbInputPane, Priority.NEVER)

@@ -6,8 +6,8 @@ import uk.co.ridentbyte.view.util.RowConstraintsBuilder
 
 class RequestHeadersBodyInputPane extends GridPane {
 
-  setHgap(10)
-  setVgap(10)
+  setHgap(5)
+  setVgap(5)
 
   getRowConstraints.addAll(
     RowConstraintsBuilder().withMaxHeight(270).build,

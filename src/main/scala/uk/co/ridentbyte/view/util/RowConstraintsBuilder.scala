@@ -16,6 +16,11 @@ case class RowConstraintsBuilder() {
     this
   }
 
+  def withPercentageHeight(percentage: Int): RowConstraintsBuilder = {
+    rowConstraints.setPercentHeight(percentage)
+    this
+  }
+
   def build: RowConstraints = rowConstraints
 
 }

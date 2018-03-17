@@ -7,13 +7,11 @@ import javafx.scene.control.Alert.AlertType
 import javafx.scene.control.{Alert, TextInputDialog}
 import javafx.scene.layout.{GridPane, Priority}
 import javax.net.ssl.SSLHandshakeException
-import uk.co.ridentbyte.model.{BulkRequest, HttpResponseWrapper, Request}
+import uk.co.ridentbyte.model.{HttpResponseWrapper, Request}
 import uk.co.ridentbyte.view.file.FilePane
-import uk.co.ridentbyte.view.request.{BulkRequestInputDialog, BulkRequestProcessingDialog, RequestControlPane, RequestInputPane}
+import uk.co.ridentbyte.view.request.{BulkRequestProcessingDialog, RequestControlPane, RequestInputPane}
 import uk.co.ridentbyte.view.response.{BulkRequestOutputDialog, ResponsePane}
 import uk.co.ridentbyte.view.util.{ColumnConstraintsBuilder, RowConstraintsBuilder}
-
-import scala.annotation.tailrec
 
 class CardinalView(loadFile: (String) => Unit,
                    deleteFile: (String) => Unit,
@@ -28,7 +26,7 @@ class CardinalView(loadFile: (String) => Unit,
 
   private val filePane = new FilePane(loadFile, deleteFile, duplicateFile)
   private val requestInputPane = new RequestInputPane
-  private val responsePane = new ResponsePane()
+  private val responsePane = new ResponsePane(startBulkRequest)
   private val requestControlPane = new RequestControlPane(sendRequestAndLoadResponse, showBulkRequestDialogNoArgs, clearAll, save)
 
   val grid2 = new GridPane
@@ -68,7 +66,6 @@ class CardinalView(loadFile: (String) => Unit,
     alert.showAndWait
   }
 
-
   private def showBulkRequestResultDialog(responses: List[HttpResponseWrapper]): Unit = {
     Platform.runLater(() => {
       val alert = new BulkRequestOutputDialog(responses)
@@ -76,29 +73,13 @@ class CardinalView(loadFile: (String) => Unit,
     })
   }
 
-  @tailrec
-  private def showBulkRequestDialog(bulkRequest: BulkRequest = BulkRequest()): Unit = {
-    val request = requestInputPane.getRequest
-    if (request.uri.trim.length == 0) {
-      showErrorDialog("Please enter a URL.")
+  def startBulkRequest(request: Request, throttle: Option[Long], count: Option[Int], ids: Option[List[String]]): Unit = {
+    if (count.isEmpty && ids.isEmpty) {
+      showErrorDialog("Enter a for each value or count value.")
+    } else if (count.isDefined && ids.nonEmpty) {
+      showErrorDialog("Enter only a for each value or count value.")
     } else {
-      val dialog = new BulkRequestInputDialog(bulkRequest)
-      val results = dialog.showAndWait()
-      if (results.isPresent) {
-        val throttle = results.get.throttle
-        val count = results.get.count
-        val ids = results.get.ids
-
-        if (count.isEmpty && ids.isEmpty) {
-          showErrorDialog("Enter a for each value or count value.")
-          showBulkRequestDialog(BulkRequest(throttle, count, ids))
-        } else if (count.isDefined && ids.nonEmpty) {
-          showErrorDialog("Enter only a for each value or count value.")
-          showBulkRequestDialog(BulkRequest(throttle, count, ids))
-        } else {
-          new BulkRequestProcessingDialog(count, throttle, ids, request, sendRequest, showBulkRequestResultDialog).show()
-        }
-      }
+      new BulkRequestProcessingDialog(count, throttle, ids, request, sendRequest, showBulkRequestResultDialog).show()
     }
   }
 
@@ -107,7 +88,6 @@ class CardinalView(loadFile: (String) => Unit,
     responsePane.clear()
   }
 
-
   private def sendRequestAndLoadResponse(): Unit = {
     val request = requestInputPane.getRequest
     if (request.uri.trim.length == 0) {
@@ -115,7 +95,7 @@ class CardinalView(loadFile: (String) => Unit,
     } else {
       try {
         val httpResponse = sendRequest(requestInputPane.getRequest.processConstants())
-        responsePane.loadResponse(httpResponse)
+        responsePane.addResponse(httpResponse)
       } catch {
         case _: ConnectException => showErrorDialog("Connection refused.")
         case _: URISyntaxException => showErrorDialog("Invalid URL.")
@@ -127,7 +107,7 @@ class CardinalView(loadFile: (String) => Unit,
   }
 
   private def showBulkRequestDialogNoArgs(): Unit = {
-    showBulkRequestDialog()
+    responsePane.showBulkRequestInput(requestInputPane.getRequest)
   }
 
 
