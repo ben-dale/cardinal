@@ -96,15 +96,20 @@ class Cardinal extends Application {
   }
 
   private def sendRequestAndLoadResponse(): Unit = {
-    try {
-      val httpResponse = sendRequest(requestInputPane.getRequest.processConstants())
-      responsePane.loadResponse(httpResponse)
-    } catch {
-      case _: ConnectException => showErrorDialog("Connection refused.")
-      case _: URISyntaxException => showErrorDialog("Invalid URL.")
-      case _: UnknownHostException => showErrorDialog("Unknown Host.")
-      case _: SSLHandshakeException => showErrorDialog("SSL Handshake failed. Remote host closed connection during handshake.")
-      case _: Exception => showErrorDialog("Unknown error occurred.")
+    val request = requestInputPane.getRequest
+    if (request.uri.trim.length == 0) {
+      showErrorDialog("Please enter a URL.")
+    } else {
+      try {
+        val httpResponse = sendRequest(requestInputPane.getRequest.processConstants())
+        responsePane.loadResponse(httpResponse)
+      } catch {
+        case _: ConnectException => showErrorDialog("Connection refused.")
+        case _: URISyntaxException => showErrorDialog("Invalid URL.")
+        case _: UnknownHostException => showErrorDialog("Unknown Host.")
+        case _: SSLHandshakeException => showErrorDialog("SSL Handshake failed. Remote host closed connection during handshake.")
+        case _: Exception => showErrorDialog("Unknown error occurred.")
+      }
     }
   }
 
@@ -122,21 +127,25 @@ class Cardinal extends Application {
   @tailrec
   private def showBulkRequestDialog(bulkRequest: BulkRequest = BulkRequest()): Unit = {
     val request = requestInputPane.getRequest
-    val dialog = new BulkRequestInputDialog(bulkRequest)
-    val results = dialog.showAndWait()
-    if (results.isPresent) {
-      val throttle = results.get.throttle
-      val count = results.get.count
-      val ids = results.get.ids
+    if (request.uri.trim.length == 0) {
+      showErrorDialog("Please enter a URL.")
+    } else {
+      val dialog = new BulkRequestInputDialog(bulkRequest)
+      val results = dialog.showAndWait()
+      if (results.isPresent) {
+        val throttle = results.get.throttle
+        val count = results.get.count
+        val ids = results.get.ids
 
-      if (count.isEmpty && ids.isEmpty) {
-        showErrorDialog("Enter a for each value or count value.")
-        showBulkRequestDialog(BulkRequest(throttle, count, ids))
-      } else if (count.isDefined && ids.nonEmpty) {
-        showErrorDialog("Enter only a for each value or count value.")
-        showBulkRequestDialog(BulkRequest(throttle, count, ids))
-      } else {
-        new BulkRequestProcessingDialog(count, throttle, ids, request, sendRequest, showBulkRequestResultDialog).show()
+        if (count.isEmpty && ids.isEmpty) {
+          showErrorDialog("Enter a for each value or count value.")
+          showBulkRequestDialog(BulkRequest(throttle, count, ids))
+        } else if (count.isDefined && ids.nonEmpty) {
+          showErrorDialog("Enter only a for each value or count value.")
+          showBulkRequestDialog(BulkRequest(throttle, count, ids))
+        } else {
+          new BulkRequestProcessingDialog(count, throttle, ids, request, sendRequest, showBulkRequestResultDialog).show()
+        }
       }
     }
   }
