@@ -33,17 +33,23 @@ class RequestControlPane(sendRequestCallback: () => Unit,
   buttonSave.setOnAction((_) => saveCallback())
   add(buttonSave, 1, 0)
 
+  private val buttonAsCurl = new Button("As cURL...")
+  GridPane.setVgrow(buttonAsCurl, Priority.NEVER)
+  GridPane.setHgrow(buttonAsCurl, Priority.NEVER)
+  buttonAsCurl.setOnAction((_) => println("As CURL clicked"))
+  add(buttonAsCurl, 2, 0)
+
   private val buttonSendBulkRequest = new Button("Send Bulk Request...")
   GridPane.setVgrow(buttonSendBulkRequest, Priority.NEVER)
   GridPane.setHgrow(buttonSendBulkRequest, Priority.ALWAYS)
   GridPane.setHalignment(buttonSendBulkRequest, HPos.RIGHT)
   buttonSendBulkRequest.setOnAction((_) => showBulkRequestDialog())
-  add(buttonSendBulkRequest, 2, 0)
+  add(buttonSendBulkRequest, 3, 0)
 
   private val buttonSendRequest = new Button("Send Request")
   GridPane.setVgrow(buttonSendRequest, Priority.NEVER)
   GridPane.setHgrow(buttonSendRequest, Priority.NEVER)
   buttonSendRequest.setOnAction((_) => sendRequestCallback())
-  add(buttonSendRequest, 3, 0)
+  add(buttonSendRequest, 4, 0)
 
 }
