@@ -96,7 +96,7 @@ class CardinalView(loadFile: (String) => Unit,
     requestInputPane.loadRequest(request)
   }
 
-  def highlightFile(filename: String): Unit = {
+  def selectFile(filename: String): Unit = {
     filePane.highlight(filename)
   }
 

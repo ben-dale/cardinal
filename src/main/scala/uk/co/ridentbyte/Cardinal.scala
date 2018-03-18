@@ -83,7 +83,7 @@ class Cardinal extends Application {
         save(request.get, Some(newName.get))
         currentFile = Some(IOUtil.loadFile(newName.get))
         cardinalView.setFileList(IOUtil.listFileNames(fileDir))
-        cardinalView.highlightFile(newName.get)
+        cardinalView.selectFile(newName.get)
       }
     }
   }
