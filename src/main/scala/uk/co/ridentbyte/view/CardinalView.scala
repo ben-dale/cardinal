@@ -104,5 +104,4 @@ class CardinalView(loadFile: (String) => Unit,
     saveCallback(requestInputPane.getRequest, None)
   }
 
-
 }

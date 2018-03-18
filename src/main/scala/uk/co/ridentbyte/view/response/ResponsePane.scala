@@ -67,6 +67,19 @@ class ResponsePane(sendRequestCallback: (Request) => HttpResponseWrapper) extend
   def infoTab: Tab = {
     val tab = new Tab("Info")
     tab.setClosable(false)
+
+    val grid = new GridPane
+    grid.setPadding(new Insets(10, 10, 10, 10))
+    grid.setVgap(10)
+    grid.setHgap(10)
+
+    val infoLabel = new Label("Cardinal Alpha - Version 0.1")
+    GridPane.setHgrow(infoLabel, Priority.ALWAYS)
+    GridPane.setHalignment(infoLabel, HPos.CENTER)
+    grid.add(infoLabel, 0, 0)
+
+    tab.setContent(grid)
+
     tab
   }
 
@@ -238,33 +251,45 @@ class ResponsePane(sendRequestCallback: (Request) => HttpResponseWrapper) extend
     }
 
     val grid = new GridPane
+    grid.setPadding(new Insets(10, 10, 10, 10))
     grid.setHgap(10)
     grid.setVgap(10)
     grid.setMinWidth(400)
 
     val labelSendingRequest = new Label("Sending requests...")
     GridPane.setHalignment(labelSendingRequest, HPos.CENTER)
+    GridPane.setHgrow(labelSendingRequest, Priority.ALWAYS)
     GridPane.setFillWidth(labelSendingRequest, true)
     grid.add(labelSendingRequest, 0, 0)
 
     val progressBar = new ProgressBar()
     progressBar.progressProperty().unbind()
     progressBar.progressProperty().bind(task.progressProperty())
-    progressBar.setPrefWidth(400)
-    GridPane.setFillWidth(progressBar, true)
+    progressBar.setMaxWidth(java.lang.Double.MAX_VALUE)
+    GridPane.setHgrow(progressBar, Priority.ALWAYS)
     grid.add(progressBar, 0, 1)
 
     GridPane.setHalignment(labelDelta, HPos.CENTER)
+    GridPane.setHgrow(labelDelta, Priority.ALWAYS)
     GridPane.setFillWidth(labelDelta, true)
     grid.add(labelDelta, 0, 2)
 
-    Platform.runLater(() => tab.setContent(grid))
+    val buttonAbort = new Button("Abort")
+    buttonAbort.setOnAction((_) => {
+      task.cancel()
+      finishedBulkRequestCallback(tab, allResponses.toList)
+    })
+    GridPane.setHalignment(buttonAbort, HPos.CENTER)
+    grid.add(buttonAbort, 0, 3)
 
+
+    Platform.runLater(() => tab.setContent(grid))
     new Thread(task).start()
   }
 
   def finishedBulkRequestCallback(tab: Tab, responses: List[HttpResponseWrapper]): Unit = {
     val grid = new GridPane
+    grid.setPadding(new Insets(10, 10, 10, 10))
     grid.setHgap(10)
     grid.setVgap(10)
     grid.setMinWidth(500)
