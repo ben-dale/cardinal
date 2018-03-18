@@ -2,15 +2,14 @@ package uk.co.ridentbyte.view
 
 import java.net.{ConnectException, URISyntaxException, UnknownHostException}
 
-import javafx.application.Platform
 import javafx.scene.control.Alert.AlertType
 import javafx.scene.control.{Alert, TextInputDialog}
 import javafx.scene.layout.{GridPane, Priority}
 import javax.net.ssl.SSLHandshakeException
 import uk.co.ridentbyte.model.{HttpResponseWrapper, Request}
 import uk.co.ridentbyte.view.file.FilePane
-import uk.co.ridentbyte.view.request.{BulkRequestProcessingDialog, RequestControlPane, RequestInputPane}
-import uk.co.ridentbyte.view.response.{BulkRequestOutputDialog, ResponsePane}
+import uk.co.ridentbyte.view.request.{RequestControlPane, RequestInputPane}
+import uk.co.ridentbyte.view.response.ResponsePane
 import uk.co.ridentbyte.view.util.{ColumnConstraintsBuilder, RowConstraintsBuilder}
 
 class CardinalView(loadFile: (String) => Unit,
@@ -26,7 +25,7 @@ class CardinalView(loadFile: (String) => Unit,
 
   private val filePane = new FilePane(loadFile, deleteFile, duplicateFile)
   private val requestInputPane = new RequestInputPane
-  private val responsePane = new ResponsePane(startBulkRequest)
+  private val responsePane = new ResponsePane(sendRequest)
   private val requestControlPane = new RequestControlPane(sendRequestAndLoadResponse, showBulkRequestDialogNoArgs, clearAll, save)
 
   val grid2 = new GridPane
@@ -66,23 +65,6 @@ class CardinalView(loadFile: (String) => Unit,
     alert.showAndWait
   }
 
-  private def showBulkRequestResultDialog(responses: List[HttpResponseWrapper]): Unit = {
-    Platform.runLater(() => {
-      val alert = new BulkRequestOutputDialog(responses)
-      alert.show()
-    })
-  }
-
-  def startBulkRequest(request: Request, throttle: Option[Long], count: Option[Int], ids: Option[List[String]]): Unit = {
-    if (count.isEmpty && ids.isEmpty) {
-      showErrorDialog("Enter a for each value or count value.")
-    } else if (count.isDefined && ids.nonEmpty) {
-      showErrorDialog("Enter only a for each value or count value.")
-    } else {
-      new BulkRequestProcessingDialog(count, throttle, ids, request, sendRequest, showBulkRequestResultDialog).show()
-    }
-  }
-
   def clearRequestResponsePanes(): Unit = {
     requestInputPane.clear()
     responsePane.clear()
@@ -109,7 +91,6 @@ class CardinalView(loadFile: (String) => Unit,
   private def showBulkRequestDialogNoArgs(): Unit = {
     responsePane.showBulkRequestInput(requestInputPane.getRequest)
   }
-
 
   def loadRequest(request: Request): Unit = {
     requestInputPane.loadRequest(request)
