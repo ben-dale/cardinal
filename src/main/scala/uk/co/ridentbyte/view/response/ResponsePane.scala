@@ -82,37 +82,80 @@ class ResponsePane(
     grid.setHgap(10)
     grid.setVgap(10)
 
+    val labelVerb = new Label(request.verb)
+    grid.add(labelVerb, 0, 0)
+
+    val labelURI = new Label(request.uri)
+    grid.add(labelURI, 1, 0)
+
+    val labelHeaders = new Label("Headers")
+    GridPane.setColumnSpan(labelHeaders, 2)
+    grid.add(labelHeaders, 0, 1)
+
+    val listHeaders = new ListView[String]()
+    listHeaders.setStyle(
+      """
+        |-fx-font-family: Monospaced;
+        |-fx-font-size: 13;
+        |-fx-font-weight: 600;
+      """.stripMargin
+    )
+    listHeaders.setEditable(false)
+    listHeaders.setMaxHeight(200)
+    request.headers.foreach { header =>
+      listHeaders.getItems.add(header)
+    }
+    GridPane.setColumnSpan(listHeaders, 2)
+    grid.add(listHeaders, 0, 2)
+
+    val labelBodyExample = new Label("Body (Example)")
+    GridPane.setColumnSpan(labelBodyExample, 2)
+    grid.add(labelBodyExample, 0, 3)
+
+    val textAreaExampleBody = new TextArea()
+    textAreaExampleBody.setStyle(
+      """
+        |-fx-font-family: Monospaced;
+        |-fx-font-size: 13;
+        |-fx-font-weight: 600;
+      """.stripMargin
+    )
+    textAreaExampleBody.setEditable(false)
+    textAreaExampleBody.setText(request.processConstants().body.getOrElse(""))
+    GridPane.setColumnSpan(textAreaExampleBody, 2)
+    textAreaExampleBody.setEditable(false)
+    grid.add(textAreaExampleBody, 0, 4)
+
     val labelDelay = new Label("Delay per request (ms)")
     GridPane.setHalignment(labelDelay, HPos.RIGHT)
-    grid.add(labelDelay, 0, 0)
+    grid.add(labelDelay, 0, 5)
 
     val textDelay = new TextField
+    GridPane.setHgrow(textDelay, Priority.ALWAYS)
     textDelay.setText("500")
-    grid.add(textDelay, 1, 0)
-
-    val separator = new Separator()
-    GridPane.setColumnSpan(separator, 2)
-    grid.add(separator, 0, 1)
+    grid.add(textDelay, 1, 5)
 
     val labelNumOfRequests = new Label("No. of requests")
     GridPane.setHalignment(labelNumOfRequests, HPos.RIGHT)
-    grid.add(labelNumOfRequests, 0, 2)
+    grid.add(labelNumOfRequests, 0, 6)
 
     val textNumOfRequests = new TextField
-    grid.add(textNumOfRequests, 1, 2)
+    GridPane.setHgrow(textNumOfRequests, Priority.ALWAYS)
+    grid.add(textNumOfRequests, 1, 6)
 
     val labelOr = new Label("- OR -")
-    GridPane.setColumnSpan(labelOr, 2)
+    GridPane.setColumnSpan(labelOr, 3)
     GridPane.setHalignment(labelOr, HPos.CENTER)
-    grid.add(labelOr, 0, 3)
+    grid.add(labelOr, 0, 7)
 
     val labelForEach = new Label("For each")
     GridPane.setHalignment(labelForEach, HPos.RIGHT)
-    grid.add(labelForEach, 0, 4)
+    grid.add(labelForEach, 0, 8)
 
     val textForEach = new TextField
+    GridPane.setHgrow(textForEach, Priority.ALWAYS)
     textForEach.setPromptText("325, 454, 432 or 12..54")
-    grid.add(textForEach, 1, 4)
+    grid.add(textForEach, 1, 8)
 
     tab.setContent(grid)
 
@@ -150,7 +193,7 @@ class ResponsePane(
       startBulkRequest(request, optTextDelay, optNumRequests, optTextForEach)
     })
     GridPane.setHalignment(buttonStart, HPos.RIGHT)
-    grid.add(buttonStart, 1, 5)
+    grid.add(buttonStart, 1, 9)
 
 
     tab
