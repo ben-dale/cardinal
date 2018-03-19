@@ -8,7 +8,7 @@ import javafx.scene.layout.{GridPane, Priority}
 import javax.net.ssl.SSLHandshakeException
 import uk.co.ridentbyte.model.{HttpResponseWrapper, Request}
 import uk.co.ridentbyte.view.file.FilePane
-import uk.co.ridentbyte.view.request.{RequestControlPane, RequestInputPane}
+import uk.co.ridentbyte.view.request.RequestInputPane
 import uk.co.ridentbyte.view.response.ResponsePane
 import uk.co.ridentbyte.view.util.{ColumnConstraintsBuilder, RowConstraintsBuilder}
 
@@ -24,9 +24,9 @@ class CardinalView(loadFile: (String) => Unit,
   getRowConstraints.add(RowConstraintsBuilder().withVgrow(Priority.ALWAYS).build)
 
   private val filePane = new FilePane(loadFile, deleteFile, duplicateFile)
-  private val requestInputPane = new RequestInputPane
+  private val requestInputPane = new RequestInputPane(sendRequestAndLoadResponse, showBulkRequestDialogNoArgs, clearAll, save)
   private val responsePane = new ResponsePane(sendRequest)
-  private val requestControlPane = new RequestControlPane(sendRequestAndLoadResponse, showBulkRequestDialogNoArgs, clearAll, save)
+
 
   val grid2 = new GridPane
   grid2.getColumnConstraints.add(ColumnConstraintsBuilder().withHgrow(Priority.ALWAYS).withPercentageWidth(45).build)
@@ -37,8 +37,6 @@ class CardinalView(loadFile: (String) => Unit,
   grid2.add(requestInputPane, 0, 0)
   grid2.add(responsePane, 1, 0)
 
-  GridPane.setColumnSpan(requestControlPane, 2)
-  grid2.add(requestControlPane, 0, 1)
 
   add(filePane, 0, 0)
   add(grid2, 1, 0)

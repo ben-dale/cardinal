@@ -13,6 +13,12 @@ import uk.co.ridentbyte.view.util.{ColumnConstraintsBuilder, RowConstraintsBuild
 class ResponsePane(sendRequestCallback: (Request) => HttpResponseWrapper) extends GridPane {
 
   private val tabbedPane = new TabPane()
+  setStyle(
+    """
+      |-fx-border-width: 0 0 0 1;
+      |-fx-border-color: #DDDDDD;
+      |-fx-border-style: hidden hidden hidden solid;
+    """.stripMargin)
   GridPane.setVgrow(tabbedPane, Priority.ALWAYS)
   GridPane.setHgrow(tabbedPane, Priority.ALWAYS)
   add(tabbedPane, 0, 1)
