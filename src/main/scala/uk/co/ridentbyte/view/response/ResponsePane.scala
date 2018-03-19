@@ -31,20 +31,8 @@ class ResponsePane(sendRequestCallback: (Request) => HttpResponseWrapper) extend
     grid.setVgap(10)
     grid.setHgap(10)
     grid.getColumnConstraints.add(ColumnConstraintsBuilder().withHgrow(Priority.ALWAYS).build)
-    grid.getRowConstraints.add(RowConstraintsBuilder().withVgrow(Priority.ALWAYS).withPercentageHeight(55).build)
-    grid.getRowConstraints.add(RowConstraintsBuilder().withVgrow(Priority.ALWAYS).withPercentageHeight(45).build)
-
-    val textAreaBody = new TextArea()
-    textAreaBody.setEditable(false)
-    textAreaBody.setStyle(
-      """
-        |-fx-font-family: Monospaced;
-        |-fx-font-size: 13;
-        |-fx-font-weight: 600;
-      """.stripMargin
-    )
-    textAreaBody.setText(response.httpResponse.body)
-    grid.add(textAreaBody, 0, 0)
+    grid.getRowConstraints.add(RowConstraintsBuilder().withVgrow(Priority.ALWAYS).withPercentageHeight(40).build)
+    grid.getRowConstraints.add(RowConstraintsBuilder().withVgrow(Priority.ALWAYS).withPercentageHeight(60).build)
 
     val listHeaders = new ListView[String]()
     listHeaders.setStyle(
@@ -57,7 +45,19 @@ class ResponsePane(sendRequestCallback: (Request) => HttpResponseWrapper) extend
     response.httpResponse.headers.foreach {
       header => listHeaders.getItems.add(header._1 + ": " + header._2.mkString(""))
     }
-    grid.add(listHeaders, 0, 1)
+    grid.add(listHeaders, 0, 0)
+
+    val textAreaBody = new TextArea()
+    textAreaBody.setEditable(false)
+    textAreaBody.setStyle(
+      """
+        |-fx-font-family: Monospaced;
+        |-fx-font-size: 13;
+        |-fx-font-weight: 600;
+      """.stripMargin
+    )
+    textAreaBody.setText(response.formattedBody)
+    grid.add(textAreaBody, 0, 1)
 
     newTab.setContent(grid)
     tabbedPane.getTabs.add(newTab)
