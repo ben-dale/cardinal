@@ -4,7 +4,7 @@ import scala.util.Random
 
 object Names {
 
-  def getRandomName: String = {
+  def getRandom: String = {
     names(Random.nextInt(names.length))
   }
 
