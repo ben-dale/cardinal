@@ -66,8 +66,10 @@ class ResponsePane(sendRequestCallback: (Request) => HttpResponseWrapper) extend
     grid.add(textAreaBody, 0, 1)
 
     newTab.setContent(grid)
-    tabbedPane.getTabs.add(newTab)
-    tabbedPane.getSelectionModel.select(newTab)
+    Platform.runLater(() => {
+      tabbedPane.getTabs.add(newTab)
+      tabbedPane.getSelectionModel.select(newTab)
+    })
   }
 
   def infoTab: Tab = {
@@ -103,82 +105,36 @@ class ResponsePane(sendRequestCallback: (Request) => HttpResponseWrapper) extend
     grid.setHgap(10)
     grid.setVgap(10)
 
-    val labelVerb = new Label(request.verb)
-    grid.add(labelVerb, 0, 0)
-
-    val labelURI = new Label(request.uri)
-    grid.add(labelURI, 1, 0)
-
-    val labelHeaders = new Label("Headers")
-    GridPane.setColumnSpan(labelHeaders, 2)
-    grid.add(labelHeaders, 0, 1)
-
-    val listHeaders = new ListView[String]()
-    listHeaders.setStyle(
-      """
-        |-fx-font-family: Monospaced;
-        |-fx-font-size: 13;
-        |-fx-font-weight: 600;
-      """.stripMargin
-    )
-    listHeaders.setEditable(false)
-    listHeaders.setMaxHeight(200)
-    request.headers.foreach { header =>
-      listHeaders.getItems.add(header)
-    }
-    GridPane.setColumnSpan(listHeaders, 2)
-    grid.add(listHeaders, 0, 2)
-
-    val labelBodyExample = new Label("Body (Example)")
-    GridPane.setColumnSpan(labelBodyExample, 2)
-    grid.add(labelBodyExample, 0, 3)
-
-    val textAreaExampleBody = new TextArea()
-    textAreaExampleBody.setStyle(
-      """
-        |-fx-font-family: Monospaced;
-        |-fx-font-size: 13;
-        |-fx-font-weight: 600;
-      """.stripMargin
-    )
-    textAreaExampleBody.setEditable(false)
-    textAreaExampleBody.setText(request.processConstants().body.getOrElse(""))
-    GridPane.setColumnSpan(textAreaExampleBody, 2)
-    textAreaExampleBody.setEditable(false)
-    grid.add(textAreaExampleBody, 0, 4)
-
     val labelDelay = new Label("Delay per request (ms)")
     GridPane.setHalignment(labelDelay, HPos.RIGHT)
-    grid.add(labelDelay, 0, 5)
+    grid.add(labelDelay, 0, 0)
 
     val textDelay = new TextField
     GridPane.setHgrow(textDelay, Priority.ALWAYS)
     textDelay.setText("500")
-    grid.add(textDelay, 1, 5)
+    grid.add(textDelay, 1, 0)
 
     val labelNumOfRequests = new Label("No. of requests")
     GridPane.setHalignment(labelNumOfRequests, HPos.RIGHT)
-    grid.add(labelNumOfRequests, 0, 6)
+    grid.add(labelNumOfRequests, 0, 1)
 
     val textNumOfRequests = new TextField
     GridPane.setHgrow(textNumOfRequests, Priority.ALWAYS)
-    grid.add(textNumOfRequests, 1, 6)
+    grid.add(textNumOfRequests, 1, 1)
 
     val labelOr = new Label("- OR -")
     GridPane.setColumnSpan(labelOr, 3)
     GridPane.setHalignment(labelOr, HPos.CENTER)
-    grid.add(labelOr, 0, 7)
+    grid.add(labelOr, 0, 2)
 
     val labelForEach = new Label("For each")
     GridPane.setHalignment(labelForEach, HPos.RIGHT)
-    grid.add(labelForEach, 0, 8)
+    grid.add(labelForEach, 0, 3)
 
     val textForEach = new TextField
     GridPane.setHgrow(textForEach, Priority.ALWAYS)
     textForEach.setPromptText("325, 454, 432 or 12..54")
-    grid.add(textForEach, 1, 8)
-
-    tab.setContent(grid)
+    grid.add(textForEach, 1, 3)
 
     val buttonStart = new Button("Start")
     buttonStart.setOnAction((_) => {
@@ -214,9 +170,53 @@ class ResponsePane(sendRequestCallback: (Request) => HttpResponseWrapper) extend
       startBulkRequestInTab(tab, request, optTextDelay, optNumRequests, optTextForEach)
     })
     GridPane.setHalignment(buttonStart, HPos.RIGHT)
-    grid.add(buttonStart, 1, 9)
+    grid.add(buttonStart, 1, 4)
 
+    val labelVerb = new Label(request.verb)
+    grid.add(labelVerb, 0, 5)
 
+    val labelURI = new Label(request.uri)
+    grid.add(labelURI, 1, 5)
+
+    val labelHeaders = new Label("Headers")
+    GridPane.setColumnSpan(labelHeaders, 2)
+    grid.add(labelHeaders, 0, 6)
+
+    val listHeaders = new ListView[String]()
+    listHeaders.setStyle(
+      """
+        |-fx-font-family: Monospaced;
+        |-fx-font-size: 13;
+        |-fx-font-weight: 600;
+      """.stripMargin
+    )
+    listHeaders.setEditable(false)
+    listHeaders.setMaxHeight(200)
+    request.headers.foreach { header =>
+      listHeaders.getItems.add(header)
+    }
+    GridPane.setColumnSpan(listHeaders, 2)
+    grid.add(listHeaders, 0, 7)
+
+    val labelBodyExample = new Label("Body (Example)")
+    GridPane.setColumnSpan(labelBodyExample, 2)
+    grid.add(labelBodyExample, 0, 8)
+
+    val textAreaExampleBody = new TextArea()
+    textAreaExampleBody.setStyle(
+      """
+        |-fx-font-family: Monospaced;
+        |-fx-font-size: 13;
+        |-fx-font-weight: 600;
+      """.stripMargin
+    )
+    textAreaExampleBody.setEditable(false)
+    textAreaExampleBody.setText(request.processConstants().body.getOrElse(""))
+    GridPane.setColumnSpan(textAreaExampleBody, 2)
+    textAreaExampleBody.setEditable(false)
+    grid.add(textAreaExampleBody, 0, 9)
+
+    tab.setContent(grid)
     tab
   }
 

@@ -1,11 +1,13 @@
 package uk.co.ridentbyte.view.request
 
+import javafx.application.Platform
+import javafx.concurrent.Task
 import javafx.geometry.{HPos, Insets}
 import javafx.scene.control.Button
 import javafx.scene.layout._
 
 class RequestControlPane(sendRequestCallback: () => Unit,
-                         showBulkRequestDialog: () => Unit,
+                         sendBulkRequestCallback: () => Unit,
                          clearAllCallback: () => Unit,
                          saveCallback: () => Unit) extends GridPane {
 
@@ -39,13 +41,27 @@ class RequestControlPane(sendRequestCallback: () => Unit,
   private val buttonSendBulkRequest = new Button("Send Bulk Request...")
   GridPane.setVgrow(buttonSendBulkRequest, Priority.NEVER)
   GridPane.setHgrow(buttonSendBulkRequest, Priority.NEVER)
-  buttonSendBulkRequest.setOnAction((_) => showBulkRequestDialog())
+  buttonSendBulkRequest.setOnAction((_) => sendBulkRequestCallback())
   add(buttonSendBulkRequest, 2, 0)
 
   private val buttonSendRequest = new Button("Send Request")
   GridPane.setVgrow(buttonSendRequest, Priority.NEVER)
   GridPane.setHgrow(buttonSendRequest, Priority.NEVER)
-  buttonSendRequest.setOnAction((_) => sendRequestCallback())
+  buttonSendRequest.setOnAction((_) => {
+    val task = new Task[Unit] {
+      override def call(): Unit = {
+        buttonSendRequest.setDisable(true)
+        sendRequestCallback()
+      }
+
+      override def done(): Unit = {
+        super.done()
+        buttonSendRequest.setDisable(false)
+      }
+    }
+
+    Platform.runLater(() => new Thread(task).start())
+  })
   add(buttonSendRequest, 3, 0)
 
 }

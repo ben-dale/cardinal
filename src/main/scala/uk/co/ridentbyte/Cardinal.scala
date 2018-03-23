@@ -67,7 +67,7 @@ class Cardinal extends Application {
   private def loadFile(filename: String): Unit = {
     val request = loadFileAsRequest(filename)
     if (request.isDefined) {
-      cardinalView.clearRequestResponsePanes()
+      cardinalView.clearRequestPane()
       cardinalView.loadRequest(request.get)
     } else {
       cardinalView.setFileList(IOUtil.listFileNames(fileDir))
@@ -91,7 +91,6 @@ class Cardinal extends Application {
   private def deleteFile(filename: String): Unit = {
     IOUtil.deleteFile(fileDir + "/" + filename + ".json")
     cardinalView.setFileList(IOUtil.listFileNames(fileDir))
-    cardinalView.clearRequestResponsePanes()
   }
 
   private def clearAll(): Unit = {

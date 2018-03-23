@@ -28,19 +28,17 @@ class CardinalView(loadFile: (String) => Unit,
   private val responsePane = new ResponsePane(sendRequest)
 
 
-  val grid2 = new GridPane
-  grid2.getColumnConstraints.add(ColumnConstraintsBuilder().withHgrow(Priority.ALWAYS).withPercentageWidth(45).build)
-  grid2.getColumnConstraints.add(ColumnConstraintsBuilder().withHgrow(Priority.ALWAYS).withPercentageWidth(55).build)
-  grid2.getRowConstraints.add(RowConstraintsBuilder().withVgrow(Priority.ALWAYS).build)
-  grid2.getRowConstraints.add(RowConstraintsBuilder().withVgrow(Priority.NEVER).build)
+  val grid = new GridPane
+  grid.getColumnConstraints.add(ColumnConstraintsBuilder().withHgrow(Priority.ALWAYS).withPercentageWidth(45).build)
+  grid.getColumnConstraints.add(ColumnConstraintsBuilder().withHgrow(Priority.ALWAYS).withPercentageWidth(55).build)
+  grid.getRowConstraints.add(RowConstraintsBuilder().withVgrow(Priority.ALWAYS).build)
+  grid.getRowConstraints.add(RowConstraintsBuilder().withVgrow(Priority.NEVER).build)
 
-  grid2.add(requestInputPane, 0, 0)
-  grid2.add(responsePane, 1, 0)
-
+  grid.add(requestInputPane, 0, 0)
+  grid.add(responsePane, 1, 0)
 
   add(filePane, 0, 0)
-  add(grid2, 1, 0)
-
+  add(grid, 1, 0)
 
   def setFileList(fileNames: List[String]): Unit = {
     filePane.setListContentTo(fileNames)
@@ -61,6 +59,10 @@ class CardinalView(loadFile: (String) => Unit,
     val alert = new Alert(AlertType.ERROR)
     alert.setContentText(errorMessage)
     alert.showAndWait
+  }
+
+  def clearRequestPane(): Unit = {
+    requestInputPane.clear()
   }
 
   def clearRequestResponsePanes(): Unit = {
@@ -87,7 +89,12 @@ class CardinalView(loadFile: (String) => Unit,
   }
 
   private def showBulkRequestDialogNoArgs(): Unit = {
-    responsePane.showBulkRequestInput(requestInputPane.getRequest)
+    val request = requestInputPane.getRequest
+    if (request.uri.trim.length == 0) {
+      showErrorDialog("Please enter a URL.")
+    } else {
+      responsePane.showBulkRequestInput(requestInputPane.getRequest)
+    }
   }
 
   def loadRequest(request: Request): Unit = {

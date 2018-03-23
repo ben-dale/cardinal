@@ -10,7 +10,7 @@ class RequestHeadersBodyInputPane extends GridPane {
   setVgap(5)
 
   getRowConstraints.addAll(
-    RowConstraintsBuilder().withMaxHeight(270).build,
+    RowConstraintsBuilder().withMaxHeight(250).build,
     RowConstraintsBuilder().build
   )
 

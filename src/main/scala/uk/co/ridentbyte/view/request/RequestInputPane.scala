@@ -6,7 +6,7 @@ import javafx.scene.layout._
 import uk.co.ridentbyte.model.Request
 
 class RequestInputPane(sendRequestCallback: () => Unit,
-                       showBulkRequestDialog: () => Unit,
+                       sendBulkRequestCallback: () => Unit,
                        clearAllCallback: () => Unit,
                        saveCallback: () => Unit) extends GridPane {
 
@@ -26,7 +26,7 @@ class RequestInputPane(sendRequestCallback: () => Unit,
   GridPane.setHgrow(headersBodyInputPane, Priority.ALWAYS)
   add(headersBodyInputPane, 0, 1)
 
-  private val requestControlPane = new RequestControlPane(sendRequestCallback, showBulkRequestDialog, clearAllCallback, saveCallback)
+  private val requestControlPane = new RequestControlPane(sendRequestCallback, sendBulkRequestCallback, clearAllCallback, saveCallback)
   GridPane.setColumnSpan(requestControlPane, 2)
   add(requestControlPane, 0, 2)
 
