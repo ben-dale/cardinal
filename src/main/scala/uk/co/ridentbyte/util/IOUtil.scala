@@ -31,7 +31,9 @@ object IOUtil {
 
   def writeToFile(filename: String, data: String): Unit = {
     val f = new File(filename)
-    f.getParentFile.mkdirs()
+    if (f.getParentFile != null) {
+      f.getParentFile.mkdirs()
+    }
 
     val fileWriter = new FileWriter(f)
     fileWriter.write(data)
