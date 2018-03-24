@@ -3,8 +3,8 @@ package uk.co.ridentbyte.view
 import java.net.{ConnectException, URISyntaxException, UnknownHostException}
 
 import javafx.scene.control.Alert.AlertType
-import javafx.scene.control.{Alert, TextInputDialog}
-import javafx.scene.layout.{GridPane, Priority}
+import javafx.scene.control._
+import javafx.scene.layout.{BorderPane, GridPane, Priority}
 import javax.net.ssl.SSLHandshakeException
 import uk.co.ridentbyte.model.{HttpResponseWrapper, Request}
 import uk.co.ridentbyte.view.file.FilePane
@@ -12,21 +12,16 @@ import uk.co.ridentbyte.view.request.RequestInputPane
 import uk.co.ridentbyte.view.response.ResponsePane
 import uk.co.ridentbyte.view.util.{ColumnConstraintsBuilder, RowConstraintsBuilder}
 
-class CardinalView(loadFile: (String) => Unit,
+class CardinalView(loadFileCallback: (String) => Unit,
                    deleteFile: (String) => Unit,
-                   clearAll: () => Unit,
+                   clearAllCallback: () => Unit,
                    saveCallback: (Request, Option[String]) => Unit,
-                   duplicateFile: (String) => Unit,
-                   sendRequest: (Request) => HttpResponseWrapper) extends GridPane {
+                   duplicateFileCallback: (String) => Unit,
+                   sendRequestCallback: (Request) => HttpResponseWrapper) extends BorderPane {
 
-  getColumnConstraints.add(ColumnConstraintsBuilder().withHgrow(Priority.ALWAYS).withPercentageWidth(25).build)
-  getColumnConstraints.add(ColumnConstraintsBuilder().withHgrow(Priority.ALWAYS).withPercentageWidth(75).build)
-  getRowConstraints.add(RowConstraintsBuilder().withVgrow(Priority.ALWAYS).build)
-
-  private val filePane = new FilePane(loadFile, deleteFile, duplicateFile)
-  private val requestInputPane = new RequestInputPane(sendRequestAndLoadResponse, showBulkRequestDialogNoArgs, clearAll, save)
-  private val responsePane = new ResponsePane(sendRequest)
-
+  private val filePane = new FilePane(loadFileCallback, deleteFile, duplicateFileCallback)
+  private val requestInputPane = new RequestInputPane(sendRequestAndLoadResponse, showBulkRequest)
+  private val responsePane = new ResponsePane(sendRequestCallback)
 
   val grid = new GridPane
   grid.getColumnConstraints.add(ColumnConstraintsBuilder().withHgrow(Priority.ALWAYS).withPercentageWidth(45).build)
@@ -37,8 +32,29 @@ class CardinalView(loadFile: (String) => Unit,
   grid.add(requestInputPane, 0, 0)
   grid.add(responsePane, 1, 0)
 
-  add(filePane, 0, 0)
-  add(grid, 1, 0)
+  val grid2 = new GridPane
+  grid2.getColumnConstraints.add(ColumnConstraintsBuilder().withHgrow(Priority.ALWAYS).withPercentageWidth(25).build)
+  grid2.getColumnConstraints.add(ColumnConstraintsBuilder().withHgrow(Priority.ALWAYS).withPercentageWidth(75).build)
+  grid2.getRowConstraints.add(RowConstraintsBuilder().withVgrow(Priority.ALWAYS).build)
+  grid2.add(filePane, 0, 0)
+  grid2.add(grid, 1, 0)
+
+  val menuBar = new MenuBar
+
+  val menuFile = new Menu("File")
+
+  val menuItemSaveAs = new MenuItem("Save")
+  menuItemSaveAs.setOnAction((_) => save())
+  menuFile.getItems.add(menuItemSaveAs)
+
+  val menuItemClearAll = new MenuItem("Clear All")
+  menuItemClearAll.setOnAction((_) => clearAllCallback())
+  menuFile.getItems.add(menuItemClearAll)
+
+  menuBar.getMenus.add(menuFile)
+
+  setTop(menuBar)
+  setCenter(grid2)
 
   def setFileList(fileNames: List[String]): Unit = {
     filePane.setListContentTo(fileNames)
@@ -76,7 +92,7 @@ class CardinalView(loadFile: (String) => Unit,
       showErrorDialog("Please enter a URL.")
     } else {
       try {
-        val httpResponse = sendRequest(requestInputPane.getRequest.processConstants())
+        val httpResponse = sendRequestCallback(requestInputPane.getRequest.processConstants())
         responsePane.addResponse(httpResponse)
       } catch {
         case _: ConnectException => showErrorDialog("Connection refused.")
@@ -88,7 +104,7 @@ class CardinalView(loadFile: (String) => Unit,
     }
   }
 
-  private def showBulkRequestDialogNoArgs(): Unit = {
+  private def showBulkRequest(): Unit = {
     val request = requestInputPane.getRequest
     if (request.uri.trim.length == 0) {
       showErrorDialog("Please enter a URL.")
