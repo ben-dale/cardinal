@@ -1,6 +1,7 @@
 package uk.co.ridentbyte.view.request
 
 import javafx.scene.control.{Label, TextArea}
+import javafx.scene.input.{KeyCode, KeyEvent}
 import javafx.scene.layout._
 
 class RequestBodyInputPane extends GridPane {
@@ -15,6 +16,12 @@ class RequestBodyInputPane extends GridPane {
   add(labelBody, 0, 0)
 
   private val textAreaBody = new TextArea()
+  textAreaBody.addEventFilter(KeyEvent.KEY_PRESSED, (e: KeyEvent) => {
+    if (e.getCode == KeyCode.TAB) {
+      textAreaBody.insertText(textAreaBody.getCaretPosition, "  ")
+      e.consume()
+    }
+  })
   GridPane.setVgrow(textAreaBody, Priority.ALWAYS)
   GridPane.setHgrow(textAreaBody, Priority.ALWAYS)
   add(textAreaBody, 0, 1)
