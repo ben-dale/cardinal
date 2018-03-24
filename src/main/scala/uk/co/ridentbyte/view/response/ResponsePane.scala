@@ -91,10 +91,43 @@ class ResponsePane(sendRequestCallback: (Request) => HttpResponseWrapper) extend
     tab
   }
 
+  def curlTab(command: String): Tab = {
+    val tab = new Tab("cURL")
+
+    val grid = new GridPane
+    grid.setPadding(new Insets(10, 10, 10, 10))
+    grid.setVgap(10)
+    grid.setHgap(10)
+
+    val textAreaCurl = new TextArea()
+    textAreaCurl.setStyle(
+      """
+        |-fx-font-family: Monospaced;
+        |-fx-font-size: 13;
+        |-fx-font-weight: 600;
+      """.stripMargin
+    )
+    textAreaCurl.setText(command)
+    textAreaCurl.setWrapText(true)
+    GridPane.setHgrow(textAreaCurl, Priority.ALWAYS)
+    GridPane.setVgrow(textAreaCurl, Priority.ALWAYS)
+    grid.add(textAreaCurl, 0, 0)
+
+    tab.setContent(grid)
+
+    tab
+  }
+
   def showBulkRequestInput(request: Request): Unit = {
     val bulkRequestTab = bulkRequestInput(request)
     tabbedPane.getTabs.add(bulkRequestTab)
     tabbedPane.getSelectionModel.select(bulkRequestTab)
+  }
+
+  def addCurlCommand(command: String): Unit = {
+    val tab = curlTab(command)
+    tabbedPane.getTabs.add(tab)
+    tabbedPane.getSelectionModel.select(tab)
   }
 
   def bulkRequestInput(request: Request): Tab = {

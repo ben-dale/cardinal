@@ -53,6 +53,14 @@ class CardinalView(loadFileCallback: (String) => Unit,
 
   menuBar.getMenus.add(menuFile)
 
+  val menuTools = new Menu("Tools")
+
+  val menuItemViewAsCurl = new MenuItem("View as cURL")
+  menuItemViewAsCurl.setOnAction((_) => responsePane.addCurlCommand(getRequest.toCurl))
+  menuTools.getItems.add(menuItemViewAsCurl)
+
+  menuBar.getMenus.add(menuTools)
+
   setTop(menuBar)
   setCenter(grid2)
 

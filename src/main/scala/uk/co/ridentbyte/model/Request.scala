@@ -33,6 +33,15 @@ case class Request(uri: String, verb: String, headers: List[String], body: Optio
     Request(newUri, verb, headers, newBody)
   }
 
+  def toCurl: String = {
+    val sb = new StringBuilder
+    sb.append("curl ")
+    headers.foreach { header => sb.append(s"""-H '$header' """) }
+    body.foreach { b => sb.append(s"""-d '${parseAndReplaceConstants(b)}' """) }
+    sb.append(s"""-X $verb ${parseAndReplaceConstants(uri)}""")
+    sb.toString()
+  }
+
   private def parseAndReplaceConstants(content: String): String = {
     var contentCopy = content
 
