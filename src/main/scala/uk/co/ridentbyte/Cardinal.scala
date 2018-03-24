@@ -49,12 +49,17 @@ class Cardinal extends Application {
     }
   }
 
+  private def saveChangesToCurrentFile(): Unit = {
+    if (currentFile.isDefined) {
+      val request = cardinalView.getRequest
+      IOUtil.writeToFile(currentFile.get.getPath, request.toJson)
+    }
+  }
+
   private def save(request: Request, filename: Option[String] = None): Unit = {
     if (filename.isDefined) {
       IOUtil.writeToFile(fileDir + "/" + filename.get + ".json", request.toJson)
       cardinalView.setFileList(IOUtil.listFileNames(fileDir))
-    } else if (currentFile.isDefined) {
-      IOUtil.writeToFile( currentFile.get.getPath, request.toJson)
     } else {
       val result = cardinalView.showInputDialog()
       if (result.isDefined) {
@@ -65,6 +70,7 @@ class Cardinal extends Application {
   }
 
   private def loadFile(filename: String): Unit = {
+    saveChangesToCurrentFile()
     val request = loadFileAsRequest(filename)
     if (request.isDefined) {
       cardinalView.clearRequestPane()
@@ -76,12 +82,13 @@ class Cardinal extends Application {
   }
 
   private def duplicateFile(filename: String): Unit = {
+    saveChangesToCurrentFile()
     val request = loadFileAsRequest(filename)
     if (request.isDefined) {
       val newName = cardinalView.showInputDialog(filename)
       if (newName.isDefined) {
         save(request.get, Some(newName.get))
-        currentFile = Some(IOUtil.loadFile(newName.get))
+        currentFile = Some(IOUtil.loadFile(fileDir + "/" + newName.get + ".json"))
         cardinalView.setFileList(IOUtil.listFileNames(fileDir))
         cardinalView.selectFile(newName.get)
       }
@@ -90,6 +97,7 @@ class Cardinal extends Application {
 
   private def deleteFile(filename: String): Unit = {
     IOUtil.deleteFile(fileDir + "/" + filename + ".json")
+    currentFile = None
     cardinalView.setFileList(IOUtil.listFileNames(fileDir))
   }
 

@@ -43,7 +43,7 @@ class CardinalView(loadFileCallback: (String) => Unit,
 
   val menuFile = new Menu("File")
 
-  val menuItemSaveAs = new MenuItem("Save")
+  val menuItemSaveAs = new MenuItem("Save As...")
   menuItemSaveAs.setOnAction((_) => save())
   menuFile.getItems.add(menuItemSaveAs)
 
@@ -85,6 +85,10 @@ class CardinalView(loadFileCallback: (String) => Unit,
     requestInputPane.clear()
     responsePane.clear()
     filePane.removeSelection()
+  }
+
+  def getRequest: Request = {
+    requestInputPane.getRequest
   }
 
   private def sendRequestAndLoadResponse(): Unit = {
