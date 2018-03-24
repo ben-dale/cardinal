@@ -84,6 +84,7 @@ class CardinalView(loadFileCallback: (String) => Unit,
   def clearRequestResponsePanes(): Unit = {
     requestInputPane.clear()
     responsePane.clear()
+    filePane.removeSelection()
   }
 
   private def sendRequestAndLoadResponse(): Unit = {

@@ -28,14 +28,6 @@ class FilePane(loadFileCallback: (String) => Unit,
     }
   })
 
-  treeFiles.focusedProperty().addListener(new ChangeListener[lang.Boolean] {
-    override def changed(observable: ObservableValue[_ <: lang.Boolean], oldValue: lang.Boolean, newValue: lang.Boolean): Unit = {
-      if (!newValue) {
-        treeFiles.getSelectionModel.clearSelection()
-      }
-    }
-  })
-
   private val menuItemClone = new MenuItem("Clone")
   menuItemClone.setOnAction((_) => {
     val selectedIndex = treeFiles.getSelectionModel.getSelectedIndex
@@ -61,6 +53,10 @@ class FilePane(loadFileCallback: (String) => Unit,
         treeFiles.getSelectionModel.select(i)
       }
     }
+  }
+
+  def removeSelection(): Unit = {
+    treeFiles.getSelectionModel.clearSelection()
   }
 
   def setListContentTo(files: List[String]): Unit = {
