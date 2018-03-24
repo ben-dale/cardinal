@@ -1,6 +1,7 @@
 package uk.co.ridentbyte.model
 
 import java.util.UUID
+import java.util.regex.Pattern
 
 import org.json4s.DefaultFormats
 import org.json4s.jackson.JsonMethods.parse
@@ -58,12 +59,12 @@ case class Request(uri: String, verb: String, headers: List[String], body: Optio
     contentCopy = replaceEachIn(contentCopy, "#\\{randomLastName\\}", () => LastNames.getRandom)
 
     // Functions
-    val randomIntRangeMatcher = "#\\{random\\([\\s]*([0-9]+)[\\s]*..([0-9]+)[\\s]*\\)\\}".r
+    val randomIntRangeMatcher = "#\\{random\\([\\s]*([0-9]+)[\\s]*\\.\\.([0-9]+)[\\s]*\\)\\}".r
     0.until(randomIntRangeMatcher.findAllMatchIn(contentCopy).length).foreach { _ =>
       val matchedValue = randomIntRangeMatcher.findFirstMatchIn(contentCopy).get
       val int1 = matchedValue.group(1).toInt
       val int2 = matchedValue.group(2).toInt
-      contentCopy = contentCopy.replace(matchedValue.toString(), (int1 + Random.nextInt((int2 + 1) - int1)).toString)
+      contentCopy = contentCopy.replaceFirst(Pattern.quote(matchedValue.toString()), (int1 + Random.nextInt((int2 + 1) - int1)).toString)
     }
 
     contentCopy
