@@ -26,13 +26,13 @@ class FilePane(loadFileCallback: (String) => Unit,
       }
     }
   })
-  treeFiles.getFocusModel.focusedItemProperty().addListener(new ChangeListener[TreeItem[String]] {
-    override def changed(observable: ObservableValue[_ <: TreeItem[String]], oldValue: TreeItem[String], newValue: TreeItem[String]): Unit = {
-      if (newValue != null && oldValue != null && !newValue.getChildren.isEmpty) {
-        Platform.runLater(() => treeFiles.getSelectionModel.select(oldValue))
-      }
-    }
-  })
+//  treeFiles.getFocusModel.focusedItemProperty().addListener(new ChangeListener[TreeItem[String]] {
+//    override def changed(observable: ObservableValue[_ <: TreeItem[String]], oldValue: TreeItem[String], newValue: TreeItem[String]): Unit = {
+//      if (newValue != null && !newValue.getChildren.isEmpty && oldValue != null && oldValue.getChildren.isEmpty) {
+//        Platform.runLater(() => treeFiles.getSelectionModel.select(oldValue))
+//      }
+//    }
+//  })
 
   private val menuItemClone = new MenuItem("Clone")
   menuItemClone.setOnAction((_) => {
