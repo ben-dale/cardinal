@@ -19,30 +19,31 @@ case class Request(uri: String, verb: String, headers: List[String], body: Optio
     Request(
       uri.replaceAll("#\\{id\\}", id),
       verb,
-      headers,
+      headers.map(_.replaceAll("#\\{id\\}", id)),
       if (body.isDefined) Some(body.get.replaceAll("#\\{id\\}", id)) else None
     )
   }
 
   def processConstants(): Request = {
-    val newUri = parseAndReplaceConstants(uri)
+    val newUri = parseAndReplacePlaceholders(uri)
+    val newHeaders = headers.map(parseAndReplacePlaceholders)
     val newBody = body match {
-      case Some(b) => Some(parseAndReplaceConstants(b))
+      case Some(b) => Some(parseAndReplacePlaceholders(b))
       case _  => None
     }
-    Request(newUri, verb, headers, newBody)
+    Request(newUri, verb, newHeaders, newBody)
   }
 
   def toCurl: String = {
     val sb = new StringBuilder
     sb.append("curl ")
     headers.foreach { header => sb.append(s"""-H '$header' """) }
-    body.foreach { b => sb.append(s"""-d '${parseAndReplaceConstants(b)}' """) }
-    sb.append(s"""-X $verb ${parseAndReplaceConstants(uri)}""")
+    body.foreach { b => sb.append(s"""-d '${parseAndReplacePlaceholders(b)}' """) }
+    sb.append(s"""-X $verb ${parseAndReplacePlaceholders(uri)}""")
     sb.toString()
   }
 
-  private def parseAndReplaceConstants(content: String): String = {
+  private def parseAndReplacePlaceholders(content: String): String = {
     var contentCopy = content
 
     val guid = UUID.randomUUID.toString.split("-")(0)
