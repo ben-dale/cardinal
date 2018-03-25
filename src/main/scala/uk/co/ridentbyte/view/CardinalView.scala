@@ -40,6 +40,9 @@ class CardinalView(loadFileCallback: (String) => Unit,
   grid2.add(grid, 1, 0)
 
   val menuBar = new MenuBar
+  if (System.getProperty("os.name").toLowerCase.contains("mac")) {
+    menuBar.setUseSystemMenuBar(true)
+  }
 
   val menuFile = new Menu("File")
 
@@ -56,7 +59,14 @@ class CardinalView(loadFileCallback: (String) => Unit,
   val menuTools = new Menu("Tools")
 
   val menuItemViewAsCurl = new MenuItem("View as cURL")
-  menuItemViewAsCurl.setOnAction((_) => responsePane.addCurlCommand(getRequest.toCurl))
+  menuItemViewAsCurl.setOnAction((_) => {
+    val request = getRequest
+    if (request.uri.trim.length == 0) {
+      showErrorDialog("Please enter a URL.")
+    } else {
+      responsePane.addCurlCommand(request.toCurl)
+    }
+  })
   menuTools.getItems.add(menuItemViewAsCurl)
 
   menuBar.getMenus.add(menuTools)
