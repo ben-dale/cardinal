@@ -1,7 +1,6 @@
 package uk.co.ridentbyte.view.file
 
-import java.lang
-
+import javafx.application.Platform
 import javafx.beans.value.{ChangeListener, ObservableValue}
 import javafx.geometry.Insets
 import javafx.scene.control._
@@ -24,6 +23,13 @@ class FilePane(loadFileCallback: (String) => Unit,
     override def changed(observable: ObservableValue[_ <: TreeItem[String]], oldValue: TreeItem[String], newValue: TreeItem[String]): Unit = {
       if (newValue != null && newValue != treeFiles.getRoot && newValue.getChildren.isEmpty) {
         loadFileCallback(getFullPathFor(newValue))
+      }
+    }
+  })
+  treeFiles.getFocusModel.focusedItemProperty().addListener(new ChangeListener[TreeItem[String]] {
+    override def changed(observable: ObservableValue[_ <: TreeItem[String]], oldValue: TreeItem[String], newValue: TreeItem[String]): Unit = {
+      if (newValue != null && oldValue != null && !newValue.getChildren.isEmpty) {
+        Platform.runLater(() => treeFiles.getSelectionModel.select(oldValue))
       }
     }
   })
