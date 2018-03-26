@@ -68,25 +68,30 @@ class FilePane(loadFileCallback: (String) => Unit,
   def setListContentTo(files: List[String]): Unit = {
     val rootItem = new TreeItem[String]()
     files.foreach { file =>
-      processPath(file, rootItem)
+      add(file, rootItem)
     }
     treeFiles.setRoot(rootItem)
   }
 
+  def add(file: String): Unit = add(file, treeFiles.getRoot)
+
+  def remove(file: String): Unit = ???
+
   @tailrec
-  private def processPath(path: String, parent: TreeItem[String]): Unit = {
+  private def add(path: String, parent: TreeItem[String]): Unit = {
     val tail = path.split("/")
     if (tail.length == 1) {
+      // TODO - Add in the right place, alphabetically
       parent.getChildren.add(new TreeItem(tail(0).replace(".json", "")))
     } else {
       val existingMatchingParentChildren = parent.getChildren.asScala.filter(!_.getChildren.isEmpty)
       existingMatchingParentChildren.find(_.getValue == tail(0)) match {
         case Some(child) =>
-          processPath(tail.tail.mkString("/"), child)
+          add(tail.tail.mkString("/"), child)
         case _ =>
           val newParent = new TreeItem(tail(0))
           parent.getChildren.add(newParent)
-          processPath(tail.tail.mkString("/"), newParent)
+          add(tail.tail.mkString("/"), newParent)
       }
     }
   }

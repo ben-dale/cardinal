@@ -78,6 +78,8 @@ class CardinalView(loadFileCallback: (String) => Unit,
     filePane.setListContentTo(fileNames)
   }
 
+  def addFile(fileName: String): Unit = filePane.add(fileName)
+
   def showInputDialog(defaultValue: String = ""): Option[String] = {
     val alert = new TextInputDialog(defaultValue)
     alert.setContentText("Please enter filename")

@@ -59,12 +59,12 @@ class Cardinal extends Application {
   private def save(request: Request, filename: Option[String] = None): Unit = {
     if (filename.isDefined) {
       IOUtil.writeToFile(fileDir + "/" + filename.get + ".json", request.toJson)
-      cardinalView.setFileList(IOUtil.listFileNames(fileDir))
+      cardinalView.addFile(filename.get)
     } else {
       val result = cardinalView.showInputDialog()
       if (result.isDefined) {
         IOUtil.writeToFile(fileDir + "/" + result.get + ".json", request.toJson)
-        cardinalView.setFileList(IOUtil.listFileNames(fileDir))
+        cardinalView.addFile(result.get)
       }
     }
   }
@@ -89,7 +89,6 @@ class Cardinal extends Application {
       if (newName.isDefined) {
         save(request.get, Some(newName.get))
         currentFile = Some(IOUtil.loadFile(fileDir + "/" + newName.get + ".json"))
-        cardinalView.setFileList(IOUtil.listFileNames(fileDir))
         cardinalView.selectFile(newName.get)
       }
     }
