@@ -50,4 +50,8 @@ class RequestInputPane(sendRequestCallback: () => Unit, showBulkRequestCallback:
     Request(uri, verb, headers, body)
   }
 
+  def addHeader(header: String): Unit = {
+    headersBodyInputPane.addHeader(header)
+  }
+
 }

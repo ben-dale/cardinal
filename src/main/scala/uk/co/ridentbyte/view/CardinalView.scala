@@ -1,6 +1,8 @@
 package uk.co.ridentbyte.view
 
 import java.net.{ConnectException, URISyntaxException, UnknownHostException}
+import java.nio.charset.StandardCharsets
+import java.util.Base64
 
 import javafx.scene.control.Alert.AlertType
 import javafx.scene.control._
@@ -11,6 +13,7 @@ import uk.co.ridentbyte.view.file.FilePane
 import uk.co.ridentbyte.view.request.RequestInputPane
 import uk.co.ridentbyte.view.response.ResponsePane
 import uk.co.ridentbyte.view.util.{ColumnConstraintsBuilder, RowConstraintsBuilder}
+import uk.co.ridentbyte.view.dialog.BasicAuthInputDialog
 
 class CardinalView(loadFileCallback: (String) => Unit,
                    deleteFile: (String) => Unit,
@@ -70,6 +73,14 @@ class CardinalView(loadFileCallback: (String) => Unit,
   menuTools.getItems.add(menuItemViewAsCurl)
 
   menuBar.getMenus.add(menuTools)
+
+  val menuAuthorisation = new Menu("Auth")
+
+  val menuItemBasicAuth = new MenuItem("Basic Auth...")
+  menuItemBasicAuth.setOnAction((_) => showBasicAuthInput())
+  menuAuthorisation.getItems.add(menuItemBasicAuth)
+
+  menuBar.getMenus.add(menuAuthorisation)
 
   setTop(menuBar)
   setCenter(grid2)
@@ -148,6 +159,17 @@ class CardinalView(loadFileCallback: (String) => Unit,
 
   private def save(): Unit = {
     saveCallback(requestInputPane.getRequest, None)
+  }
+
+  def showBasicAuthInput(): Unit = {
+    val dialog = new BasicAuthInputDialog
+    val results = dialog.showAndWait()
+    if (results.isPresent) {
+      val username = results.get.username
+      val password = results.get.password
+      val encoded = Base64.getEncoder.encodeToString((username + ":" + password).getBytes(StandardCharsets.UTF_8))
+      requestInputPane.addHeader("Authorization: Basic " + encoded)
+    }
   }
 
 }
