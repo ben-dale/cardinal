@@ -1,5 +1,7 @@
 package uk.co.ridentbyte.view.file
 
+import java.util.Comparator
+
 import javafx.application.Platform
 import javafx.beans.value.{ChangeListener, ObservableValue}
 import javafx.geometry.Insets
@@ -54,6 +56,7 @@ class FilePane(loadFileCallback: (String) => Unit,
   add(treeFiles, 0, 0)
 
   def highlight(item: String): Unit = {
+    // TODO - Needs to work on nested children
     treeFiles.getRoot.getChildren.asScala.zipWithIndex.foreach { case (c, i) =>
       if (c.getValue == item) {
         treeFiles.getSelectionModel.select(i)
@@ -81,8 +84,8 @@ class FilePane(loadFileCallback: (String) => Unit,
   private def add(path: String, parent: TreeItem[String]): Unit = {
     val tail = path.split("/")
     if (tail.length == 1) {
-      // TODO - Add in the right place, alphabetically
       parent.getChildren.add(new TreeItem(tail(0).replace(".json", "")))
+      parent.getChildren.sort((a, b) => a.getValue.compareTo(b.getValue))
     } else {
       val existingMatchingParentChildren = parent.getChildren.asScala.filter(!_.getChildren.isEmpty)
       existingMatchingParentChildren.find(_.getValue == tail(0)) match {
