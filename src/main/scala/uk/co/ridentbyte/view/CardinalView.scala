@@ -1,5 +1,6 @@
 package uk.co.ridentbyte.view
 
+import java.io.File
 import java.net.{ConnectException, URISyntaxException, UnknownHostException}
 import java.nio.charset.StandardCharsets
 import java.util.Base64
@@ -10,12 +11,15 @@ import javafx.scene.layout.{BorderPane, GridPane, Priority}
 import javafx.stage.FileChooser
 import javax.net.ssl.SSLHandshakeException
 import uk.co.ridentbyte.model.{HttpResponseWrapper, Request}
+import uk.co.ridentbyte.util.IOUtil
 import uk.co.ridentbyte.view.request.{RequestControlPane, RequestInputPane}
 import uk.co.ridentbyte.view.response.ResponsePane
 import uk.co.ridentbyte.view.util.{ColumnConstraintsBuilder, RowConstraintsBuilder}
 import uk.co.ridentbyte.view.dialog.BasicAuthInputDialog
 
 class CardinalView(clearAllCallback: () => Unit,
+                   saveChangesToCurrentFileCallback: (Request) => Unit,
+                   setCurrentFileCallback: (File) => Unit,
                    sendRequestCallback: (Request) => HttpResponseWrapper) extends BorderPane {
 
   private val requestInputPane = new RequestInputPane
@@ -45,8 +49,13 @@ class CardinalView(clearAllCallback: () => Unit,
   menuItemOpen.setOnAction((_) => open())
   menuFile.getItems.add(menuItemOpen)
 
+  val menuItemSave = new MenuItem("Save")
+  menuItemSave.setDisable(true)
+  menuItemSave.setOnAction((_) => save())
+  menuFile.getItems.add(menuItemSave)
+
   val menuItemSaveAs = new MenuItem("Save As...")
-  menuItemSaveAs.setOnAction((_) => save())
+  menuItemSaveAs.setOnAction((_) => saveAs())
   menuFile.getItems.add(menuItemSaveAs)
 
   val menuItemClearAll = new MenuItem("Clear All")
@@ -98,13 +107,10 @@ class CardinalView(clearAllCallback: () => Unit,
     alert.showAndWait
   }
 
-  def clearRequestPane(): Unit = {
-    requestInputPane.clear()
-  }
-
-  def clearRequestResponsePanes(): Unit = {
+  def clearAll(): Unit = {
     requestInputPane.clear()
     responsePane.clearContents()
+    menuItemSave.setDisable(true)
   }
 
   def getRequest: Request = {
@@ -143,9 +149,19 @@ class CardinalView(clearAllCallback: () => Unit,
     requestInputPane.loadRequest(request)
   }
 
-
   private def save(): Unit = {
-//    saveCallback(requestInputPane.getRequest, None)
+    saveChangesToCurrentFileCallback(requestInputPane.getRequest)
+  }
+
+  private def saveAs(): Unit = {
+    val fileChooser = new FileChooser
+    val file = fileChooser.showSaveDialog(null)
+    if (file != null) {
+      val fileWithExtension = new File(file.getAbsolutePath + ".json")
+      IOUtil.writeToFile(fileWithExtension, requestInputPane.getRequest.toJson)
+      setCurrentFileCallback(fileWithExtension)
+      menuItemSave.setDisable(false)
+    }
   }
 
   private def open(): Unit = {
@@ -154,6 +170,8 @@ class CardinalView(clearAllCallback: () => Unit,
     if (selectedFile != null) {
       val lines = scala.io.Source.fromFile(selectedFile).getLines().mkString
       loadRequest(Request(lines))
+      setCurrentFileCallback(selectedFile)
+      menuItemSave.setDisable(false)
     }
   }
 

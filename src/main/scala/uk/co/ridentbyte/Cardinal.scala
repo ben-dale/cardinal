@@ -17,13 +17,14 @@ object Cardinal {
 class Cardinal extends Application {
 
   private var currentFile: Option[File] = None
-  private val fileDir = "cardinal_files"
+  private var currentStage: Stage = _
   private val httpUtil = new HttpUtil
-  private val cardinalView = new CardinalView(clearAll, sendRequest)
+  private val cardinalView = new CardinalView(clearAll, saveChangesToCurrentFile, setCurrentFile, sendRequest)
 
   override def start(primaryStage: Stage): Unit = {
+    currentStage = primaryStage
     primaryStage.setTitle("Cardinal")
-    primaryStage.setMinHeight(400)
+    primaryStage.setMinHeight(600)
     primaryStage.setMinWidth(800)
 
     val scene = new Scene(cardinalView, 1000, 500)
@@ -38,38 +39,22 @@ class Cardinal extends Application {
     HttpResponseWrapper(response, totalTime)
   }
 
-  private def loadFileAsRequest(filename: String): Option[Request] = {
-    try {
-      currentFile = Some(IOUtil.loadFile(fileDir + "/" + filename + ".json"))
-      val data = IOUtil.readFileContents(currentFile.get)
-      Some(Request(data))
-    } catch {
-      case _: Exception => None
-    }
-  }
-
-  private def saveChangesToCurrentFile(): Unit = {
+  private def saveChangesToCurrentFile(request: Request): Unit = {
     if (currentFile.isDefined) {
-      val request = cardinalView.getRequest
-      IOUtil.writeToFile(currentFile.get.getPath, request.toJson)
+      IOUtil.writeToFile(currentFile.get, request.toJson)
     }
   }
-//
-//  private def save(request: Request, filename: Option[String] = None): Unit = {
-//    if (filename.isDefined) {
-//      IOUtil.writeToFile(fileDir + "/" + filename.get + ".json", request.toJson)
-//      cardinalView.addFile(filename.get)
-//    } else {
-//      val result = cardinalView.showInputDialog()
-//      if (result.isDefined) {
-//        IOUtil.writeToFile(fileDir + "/" + result.get + ".json", request.toJson)
-//        cardinalView.addFile(result.get)
-//      }
-//    }
-//  }
 
   private def clearAll(): Unit = {
     currentFile = None
-    cardinalView.clearRequestResponsePanes()
+    currentStage.setTitle("Cardinal")
+    cardinalView.clearAll()
+  }
+
+  private def setCurrentFile(file: File): Unit = {
+    this.currentFile = Option(file)
+    if (this.currentFile.isDefined) {
+      currentStage.setTitle(file.getAbsolutePath)
+    }
   }
 }
