@@ -149,50 +149,6 @@ class ResponsePane(sendRequestCallback: (Request) => HttpResponseWrapper) extend
     GridPane.setHalignment(buttonStart, HPos.RIGHT)
     grid.add(buttonStart, 1, 4)
 
-    val labelVerb = new Label(request.verb)
-    grid.add(labelVerb, 0, 5)
-
-    val labelURI = new Label(request.uri)
-    grid.add(labelURI, 1, 5)
-
-    val labelHeaders = new Label("Headers")
-    GridPane.setColumnSpan(labelHeaders, 2)
-    grid.add(labelHeaders, 0, 6)
-
-    val listHeaders = new ListView[String]()
-    listHeaders.setStyle(
-      """
-        |-fx-font-family: Monospaced;
-        |-fx-font-size: 13;
-        |-fx-font-weight: 600;
-      """.stripMargin
-    )
-    listHeaders.setEditable(false)
-    listHeaders.setMaxHeight(200)
-    request.headers.foreach { header =>
-      listHeaders.getItems.add(header)
-    }
-    GridPane.setColumnSpan(listHeaders, 2)
-    grid.add(listHeaders, 0, 7)
-
-    val labelBodyExample = new Label("Body (Example)")
-    GridPane.setColumnSpan(labelBodyExample, 2)
-    grid.add(labelBodyExample, 0, 8)
-
-    val textAreaExampleBody = new TextArea()
-    textAreaExampleBody.setStyle(
-      """
-        |-fx-font-family: Monospaced;
-        |-fx-font-size: 13;
-        |-fx-font-weight: 600;
-      """.stripMargin
-    )
-    textAreaExampleBody.setEditable(false)
-    textAreaExampleBody.setText(request.processConstants().body.getOrElse(""))
-    GridPane.setColumnSpan(textAreaExampleBody, 2)
-    textAreaExampleBody.setEditable(false)
-    grid.add(textAreaExampleBody, 0, 9)
-
     Platform.runLater(() => setCenter(grid))
   }
 

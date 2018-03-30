@@ -1,7 +1,5 @@
 package uk.co.ridentbyte.view.request
 
-import javafx.application.Platform
-import javafx.concurrent.Task
 import javafx.geometry.{HPos, Insets}
 import javafx.scene.control.Button
 import javafx.scene.layout._
@@ -22,21 +20,7 @@ class RequestControlPane(sendRequestCallback: () => Unit, showBulkRequestCallbac
   private val buttonSendRequest = new Button("Send Request")
   GridPane.setVgrow(buttonSendRequest, Priority.NEVER)
   GridPane.setHgrow(buttonSendRequest, Priority.NEVER)
-  buttonSendRequest.setOnAction((_) => {
-    val task = new Task[Unit] {
-      override def call(): Unit = {
-        buttonSendRequest.setDisable(true)
-        sendRequestCallback()
-      }
-
-      override def done(): Unit = {
-        super.done()
-        buttonSendRequest.setDisable(false)
-      }
-    }
-
-    Platform.runLater(() => new Thread(task).start())
-  })
+  buttonSendRequest.setOnAction((_) => sendRequestCallback())
   add(buttonSendRequest, 1, 0)
 
 }
