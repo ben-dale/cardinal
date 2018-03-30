@@ -5,13 +5,13 @@ import javafx.scene.layout._
 
 import uk.co.ridentbyte.model.Request
 
-class RequestInputPane(sendRequestCallback: () => Unit, showBulkRequestCallback: () => Unit) extends GridPane {
+class RequestInputPane() extends GridPane {
 
   private var currentRequest: Option[Request] = None
 
   setHgap(10)
   setVgap(10)
-  setPadding(new Insets(10, 0, 10, 0))
+  setPadding(new Insets(10, 0, 10, 10))
 
   private val uriVerbInputPane = new RequestUriVerbInputPane
   GridPane.setVgrow(uriVerbInputPane, Priority.NEVER)
@@ -22,11 +22,6 @@ class RequestInputPane(sendRequestCallback: () => Unit, showBulkRequestCallback:
   GridPane.setVgrow(headersBodyInputPane, Priority.ALWAYS)
   GridPane.setHgrow(headersBodyInputPane, Priority.ALWAYS)
   add(headersBodyInputPane, 0, 1)
-
-  private val requestControlPane = new RequestControlPane(sendRequestCallback, showBulkRequestCallback)
-  GridPane.setColumnSpan(requestControlPane, 2)
-  add(requestControlPane, 0, 2)
-
 
   def clear(): Unit = {
     currentRequest = None

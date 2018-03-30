@@ -10,7 +10,7 @@ class RequestControlPane(sendRequestCallback: () => Unit, showBulkRequestCallbac
 
   setHgap(10)
   setVgap(10)
-  setPadding(new Insets(0, 10, 0, 0))
+  setPadding(new Insets(0, 10, 10, 10))
 
   private val buttonSendBulkRequest = new Button("Send Bulk Request...")
   GridPane.setVgrow(buttonSendBulkRequest, Priority.NEVER)

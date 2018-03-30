@@ -31,6 +31,7 @@ class RequestHeadersBodyInputPane extends GridPane {
   def setBody(body: Option[String]): Unit = bodyInputPane.setBody(body)
 
   def setHeaders(headers: List[String]): Unit = {
+    headersInputPane.clear()
     headers.foreach(headersInputPane.addHeader)
   }
 

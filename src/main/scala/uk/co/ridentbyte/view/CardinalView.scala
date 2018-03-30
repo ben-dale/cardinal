@@ -7,24 +7,20 @@ import java.util.Base64
 import javafx.scene.control.Alert.AlertType
 import javafx.scene.control._
 import javafx.scene.layout.{BorderPane, GridPane, Priority}
+import javafx.stage.FileChooser
 import javax.net.ssl.SSLHandshakeException
 import uk.co.ridentbyte.model.{HttpResponseWrapper, Request}
-import uk.co.ridentbyte.view.file.FilePane
-import uk.co.ridentbyte.view.request.RequestInputPane
+import uk.co.ridentbyte.view.request.{RequestControlPane, RequestInputPane}
 import uk.co.ridentbyte.view.response.ResponsePane
 import uk.co.ridentbyte.view.util.{ColumnConstraintsBuilder, RowConstraintsBuilder}
 import uk.co.ridentbyte.view.dialog.BasicAuthInputDialog
 
-class CardinalView(loadFileCallback: (String) => Unit,
-                   deleteFile: (String) => Unit,
-                   clearAllCallback: () => Unit,
-                   saveCallback: (Request, Option[String]) => Unit,
-                   duplicateFileCallback: (String) => Unit,
+class CardinalView(clearAllCallback: () => Unit,
                    sendRequestCallback: (Request) => HttpResponseWrapper) extends BorderPane {
 
-  private val filePane = new FilePane(loadFileCallback, deleteFile, duplicateFileCallback)
-  private val requestInputPane = new RequestInputPane(sendRequestAndLoadResponse, showBulkRequest)
+  private val requestInputPane = new RequestInputPane
   private val responsePane = new ResponsePane(sendRequestCallback)
+  private val requestControlPane = new RequestControlPane(sendRequestAndLoadResponse, showBulkRequest)
 
   val grid = new GridPane
   grid.getColumnConstraints.add(ColumnConstraintsBuilder().withHgrow(Priority.ALWAYS).withPercentageWidth(45).build)
@@ -35,12 +31,8 @@ class CardinalView(loadFileCallback: (String) => Unit,
   grid.add(requestInputPane, 0, 0)
   grid.add(responsePane, 1, 0)
 
-  val grid2 = new GridPane
-  grid2.getColumnConstraints.add(ColumnConstraintsBuilder().withHgrow(Priority.ALWAYS).withPercentageWidth(25).build)
-  grid2.getColumnConstraints.add(ColumnConstraintsBuilder().withHgrow(Priority.ALWAYS).withPercentageWidth(75).build)
-  grid2.getRowConstraints.add(RowConstraintsBuilder().withVgrow(Priority.ALWAYS).build)
-  grid2.add(filePane, 0, 0)
-  grid2.add(grid, 1, 0)
+  GridPane.setColumnSpan(requestControlPane, 2)
+  grid.add(requestControlPane, 0, 1)
 
   val menuBar = new MenuBar
   if (System.getProperty("os.name").toLowerCase.contains("mac")) {
@@ -48,6 +40,10 @@ class CardinalView(loadFileCallback: (String) => Unit,
   }
 
   val menuFile = new Menu("File")
+
+  val menuItemOpen = new MenuItem("Open...")
+  menuItemOpen.setOnAction((_) => open())
+  menuFile.getItems.add(menuItemOpen)
 
   val menuItemSaveAs = new MenuItem("Save As...")
   menuItemSaveAs.setOnAction((_) => save())
@@ -83,13 +79,7 @@ class CardinalView(loadFileCallback: (String) => Unit,
   menuBar.getMenus.add(menuAuthorisation)
 
   setTop(menuBar)
-  setCenter(grid2)
-
-  def setFileList(fileNames: List[String]): Unit = {
-    filePane.setListContentTo(fileNames)
-  }
-
-  def addFile(fileName: String): Unit = filePane.add(fileName)
+  setCenter(grid)
 
   def showInputDialog(defaultValue: String = ""): Option[String] = {
     val alert = new TextInputDialog(defaultValue)
@@ -115,7 +105,6 @@ class CardinalView(loadFileCallback: (String) => Unit,
   def clearRequestResponsePanes(): Unit = {
     requestInputPane.clear()
     responsePane.clearContents()
-    filePane.removeSelection()
   }
 
   def getRequest: Request = {
@@ -150,15 +139,22 @@ class CardinalView(loadFileCallback: (String) => Unit,
   }
 
   def loadRequest(request: Request): Unit = {
+    clearAllCallback()
     requestInputPane.loadRequest(request)
   }
 
-  def selectFile(filename: String): Unit = {
-    filePane.highlight(filename)
-  }
 
   private def save(): Unit = {
-    saveCallback(requestInputPane.getRequest, None)
+//    saveCallback(requestInputPane.getRequest, None)
+  }
+
+  private def open(): Unit = {
+    val fileChooser = new FileChooser
+    val selectedFile = fileChooser.showOpenDialog(null)
+    if (selectedFile != null) {
+      val lines = scala.io.Source.fromFile(selectedFile).getLines().mkString
+      loadRequest(Request(lines))
+    }
   }
 
   def showBasicAuthInput(): Unit = {
