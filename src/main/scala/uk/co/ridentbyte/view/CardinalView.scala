@@ -23,7 +23,7 @@ class CardinalView(clearAllCallback: () => Unit,
                    sendRequestCallback: (Request) => HttpResponseWrapper) extends BorderPane {
 
   private val requestInputPane = new RequestInputPane
-  private val responsePane = new ResponsePane(sendRequestCallback)
+  private val responsePane = new ResponsePane(sendRequestCallback, showErrorDialog)
   private val requestControlPane = new RequestControlPane(sendRequestAndLoadResponse, showBulkRequest)
 
   val grid = new GridPane

@@ -7,10 +7,12 @@ import javafx.geometry.{HPos, Insets}
 import javafx.scene.chart._
 import javafx.scene.control._
 import javafx.scene.layout._
-import uk.co.ridentbyte.model.{HttpResponseWrapper, Request}
+import uk.co.ridentbyte.model.{BulkRequest, HttpResponseWrapper, Request}
+import uk.co.ridentbyte.view.dialog.BulkRequestInputDialog
 import uk.co.ridentbyte.view.util.{ColumnConstraintsBuilder, RowConstraintsBuilder}
 
-class ResponsePane(sendRequestCallback: (Request) => HttpResponseWrapper) extends BorderPane {
+class ResponsePane(sendRequestCallback: (Request) => HttpResponseWrapper,
+                   showErrorDialogCallback: (String) => Unit) extends BorderPane {
 
   def clearContents(): Unit = {
     setCenter(null)
@@ -76,80 +78,17 @@ class ResponsePane(sendRequestCallback: (Request) => HttpResponseWrapper) extend
     Platform.runLater(() => setCenter(grid))
   }
 
-  def showBulkRequestInput(request: Request): Unit = {
-    val grid = new GridPane
-    grid.setPadding(new Insets(10, 10, 10, 10))
-    grid.setHgap(10)
-    grid.setVgap(10)
-
-    val labelDelay = new Label("Delay per request (ms)")
-    GridPane.setHalignment(labelDelay, HPos.RIGHT)
-    grid.add(labelDelay, 0, 0)
-
-    val textDelay = new TextField
-    GridPane.setHgrow(textDelay, Priority.ALWAYS)
-    textDelay.setText("500")
-    grid.add(textDelay, 1, 0)
-
-    val labelNumOfRequests = new Label("No. of requests")
-    GridPane.setHalignment(labelNumOfRequests, HPos.RIGHT)
-    grid.add(labelNumOfRequests, 0, 1)
-
-    val textNumOfRequests = new TextField
-    GridPane.setHgrow(textNumOfRequests, Priority.ALWAYS)
-    grid.add(textNumOfRequests, 1, 1)
-
-    val labelOr = new Label("- OR -")
-    GridPane.setColumnSpan(labelOr, 3)
-    GridPane.setHalignment(labelOr, HPos.CENTER)
-    grid.add(labelOr, 0, 2)
-
-    val labelForEach = new Label("For each")
-    GridPane.setHalignment(labelForEach, HPos.RIGHT)
-    grid.add(labelForEach, 0, 3)
-
-    val textForEach = new TextField
-    GridPane.setHgrow(textForEach, Priority.ALWAYS)
-    textForEach.setPromptText("325, 454, 432 or 12..54")
-    grid.add(textForEach, 1, 3)
-
-    val buttonStart = new Button("Start")
-    buttonStart.setOnAction((_) => {
-      val optTextDelay = if (textDelay.getText.trim.length == 0) {
-        None
+  def showBulkRequestInput(request: Request, bulkRequest: Option[BulkRequest] = None): Unit = {
+    val bulkRequestInputDialog = new BulkRequestInputDialog(bulkRequest)
+    val bulkRequestResult = bulkRequestInputDialog.showAndWait()
+    if (bulkRequestResult != null && bulkRequestResult.isPresent) {
+      if (bulkRequestResult.get.throttle.isEmpty || (bulkRequestResult.get.count.isEmpty && bulkRequestResult.get.ids.isEmpty)) {
+        showErrorDialogCallback("Error bro")
+        showBulkRequestInput(request, Some(bulkRequestResult.get))
       } else {
-        try {
-          Some(textDelay.getText.trim.toLong)
-        } catch {
-          case _: Exception => None
-        }
+        startBulkRequest(request, bulkRequestResult.get.throttle, bulkRequestResult.get.count, bulkRequestResult.get.ids)
       }
-
-      val optNumRequests = if (textNumOfRequests.getText.trim.length == 0) {
-        None
-      } else {
-        try {
-          Some(textNumOfRequests.getText.trim.toInt)
-        } catch {
-          case _: Exception => None
-        }
-      }
-
-      val optTextForEach = if (textForEach.getText.trim.length == 0) {
-        None
-      } else {
-        val matcher = "([0-9]+)..([0-9]+)".r
-        textForEach.getText.trim match {
-          case matcher(a, b) => Some(a.toInt.to(b.toInt).map(_.toString).toList)
-          case v => Some(v.split(",").toList)
-        }
-      }
-      startBulkRequest(request, optTextDelay, optNumRequests, optTextForEach)
-    })
-    GridPane.setHalignment(buttonStart, HPos.RIGHT)
-    grid.add(buttonStart, 1, 4)
-
-    Platform.runLater(() => setCenter(grid))
+    }
   }
 
   def startBulkRequest(request: Request, throttle: Option[Long], requestCount: Option[Int], ids: Option[List[String]]): Unit = {
