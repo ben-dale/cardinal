@@ -67,7 +67,7 @@ class CardinalView(loadFileCallback: (String) => Unit,
     if (request.uri.trim.length == 0) {
       showErrorDialog("Please enter a URL.")
     } else {
-      responsePane.addCurlCommand(request.toCurl)
+      responsePane.setCurlCommand(request.toCurl)
     }
   })
   menuTools.getItems.add(menuItemViewAsCurl)
@@ -114,7 +114,7 @@ class CardinalView(loadFileCallback: (String) => Unit,
 
   def clearRequestResponsePanes(): Unit = {
     requestInputPane.clear()
-    responsePane.clear()
+    responsePane.clearContents()
     filePane.removeSelection()
   }
 
@@ -129,7 +129,7 @@ class CardinalView(loadFileCallback: (String) => Unit,
     } else {
       try {
         val httpResponse = sendRequestCallback(requestInputPane.getRequest.processConstants())
-        responsePane.addResponse(httpResponse)
+        responsePane.setResponse(httpResponse)
       } catch {
         case _: ConnectException => showErrorDialog("Connection refused.")
         case _: URISyntaxException => showErrorDialog("Invalid URL.")

@@ -6,32 +6,17 @@ import javafx.concurrent.Task
 import javafx.geometry.{HPos, Insets}
 import javafx.scene.chart._
 import javafx.scene.control._
-import javafx.scene.layout.{GridPane, Priority}
+import javafx.scene.layout._
 import uk.co.ridentbyte.model.{HttpResponseWrapper, Request}
 import uk.co.ridentbyte.view.util.{ColumnConstraintsBuilder, RowConstraintsBuilder}
 
-class ResponsePane(sendRequestCallback: (Request) => HttpResponseWrapper) extends GridPane {
+class ResponsePane(sendRequestCallback: (Request) => HttpResponseWrapper) extends BorderPane {
 
-  private val tabbedPane = new TabPane()
-  setStyle(
-    """
-      |-fx-border-width: 0 0 0 1;
-      |-fx-border-color: #DDDDDD;
-      |-fx-border-style: hidden hidden hidden solid;
-    """.stripMargin)
-  GridPane.setVgrow(tabbedPane, Priority.ALWAYS)
-  GridPane.setHgrow(tabbedPane, Priority.ALWAYS)
-  add(tabbedPane, 0, 1)
-
-  tabbedPane.getTabs.add(infoTab)
-
-  def clear(): Unit = {
-    tabbedPane.getTabs.remove(1, tabbedPane.getTabs.size())
+  def clearContents(): Unit = {
+    setCenter(null)
   }
 
-  def addResponse(response: HttpResponseWrapper): Unit = {
-    val newTab = new Tab("HTTP " + response.httpResponse.code)
-
+  def setResponse(response: HttpResponseWrapper): Unit = {
     val grid = new GridPane
     grid.setPadding(new Insets(10, 10, 10, 10))
     grid.setVgap(10)
@@ -65,35 +50,10 @@ class ResponsePane(sendRequestCallback: (Request) => HttpResponseWrapper) extend
     textAreaBody.setText(response.formattedBody)
     grid.add(textAreaBody, 0, 1)
 
-    newTab.setContent(grid)
-    Platform.runLater(() => {
-      tabbedPane.getTabs.add(newTab)
-      tabbedPane.getSelectionModel.select(newTab)
-    })
+    Platform.runLater(() => setCenter(grid))
   }
 
-  def infoTab: Tab = {
-    val tab = new Tab("Info")
-    tab.setClosable(false)
-
-    val grid = new GridPane
-    grid.setPadding(new Insets(10, 10, 10, 10))
-    grid.setVgap(10)
-    grid.setHgap(10)
-
-    val infoLabel = new Label("Cardinal Alpha - Version 0.1")
-    GridPane.setHgrow(infoLabel, Priority.ALWAYS)
-    GridPane.setHalignment(infoLabel, HPos.CENTER)
-    grid.add(infoLabel, 0, 0)
-
-    tab.setContent(grid)
-
-    tab
-  }
-
-  def curlTab(command: String): Tab = {
-    val tab = new Tab("cURL")
-
+  def setCurlCommand(command: String): Unit = {
     val grid = new GridPane
     grid.setPadding(new Insets(10, 10, 10, 10))
     grid.setVgap(10)
@@ -113,26 +73,10 @@ class ResponsePane(sendRequestCallback: (Request) => HttpResponseWrapper) extend
     GridPane.setVgrow(textAreaCurl, Priority.ALWAYS)
     grid.add(textAreaCurl, 0, 0)
 
-    tab.setContent(grid)
-
-    tab
+    Platform.runLater(() => setCenter(grid))
   }
 
   def showBulkRequestInput(request: Request): Unit = {
-    val bulkRequestTab = bulkRequestInput(request)
-    tabbedPane.getTabs.add(bulkRequestTab)
-    tabbedPane.getSelectionModel.select(bulkRequestTab)
-  }
-
-  def addCurlCommand(command: String): Unit = {
-    val tab = curlTab(command)
-    tabbedPane.getTabs.add(tab)
-    tabbedPane.getSelectionModel.select(tab)
-  }
-
-  def bulkRequestInput(request: Request): Tab = {
-    val tab = new Tab("Bulk Request")
-
     val grid = new GridPane
     grid.setPadding(new Insets(10, 10, 10, 10))
     grid.setHgap(10)
@@ -200,7 +144,7 @@ class ResponsePane(sendRequestCallback: (Request) => HttpResponseWrapper) extend
           case v => Some(v.split(",").toList)
         }
       }
-      startBulkRequestInTab(tab, request, optTextDelay, optNumRequests, optTextForEach)
+      startBulkRequest(request, optTextDelay, optNumRequests, optTextForEach)
     })
     GridPane.setHalignment(buttonStart, HPos.RIGHT)
     grid.add(buttonStart, 1, 4)
@@ -249,12 +193,10 @@ class ResponsePane(sendRequestCallback: (Request) => HttpResponseWrapper) extend
     textAreaExampleBody.setEditable(false)
     grid.add(textAreaExampleBody, 0, 9)
 
-    tab.setContent(grid)
-    tab
+    Platform.runLater(() => setCenter(grid))
   }
 
-  def startBulkRequestInTab(tab: Tab, request: Request, throttle: Option[Long], requestCount: Option[Int], ids: Option[List[String]]): Unit = {
-
+  def startBulkRequest(request: Request, throttle: Option[Long], requestCount: Option[Int], ids: Option[List[String]]): Unit = {
     var allResponses = collection.mutable.ListBuffer.empty[HttpResponseWrapper]
 
     val labelDelta = new Label()
@@ -270,7 +212,7 @@ class ResponsePane(sendRequestCallback: (Request) => HttpResponseWrapper) extend
             updateProgress(i, requestCount.get)
             Platform.runLater(() => labelDelta.setText(allResponses.length.toString))
           }
-          finishedBulkRequestCallback(tab, allResponses.toList)
+          finishedBulkRequestCallback(allResponses.toList)
           true
         } else if (throttle.isDefined && ids.isDefined) {
           ids.get.zipWithIndex.foreach { case (id, i) =>
@@ -281,7 +223,7 @@ class ResponsePane(sendRequestCallback: (Request) => HttpResponseWrapper) extend
             updateProgress(i + 1, ids.get.length.toDouble)
             Platform.runLater(() => labelDelta.setText(allResponses.length.toString))
           }
-          finishedBulkRequestCallback(tab, allResponses.toList)
+          finishedBulkRequestCallback(allResponses.toList)
           true
         } else {
           false
@@ -316,17 +258,17 @@ class ResponsePane(sendRequestCallback: (Request) => HttpResponseWrapper) extend
     val buttonAbort = new Button("Abort")
     buttonAbort.setOnAction((_) => {
       task.cancel()
-      finishedBulkRequestCallback(tab, allResponses.toList)
+      finishedBulkRequestCallback(allResponses.toList)
     })
     GridPane.setHalignment(buttonAbort, HPos.CENTER)
     grid.add(buttonAbort, 0, 3)
 
 
-    Platform.runLater(() => tab.setContent(grid))
+    Platform.runLater(() => setCenter(grid))
     new Thread(task).start()
   }
 
-  def finishedBulkRequestCallback(tab: Tab, responses: List[HttpResponseWrapper]): Unit = {
+  def finishedBulkRequestCallback(responses: List[HttpResponseWrapper]): Unit = {
     val grid = new GridPane
     grid.setPadding(new Insets(10, 10, 10, 10))
     grid.setHgap(10)
@@ -367,10 +309,9 @@ class ResponsePane(sendRequestCallback: (Request) => HttpResponseWrapper) extend
     GridPane.setHgrow(lineChart, Priority.ALWAYS)
     grid.add(lineChart, 0, 1)
 
-    Platform.runLater(() => tab.setContent(grid))
+    Platform.runLater(() => setCenter(grid))
   }
 
+
+
 }
-
-
-
