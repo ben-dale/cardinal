@@ -1,0 +1,21 @@
+.control-pane {
+    -fx-border-color: lightgrey;
+    -fx-border-style: solid hidden hidden hidden;
+    -fx-padding: 15 20;
+}
+
+.cardinal-font {
+    -fx-font-family: Monospaced;
+    -fx-font-size: 13;
+    -fx-font-weight: 600;
+    -fx-text-fill: grey;
+}
+
+.dashed-border {
+    -fx-border-color: lightgrey;
+    -fx-border-style: dashed;
+}
+
+.round-border {
+    -fx-border-radius: 2;
+}

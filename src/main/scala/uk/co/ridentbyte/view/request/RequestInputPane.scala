@@ -11,7 +11,7 @@ class RequestInputPane() extends GridPane {
 
   setHgap(10)
   setVgap(10)
-  setPadding(new Insets(10, 0, 10, 10))
+  setPadding(new Insets(20))
 
   private val uriVerbInputPane = new RequestUriVerbInputPane
   GridPane.setVgrow(uriVerbInputPane, Priority.NEVER)

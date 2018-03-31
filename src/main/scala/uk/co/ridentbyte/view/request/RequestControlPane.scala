@@ -1,6 +1,6 @@
 package uk.co.ridentbyte.view.request
 
-import javafx.geometry.{HPos, Insets}
+import javafx.geometry.HPos
 import javafx.scene.control.Button
 import javafx.scene.layout._
 
@@ -8,7 +8,7 @@ class RequestControlPane(sendRequestCallback: () => Unit, showBulkRequestCallbac
 
   setHgap(10)
   setVgap(10)
-  setPadding(new Insets(0, 10, 10, 10))
+  getStyleClass.add("control-pane")
 
   private val buttonSendBulkRequest = new Button("Send Bulk Request...")
   GridPane.setVgrow(buttonSendBulkRequest, Priority.NEVER)

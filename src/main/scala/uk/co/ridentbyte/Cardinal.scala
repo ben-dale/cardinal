@@ -1,8 +1,10 @@
 package uk.co.ridentbyte
 
 import java.io.File
+
 import javafx.application.Application
 import javafx.scene.Scene
+import javafx.scene.input.KeyCode
 import javafx.stage.Stage
 import uk.co.ridentbyte.model.{HttpResponseWrapper, Request}
 import uk.co.ridentbyte.util.{HttpUtil, IOUtil}
@@ -28,6 +30,13 @@ class Cardinal extends Application {
     primaryStage.setMinWidth(800)
 
     val scene = new Scene(cardinalView, 1000, 500)
+    scene.getStylesheets.add("file://" + getClass.getClassLoader.getResource("style.css").getFile)
+    scene.setOnKeyPressed((k) => {
+      if (k.getCode == KeyCode.R) {
+        loadCss()
+      }
+    })
+
     primaryStage.setScene(scene)
     primaryStage.show()
   }
@@ -55,6 +64,16 @@ class Cardinal extends Application {
     this.currentFile = Option(file)
     if (this.currentFile.isDefined) {
       currentStage.setTitle(file.getAbsolutePath)
+    }
+  }
+
+  private def loadCss(): Unit = {
+    if (currentStage != null) {
+      currentStage.getScene.getStylesheets.clear()
+      println("Reloading CSS...")
+      val f = new File("src/main/resources/style.css")
+//      val styleSheet = getClass.getResource("resources/style.css").toExternalForm
+      currentStage.getScene.getStylesheets.add("file://" + f.getAbsolutePath)
     }
   }
 }

@@ -7,6 +7,7 @@ import javafx.geometry.{HPos, Insets}
 import javafx.scene.chart._
 import javafx.scene.control._
 import javafx.scene.layout._
+import javafx.scene.paint.Color
 import uk.co.ridentbyte.model.{BulkRequest, HttpResponseWrapper, Request}
 import uk.co.ridentbyte.view.dialog.BulkRequestInputDialog
 import uk.co.ridentbyte.view.util.{ColumnConstraintsBuilder, RowConstraintsBuilder}
@@ -14,13 +15,22 @@ import uk.co.ridentbyte.view.util.{ColumnConstraintsBuilder, RowConstraintsBuild
 class ResponsePane(sendRequestCallback: (Request) => HttpResponseWrapper,
                    showErrorDialogCallback: (String) => Unit) extends BorderPane {
 
+  setPadding(new Insets(20, 20, 20, 0))
+  clearContents()
+
   def clearContents(): Unit = {
-    setCenter(null)
+    val emptyPanel = new BorderPane
+    emptyPanel.getStyleClass.addAll("dashed-border", "round-border")
+    emptyPanel.setBorder(new Border(new BorderStroke(Color.LIGHTGREY, BorderStrokeStyle.DASHED, CornerRadii.EMPTY, BorderWidths.DEFAULT)))
+    val label = new Label("Cardinal 0.1")
+    label.getStyleClass.add("cardinal-font")
+    emptyPanel.setCenter(label)
+    setCenter(emptyPanel)
   }
 
   def setResponse(response: HttpResponseWrapper): Unit = {
     val grid = new GridPane
-    grid.setPadding(new Insets(10, 10, 10, 10))
+//    grid.setPadding(new Insets(20, 20, 20, 0))
     grid.setVgap(10)
     grid.setHgap(10)
     grid.getColumnConstraints.add(ColumnConstraintsBuilder().withHgrow(Priority.ALWAYS).build)
@@ -57,7 +67,7 @@ class ResponsePane(sendRequestCallback: (Request) => HttpResponseWrapper,
 
   def setCurlCommand(command: String): Unit = {
     val grid = new GridPane
-    grid.setPadding(new Insets(10, 10, 10, 10))
+//    grid.setPadding(new Insets(10, 10, 10, 10))
     grid.setVgap(10)
     grid.setHgap(10)
 
@@ -127,7 +137,7 @@ class ResponsePane(sendRequestCallback: (Request) => HttpResponseWrapper,
     }
 
     val grid = new GridPane
-    grid.setPadding(new Insets(10, 10, 10, 10))
+//    grid.setPadding(new Insets(10, 10, 10, 10))
     grid.setHgap(10)
     grid.setVgap(10)
     grid.setMinWidth(400)
@@ -165,7 +175,7 @@ class ResponsePane(sendRequestCallback: (Request) => HttpResponseWrapper,
 
   def finishedBulkRequestCallback(responses: List[HttpResponseWrapper]): Unit = {
     val grid = new GridPane
-    grid.setPadding(new Insets(10, 10, 10, 10))
+//    grid.setPadding(new Insets(10, 10, 10, 10))
     grid.setHgap(10)
     grid.setVgap(10)
     grid.setMinWidth(500)

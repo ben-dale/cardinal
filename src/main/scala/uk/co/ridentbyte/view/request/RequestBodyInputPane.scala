@@ -22,6 +22,13 @@ class RequestBodyInputPane extends GridPane {
       e.consume()
     }
   })
+  textAreaBody.setStyle(
+    """
+      |-fx-font-family: Monospaced;
+      |-fx-font-size: 13;
+      |-fx-font-weight: 600;
+    """.stripMargin
+  )
   GridPane.setVgrow(textAreaBody, Priority.ALWAYS)
   GridPane.setHgrow(textAreaBody, Priority.ALWAYS)
   add(textAreaBody, 0, 1)
