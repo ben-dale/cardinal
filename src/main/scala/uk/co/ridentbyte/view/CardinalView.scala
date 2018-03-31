@@ -15,7 +15,7 @@ import uk.co.ridentbyte.util.IOUtil
 import uk.co.ridentbyte.view.request.{RequestControlPane, RequestInputPane}
 import uk.co.ridentbyte.view.response.ResponsePane
 import uk.co.ridentbyte.view.util.{ColumnConstraintsBuilder, RowConstraintsBuilder}
-import uk.co.ridentbyte.view.dialog.BasicAuthInputDialog
+import uk.co.ridentbyte.view.dialog.{BasicAuthInputDialog, FormUrlEncodedInputDialog}
 
 class CardinalView(clearAllCallback: () => Unit,
                    saveChangesToCurrentFileCallback: (Request) => Unit,
@@ -86,6 +86,15 @@ class CardinalView(clearAllCallback: () => Unit,
   menuAuthorisation.getItems.add(menuItemBasicAuth)
 
   menuBar.getMenus.add(menuAuthorisation)
+
+
+  val menuForm = new Menu("Form")
+
+  val menuItemUrlEncoded = new MenuItem("URL Encoded...")
+  menuItemUrlEncoded.setOnAction((_) => showFormUrlEncodedInput())
+  menuForm.getItems.add(menuItemUrlEncoded)
+
+  menuBar.getMenus.add(menuForm)
 
   setTop(menuBar)
   setCenter(grid)
@@ -185,5 +194,16 @@ class CardinalView(clearAllCallback: () => Unit,
       requestInputPane.addHeader("Authorization: Basic " + encoded)
     }
   }
+
+  def showFormUrlEncodedInput(): Unit = {
+    val dialog = new FormUrlEncodedInputDialog(requestInputPane.getRequest.body.getOrElse(""))
+    val results = dialog.showAndWait()
+    if (results.isPresent) {
+      requestInputPane.setBody(results.get.toBodyString)
+      requestInputPane.addHeader("Content-Type: application/x-www-form-urlencoded")
+    }
+  }
+
+
 
 }

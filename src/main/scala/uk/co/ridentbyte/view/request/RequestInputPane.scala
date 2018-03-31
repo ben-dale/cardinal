@@ -46,7 +46,13 @@ class RequestInputPane() extends GridPane {
   }
 
   def addHeader(header: String): Unit = {
-    headersBodyInputPane.addHeader(header)
+    if (!headersBodyInputPane.getHeaders.contains(header)) {
+      headersBodyInputPane.addHeader(header)
+    }
+  }
+
+  def setBody(body: String): Unit = {
+    headersBodyInputPane.setBody(Some(body))
   }
 
 }
