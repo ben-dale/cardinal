@@ -20,11 +20,13 @@ import uk.co.ridentbyte.view.dialog.{BasicAuthInputDialog, FormUrlEncodedInputDi
 class CardinalView(clearAllCallback: () => Unit,
                    saveChangesToCurrentFileCallback: (Request) => Unit,
                    setCurrentFileCallback: (File) => Unit,
+                   openFileCallback: () => Unit,
+                   saveAsCallback: (Request) => Unit,
                    sendRequestCallback: (Request) => HttpResponseWrapper) extends BorderPane {
 
   private val requestInputPane = new RequestInputPane
   private val responsePane = new ResponsePane(sendRequestCallback, showErrorDialog)
-  private val requestControlPane = new RequestControlPane(sendRequestAndLoadResponse, showBulkRequest)
+  private val requestControlPane = new RequestControlPane(sendRequestAndLoadResponse, showBulkRequestInput)
 
   val grid = new GridPane
   grid.getColumnConstraints.add(ColumnConstraintsBuilder().withHgrow(Priority.ALWAYS).withPercentageWidth(45).build)
@@ -40,22 +42,22 @@ class CardinalView(clearAllCallback: () => Unit,
 
   val menuBar = new MenuBar
   if (System.getProperty("os.name").toLowerCase.contains("mac")) {
-//    menuBar.setUseSystemMenuBar(true)
+    menuBar.setUseSystemMenuBar(true)
   }
 
   val menuFile = new Menu("File")
 
   val menuItemOpen = new MenuItem("Open...")
-  menuItemOpen.setOnAction((_) => open())
+  menuItemOpen.setOnAction((_) => openFileCallback())
   menuFile.getItems.add(menuItemOpen)
 
   val menuItemSave = new MenuItem("Save")
   menuItemSave.setDisable(true)
-  menuItemSave.setOnAction((_) => save())
+  menuItemSave.setOnAction((_) => saveChangesToCurrentFileCallback(requestInputPane.getRequest))
   menuFile.getItems.add(menuItemSave)
 
   val menuItemSaveAs = new MenuItem("Save As...")
-  menuItemSaveAs.setOnAction((_) => saveAs())
+  menuItemSaveAs.setOnAction((_) => saveAsCallback(requestInputPane.getRequest))
   menuFile.getItems.add(menuItemSaveAs)
 
   val menuItemClearAll = new MenuItem("Clear All")
@@ -68,7 +70,7 @@ class CardinalView(clearAllCallback: () => Unit,
 
   val menuItemViewAsCurl = new MenuItem("View as cURL")
   menuItemViewAsCurl.setOnAction((_) => {
-    val request = getRequest
+    val request = requestInputPane.getRequest
     if (request.uri.trim.length == 0) {
       showErrorDialog("Please enter a URL.")
     } else {
@@ -99,17 +101,6 @@ class CardinalView(clearAllCallback: () => Unit,
   setTop(menuBar)
   setCenter(grid)
 
-  def showInputDialog(defaultValue: String = ""): Option[String] = {
-    val alert = new TextInputDialog(defaultValue)
-    alert.setContentText("Please enter filename")
-    val result = alert.showAndWait()
-    if (result.isPresent) {
-      Some(result.get)
-    } else {
-      None
-    }
-  }
-
   def showErrorDialog(errorMessage: String): Unit = {
     val alert = new Alert(AlertType.ERROR)
     alert.setContentText(errorMessage)
@@ -120,10 +111,6 @@ class CardinalView(clearAllCallback: () => Unit,
     requestInputPane.clear()
     responsePane.clearContents()
     menuItemSave.setDisable(true)
-  }
-
-  def getRequest: Request = {
-    requestInputPane.getRequest
   }
 
   private def sendRequestAndLoadResponse(): Unit = {
@@ -144,7 +131,7 @@ class CardinalView(clearAllCallback: () => Unit,
     }
   }
 
-  private def showBulkRequest(): Unit = {
+  private def showBulkRequestInput(): Unit = {
     val request = requestInputPane.getRequest
     if (request.uri.trim.length == 0) {
       showErrorDialog("Please enter a URL.")
@@ -154,34 +141,7 @@ class CardinalView(clearAllCallback: () => Unit,
   }
 
   def loadRequest(request: Request): Unit = {
-    clearAllCallback()
     requestInputPane.loadRequest(request)
-  }
-
-  private def save(): Unit = {
-    saveChangesToCurrentFileCallback(requestInputPane.getRequest)
-  }
-
-  private def saveAs(): Unit = {
-    val fileChooser = new FileChooser
-    val file = fileChooser.showSaveDialog(null)
-    if (file != null) {
-      val fileWithExtension = new File(file.getAbsolutePath + ".json")
-      IOUtil.writeToFile(fileWithExtension, requestInputPane.getRequest.toJson)
-      setCurrentFileCallback(fileWithExtension)
-      menuItemSave.setDisable(false)
-    }
-  }
-
-  private def open(): Unit = {
-    val fileChooser = new FileChooser
-    val selectedFile = fileChooser.showOpenDialog(null)
-    if (selectedFile != null) {
-      val lines = scala.io.Source.fromFile(selectedFile).getLines().mkString
-      loadRequest(Request(lines))
-      setCurrentFileCallback(selectedFile)
-      menuItemSave.setDisable(false)
-    }
   }
 
   def showBasicAuthInput(): Unit = {
@@ -204,6 +164,8 @@ class CardinalView(clearAllCallback: () => Unit,
     }
   }
 
-
+  def setSaveDisabled(boolean: Boolean): Unit = {
+    menuItemSave.setDisable(boolean)
+  }
 
 }

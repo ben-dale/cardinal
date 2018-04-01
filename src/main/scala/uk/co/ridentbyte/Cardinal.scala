@@ -5,7 +5,7 @@ import java.io.File
 import javafx.application.Application
 import javafx.scene.Scene
 import javafx.scene.input.KeyCode
-import javafx.stage.Stage
+import javafx.stage.{FileChooser, Stage}
 import uk.co.ridentbyte.model.{HttpResponseWrapper, Request}
 import uk.co.ridentbyte.util.{HttpUtil, IOUtil}
 import uk.co.ridentbyte.view.CardinalView
@@ -21,7 +21,7 @@ class Cardinal extends Application {
   private var currentFile: Option[File] = None
   private var currentStage: Stage = _
   private val httpUtil = new HttpUtil
-  private val cardinalView = new CardinalView(clearAll, saveChangesToCurrentFile, setCurrentFile, sendRequest)
+  private val cardinalView = new CardinalView(clearAll, saveChangesToCurrentFile, setCurrentFile, open, saveAs, sendRequest)
 
   override def start(primaryStage: Stage): Unit = {
     currentStage = primaryStage
@@ -73,4 +73,32 @@ class Cardinal extends Application {
       currentStage.setTitle(file.getAbsolutePath)
     }
   }
+
+  private def open(): Unit = {
+    val fileChooser = new FileChooser
+    val selectedFile = fileChooser.showOpenDialog(currentStage)
+    if (selectedFile != null) {
+      val lines = scala.io.Source.fromFile(selectedFile).getLines().mkString
+      clearAll()
+      setCurrentFile(selectedFile)
+      cardinalView.loadRequest(Request(lines))
+      cardinalView.setSaveDisabled(false)
+    }
+  }
+
+  private def saveAs(request: Request): Unit = {
+    val fileChooser = new FileChooser
+    val file = fileChooser.showSaveDialog(currentStage)
+    if (file != null) {
+      val fileWithExtension = if (!file.getAbsolutePath.endsWith(".json")) {
+          new File(file.getAbsolutePath + ".json")
+        } else {
+          file
+        }
+      IOUtil.writeToFile(fileWithExtension, request.toJson)
+      setCurrentFile(fileWithExtension)
+      cardinalView.setSaveDisabled(false)
+    }
+  }
+
 }
