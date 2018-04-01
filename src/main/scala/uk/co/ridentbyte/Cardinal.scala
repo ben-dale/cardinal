@@ -2,8 +2,10 @@ package uk.co.ridentbyte
 
 import java.io.File
 
-import javafx.application.Application
+import javafx.application.{Application, Platform}
 import javafx.scene.Scene
+import javafx.scene.control.{Alert, ButtonType}
+import javafx.scene.control.Alert.AlertType
 import javafx.scene.input.KeyCode
 import javafx.stage.{FileChooser, Stage}
 import uk.co.ridentbyte.model.{HttpResponseWrapper, Request}
@@ -43,6 +45,12 @@ class Cardinal extends Application {
 //        }
 //      }
 //    })
+
+    primaryStage.setOnCloseRequest((_) => {
+      if (currentFile.isDefined) {
+        showConfirmDialog("Save changes to " + currentFile.get.getName + "?", () => saveChangesToCurrentFile(cardinalView.getRequest), () => Unit)
+      }
+    })
 
     primaryStage.setScene(scene)
     primaryStage.show()
@@ -98,6 +106,18 @@ class Cardinal extends Application {
       IOUtil.writeToFile(fileWithExtension, request.toJson)
       setCurrentFile(fileWithExtension)
       cardinalView.setSaveDisabled(false)
+    }
+  }
+
+  private def showConfirmDialog(message: String, onYesCallback:() => Unit, onNoCallback:() => Unit): Unit = {
+    val alert = new Alert(AlertType.CONFIRMATION)
+    alert.setHeaderText(message)
+    alert.getButtonTypes.setAll(ButtonType.NO, ButtonType.YES)
+    val result = alert.showAndWait()
+    if (result.get == ButtonType.YES) {
+      onYesCallback()
+    } else {
+      onNoCallback()
     }
   }
 

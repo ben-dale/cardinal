@@ -168,4 +168,6 @@ class CardinalView(clearAllCallback: () => Unit,
     menuItemSave.setDisable(boolean)
   }
 
+  def getRequest: Request = requestInputPane.getRequest
+
 }
