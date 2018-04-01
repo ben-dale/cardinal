@@ -30,12 +30,19 @@ class Cardinal extends Application {
     primaryStage.setMinWidth(800)
 
     val scene = new Scene(cardinalView, 1000, 500)
-    scene.getStylesheets.add("file://" + getClass.getClassLoader.getResource("style.css").getFile)
-    scene.setOnKeyPressed((k) => {
-      if (k.getCode == KeyCode.R) {
-        loadCss()
-      }
-    })
+    scene.getStylesheets.add(getClass.getClassLoader.getResource("style.css").toExternalForm)
+
+    // Temporary action for dev
+//    scene.setOnKeyPressed((k) => {
+//      if (k.getCode == KeyCode.R) {
+//        if (currentStage != null) {
+//          currentStage.getScene.getStylesheets.clear()
+//          println("[" + System.currentTimeMillis() + "] Reloading CSS")
+//          val f = new File("src/main/resources/style.css")
+//          currentStage.getScene.getStylesheets.add("file://" + f.getAbsolutePath)
+//        }
+//      }
+//    })
 
     primaryStage.setScene(scene)
     primaryStage.show()
@@ -64,16 +71,6 @@ class Cardinal extends Application {
     this.currentFile = Option(file)
     if (this.currentFile.isDefined) {
       currentStage.setTitle(file.getAbsolutePath)
-    }
-  }
-
-  private def loadCss(): Unit = {
-    if (currentStage != null) {
-      currentStage.getScene.getStylesheets.clear()
-      println("Reloading CSS...")
-      val f = new File("src/main/resources/style.css")
-//      val styleSheet = getClass.getResource("resources/style.css").toExternalForm
-      currentStage.getScene.getStylesheets.add("file://" + f.getAbsolutePath)
     }
   }
 }
