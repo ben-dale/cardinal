@@ -40,7 +40,7 @@ class CardinalView(clearAllCallback: () => Unit,
 
   val menuBar = new MenuBar
   if (System.getProperty("os.name").toLowerCase.contains("mac")) {
-    menuBar.setUseSystemMenuBar(true)
+//    menuBar.setUseSystemMenuBar(true)
   }
 
   val menuFile = new Menu("File")
