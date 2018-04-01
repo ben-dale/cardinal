@@ -75,7 +75,7 @@ class CardinalView(getConfigCallback: () => Config,
     if (request.uri.trim.length == 0) {
       showErrorDialog("Please enter a URL.")
     } else {
-      responsePane.setCurlCommand(request.toCurl)
+      responsePane.setCurlCommand(request.toCurl(getConfigCallback()))
     }
   })
   menuTools.getItems.add(menuItemViewAsCurl)

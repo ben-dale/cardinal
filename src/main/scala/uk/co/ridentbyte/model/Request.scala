@@ -45,12 +45,13 @@ case class Request(uri: String, verb: String, headers: List[String], body: Optio
     Request(newUri, verb, newHeaders, newBody)
   }
 
-  def toCurl: String = {
+  def toCurl(config: Config): String = {
+    val vars = config.getEnvironmentVariables
     val sb = new StringBuilder
     sb.append("curl ")
-    headers.foreach { header => sb.append(s"""-H '$header' """) }
-    body.foreach { b => sb.append(s"""-d '${parseAndReplacePlaceholders(b)}' """) }
-    sb.append(s"""-X $verb ${parseAndReplacePlaceholders(uri)}""")
+    headers.foreach { header => sb.append(s"""-H '${processEnvironmentVariables(parseAndReplacePlaceholders(header), vars)}' """) }
+    body.foreach { b => sb.append(s"""-d '${processEnvironmentVariables(parseAndReplacePlaceholders(b), vars)}' """) }
+    sb.append(s"""-X $verb ${processEnvironmentVariables(parseAndReplacePlaceholders(uri), vars)}""")
     sb.toString()
   }
 
