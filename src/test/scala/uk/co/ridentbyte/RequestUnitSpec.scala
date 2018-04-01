@@ -2,7 +2,7 @@ package uk.co.ridentbyte
 
 import org.scalatest.FlatSpec
 import org.scalatest.Matchers._
-import uk.co.ridentbyte.model.Request
+import uk.co.ridentbyte.model.{Config, Request}
 
 class RequestUnitSpec extends FlatSpec {
 
@@ -77,7 +77,7 @@ class RequestUnitSpec extends FlatSpec {
     )
 
     // When
-    val result = request.processConstants()
+    val result = request.processConstants(Config(List.empty[String]))
 
     // Then
     verifyPlaceholdersReplaced("#{guid}", request, result)

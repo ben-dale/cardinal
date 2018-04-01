@@ -24,17 +24,22 @@ case class Request(uri: String, verb: String, headers: List[String], body: Optio
     )
   }
 
-  def processEnvironmentVariables(vars: Map[String, String]): Request = {
-    var newUri = uri
-    vars.foreach { case (k, v) => newUri = replaceEachIn(newUri, k, () => v)}
-    Request(newUri, verb, headers, body)
+  def processEnvironmentVariables(value: String, vars: Map[String, String]): String = {
+    var valueCopy = value
+    vars.foreach { case (k, v) => valueCopy = valueCopy.replaceAll("#\\{" + k + "\\}", v) }
+    valueCopy
   }
 
-  def processConstants(): Request = {
-    val newUri = parseAndReplacePlaceholders(uri)
-    val newHeaders = headers.map(parseAndReplacePlaceholders)
+  def processConstants(config: Config): Request = {
+    val vars = config.getEnvironmentVariables
+    val newUri = processEnvironmentVariables(parseAndReplacePlaceholders(uri), vars)
+    val newHeaders = headers.map(h => {
+      val x = processEnvironmentVariables(parseAndReplacePlaceholders(h), vars)
+      println(x)
+      x
+    })
     val newBody = body match {
-      case Some(b) => Some(parseAndReplacePlaceholders(b))
+      case Some(b) => Some(processEnvironmentVariables(parseAndReplacePlaceholders(b), vars))
       case _  => None
     }
     Request(newUri, verb, newHeaders, newBody)

@@ -9,13 +9,14 @@ import javafx.scene.control.Alert.AlertType
 import javafx.scene.control._
 import javafx.scene.layout.{BorderPane, GridPane, Priority}
 import javax.net.ssl.SSLHandshakeException
-import uk.co.ridentbyte.model.{HttpResponseWrapper, Request}
+import uk.co.ridentbyte.model.{Config, HttpResponseWrapper, Request}
 import uk.co.ridentbyte.view.request.{RequestControlPane, RequestInputPane}
 import uk.co.ridentbyte.view.response.ResponsePane
 import uk.co.ridentbyte.view.util.{ColumnConstraintsBuilder, RowConstraintsBuilder}
 import uk.co.ridentbyte.view.dialog.{BasicAuthInputDialog, EnvironmentVariablesInputDialog, FormUrlEncodedInputDialog}
 
-class CardinalView(clearAllCallback: () => Unit,
+class CardinalView(getConfigCallback: () => Config,
+                   clearAllCallback: () => Unit,
                    saveChangesToCurrentFileCallback: (Request) => Unit,
                    setCurrentFileCallback: (File) => Unit,
                    openFileCallback: () => Unit,
@@ -25,7 +26,7 @@ class CardinalView(clearAllCallback: () => Unit,
                    triggerUnsavedChangesMade: () => Unit) extends BorderPane {
 
   private val requestInputPane = new RequestInputPane(triggerUnsavedChangesMade)
-  private val responsePane = new ResponsePane(sendRequestCallback, showErrorDialog)
+  private val responsePane = new ResponsePane(getConfigCallback, sendRequestCallback, showErrorDialog)
   private val requestControlPane = new RequestControlPane(sendRequestAndLoadResponse, showBulkRequestInput)
 
   val grid = new GridPane
@@ -127,7 +128,7 @@ class CardinalView(clearAllCallback: () => Unit,
       showErrorDialog("Please enter a URL.")
     } else {
       try {
-        val httpResponse = sendRequestCallback(requestInputPane.getRequest.processConstants())
+        val httpResponse = sendRequestCallback(requestInputPane.getRequest.processConstants(getConfigCallback()))
         responsePane.setResponse(httpResponse)
       } catch {
         case _: ConnectException => showErrorDialog("Connection refused.")
@@ -173,7 +174,7 @@ class CardinalView(clearAllCallback: () => Unit,
   }
 
   def showEnvironmentVariablesInput(): Unit = {
-    val dialog = new EnvironmentVariablesInputDialog(List())
+    val dialog = new EnvironmentVariablesInputDialog(getConfigCallback().environmentVariables)
     val results = dialog.showAndWait()
     if (results.isPresent) {
       setEnvironmentVariablesCallback(results.get)

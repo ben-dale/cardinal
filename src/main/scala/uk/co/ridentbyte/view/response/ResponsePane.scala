@@ -8,11 +8,12 @@ import javafx.scene.chart._
 import javafx.scene.control._
 import javafx.scene.layout._
 import javafx.scene.paint.Color
-import uk.co.ridentbyte.model.{BulkRequest, HttpResponseWrapper, Request}
+import uk.co.ridentbyte.model.{BulkRequest, Config, HttpResponseWrapper, Request}
 import uk.co.ridentbyte.view.dialog.BulkRequestInputDialog
 import uk.co.ridentbyte.view.util.{ColumnConstraintsBuilder, RowConstraintsBuilder}
 
-class ResponsePane(sendRequestCallback: (Request) => HttpResponseWrapper,
+class ResponsePane(getConfigCallback: () => Config,
+                   sendRequestCallback: (Request) => HttpResponseWrapper,
                    showErrorDialogCallback: (String) => Unit) extends BorderPane {
 
   setPadding(new Insets(20, 20, 20, 0))
@@ -111,7 +112,7 @@ class ResponsePane(sendRequestCallback: (Request) => HttpResponseWrapper,
         if (throttle.isDefined && requestCount.isDefined) {
           1 to requestCount.get foreach { i =>
             Thread.sleep(throttle.get)
-            val r = request.withId(i.toString).processConstants()
+            val r = request.withId(i.toString).processConstants(getConfigCallback())
             val response = sendRequestCallback(r)
             allResponses += response
             updateProgress(i, requestCount.get)
@@ -122,7 +123,7 @@ class ResponsePane(sendRequestCallback: (Request) => HttpResponseWrapper,
         } else if (throttle.isDefined && ids.isDefined) {
           ids.get.zipWithIndex.foreach { case (id, i) =>
             Thread.sleep(throttle.get)
-            val r = request.withId(id).processConstants()
+            val r = request.withId(id).processConstants(getConfigCallback())
             val response = sendRequestCallback(r)
             allResponses += response
             updateProgress(i + 1, ids.get.length.toDouble)

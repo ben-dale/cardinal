@@ -25,7 +25,7 @@ class Cardinal extends Application {
   private var currentStage: Stage = _
   private var unsavedChangesMade: Boolean = false
   private val httpUtil = new HttpUtil
-  private val cardinalView = new CardinalView(clearAllWithSavePrompt, saveChangesToCurrentFile, setCurrentFile, open, saveAs, sendRequest, setEnvironmentVariables, triggerUnsavedChangesMade)
+  private val cardinalView = new CardinalView(() => getConfig, clearAllWithSavePrompt, saveChangesToCurrentFile, setCurrentFile, open, saveAs, sendRequest, setEnvironmentVariables, triggerUnsavedChangesMade)
 
   override def start(primaryStage: Stage): Unit = {
     currentStage = primaryStage
@@ -64,6 +64,8 @@ class Cardinal extends Application {
     primaryStage.show()
   }
 
+  private def getConfig: Config = currentConfig
+
   private def setEnvironmentVariables(vars: List[String]): Unit = {
     currentConfig = currentConfig.withEnvironmentVariables(vars)
     saveChangesToConfig(currentConfig)
@@ -78,7 +80,7 @@ class Cardinal extends Application {
 
   private def sendRequest(request: Request): HttpResponseWrapper = {
     val startTime = System.currentTimeMillis()
-    val response = httpUtil.sendRequest(request.processEnvironmentVariables(currentConfig.getEnvironmentVariables))
+    val response = httpUtil.sendRequest(request)
     val totalTime = System.currentTimeMillis() - startTime
     HttpResponseWrapper(response, totalTime)
   }
@@ -104,7 +106,6 @@ class Cardinal extends Application {
 
   private def saveChangesToConfig(config: Config): Unit = {
     val configFile = new File(System.getProperty("user.home") + "/.cardinal_config.json")
-    println(config.toJson)
     IOUtil.writeToFile(configFile, config.toJson)
   }
 
