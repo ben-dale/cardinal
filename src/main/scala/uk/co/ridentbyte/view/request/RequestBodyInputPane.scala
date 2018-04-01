@@ -4,7 +4,7 @@ import javafx.scene.control.{Label, TextArea}
 import javafx.scene.input.{KeyCode, KeyEvent}
 import javafx.scene.layout._
 
-class RequestBodyInputPane extends GridPane {
+class RequestBodyInputPane(triggerUnsavedChangesMade: () => Unit) extends GridPane {
 
   setHgap(5)
   setVgap(5)
@@ -16,6 +16,7 @@ class RequestBodyInputPane extends GridPane {
   add(labelBody, 0, 0)
 
   private val textAreaBody = new TextArea()
+  textAreaBody.textProperty().addListener((_, _, _) => triggerUnsavedChangesMade())
   textAreaBody.addEventFilter(KeyEvent.KEY_PRESSED, (e: KeyEvent) => {
     if (e.getCode == KeyCode.TAB) {
       textAreaBody.insertText(textAreaBody.getCaretPosition, "  ")

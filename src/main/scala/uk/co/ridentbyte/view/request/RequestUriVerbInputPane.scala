@@ -6,21 +6,23 @@ import javafx.scene.layout.{GridPane, Priority}
 
 import scala.collection.JavaConverters._
 
-class RequestUriVerbInputPane extends GridPane {
+class RequestUriVerbInputPane(triggerUnsavedChangesMade: () => Unit) extends GridPane {
 
   setHgap(10)
   setVgap(10)
 
   private val textUri = new TextField()
+  textUri.textProperty().addListener((_, _, _) => triggerUnsavedChangesMade())
   GridPane.setVgrow(textUri, Priority.NEVER)
   GridPane.setHgrow(textUri, Priority.ALWAYS)
   textUri.setPromptText("http://localhost:8080")
   add(textUri, 0, 0)
 
   private val selectVerb = new ChoiceBox[String](FXCollections.observableArrayList("GET", "POST", "PUT", "DELETE", "HEAD", "CONNECT", "OPTIONS", "TRACE", "PATCH"))
+  selectVerb.getSelectionModel.selectFirst()
+  selectVerb.getSelectionModel.selectedItemProperty.addListener((_, _, _) => triggerUnsavedChangesMade())
   GridPane.setVgrow(selectVerb, Priority.NEVER)
   GridPane.setHgrow(selectVerb, Priority.NEVER)
-  selectVerb.getSelectionModel.selectFirst()
   add(selectVerb, 1, 0)
 
   def getUri: String =  textUri.getText.trim

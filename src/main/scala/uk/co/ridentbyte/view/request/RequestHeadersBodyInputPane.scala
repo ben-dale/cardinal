@@ -4,7 +4,7 @@ import javafx.scene.layout.{GridPane, Priority}
 
 import uk.co.ridentbyte.view.util.RowConstraintsBuilder
 
-class RequestHeadersBodyInputPane extends GridPane {
+class RequestHeadersBodyInputPane(triggerUnsavedChangesMade: () => Unit) extends GridPane {
 
   setHgap(5)
   setVgap(5)
@@ -14,12 +14,12 @@ class RequestHeadersBodyInputPane extends GridPane {
     RowConstraintsBuilder().build
   )
 
-  private val headersInputPane = new RequestHeadersInputPane
+  private val headersInputPane = new RequestHeadersInputPane(triggerUnsavedChangesMade)
   GridPane.setVgrow(headersInputPane, Priority.ALWAYS)
   GridPane.setHgrow(headersInputPane, Priority.ALWAYS)
   add(headersInputPane, 0, 0)
 
-  private val bodyInputPane = new RequestBodyInputPane
+  private val bodyInputPane = new RequestBodyInputPane(triggerUnsavedChangesMade)
   GridPane.setVgrow(bodyInputPane, Priority.ALWAYS)
   GridPane.setHgrow(bodyInputPane, Priority.ALWAYS)
   add(bodyInputPane, 0, 1)

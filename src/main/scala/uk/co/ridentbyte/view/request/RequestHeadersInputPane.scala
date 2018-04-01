@@ -8,7 +8,7 @@ import javafx.scene.layout.{GridPane, Priority}
 
 import scala.collection.JavaConverters._
 
-class RequestHeadersInputPane extends GridPane {
+class RequestHeadersInputPane(triggerUnsavedChangesMade: () => Unit) extends GridPane {
 
   setHgap(5)
   setVgap(5)
@@ -21,6 +21,7 @@ class RequestHeadersInputPane extends GridPane {
   add(labelHeaders, 0, 0)
 
   private val listHeaders = new ListView[String]()
+  listHeaders.getItems.addListener((_) => triggerUnsavedChangesMade())
   listHeaders.setEditable(true)
   listHeaders.setStyle(
     """

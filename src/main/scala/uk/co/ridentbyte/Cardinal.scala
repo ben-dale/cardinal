@@ -22,8 +22,9 @@ class Cardinal extends Application {
 
   private var currentFile: Option[File] = None
   private var currentStage: Stage = _
+  private var unsavedChangesMade: Boolean = false
   private val httpUtil = new HttpUtil
-  private val cardinalView = new CardinalView(clearAll, saveChangesToCurrentFile, setCurrentFile, open, saveAs, sendRequest)
+  private val cardinalView = new CardinalView(clearAll, saveChangesToCurrentFile, setCurrentFile, open, saveAs, sendRequest, triggerUnsavedChangesMade)
 
   override def start(primaryStage: Stage): Unit = {
     currentStage = primaryStage
@@ -47,13 +48,24 @@ class Cardinal extends Application {
 //    })
 
     primaryStage.setOnCloseRequest((_) => {
-      if (currentFile.isDefined) {
-        showConfirmDialog("Save changes to " + currentFile.get.getName + "?", () => saveChangesToCurrentFile(cardinalView.getRequest), () => Unit)
+      if (unsavedChangesMade) {
+        if (currentFile.isDefined) {
+          showConfirmDialog("Save changes to " + currentFile.get.getName + "?", () => saveChangesToCurrentFile(cardinalView.getRequest), () => Unit)
+        } else {
+          showConfirmDialog("Save unsaved changes?", () => saveAs(cardinalView.getRequest), () => Unit)
+        }
       }
     })
 
     primaryStage.setScene(scene)
     primaryStage.show()
+  }
+
+  private def triggerUnsavedChangesMade(): Unit = {
+    this.unsavedChangesMade = true
+    if (currentFile.isDefined) {
+      currentStage.setTitle(currentFile.get.getAbsolutePath + " *")
+    }
   }
 
   private def sendRequest(request: Request): HttpResponseWrapper = {
@@ -66,18 +78,28 @@ class Cardinal extends Application {
   private def saveChangesToCurrentFile(request: Request): Unit = {
     if (currentFile.isDefined) {
       IOUtil.writeToFile(currentFile.get, request.toJson)
+      currentStage.setTitle(currentFile.get.getAbsolutePath)
+      unsavedChangesMade = false
     }
   }
 
   private def clearAll(): Unit = {
+    if (unsavedChangesMade) {
+      if (currentFile.isDefined) {
+        showConfirmDialog("Save changes to " + currentFile.get.getName + "?", () => saveChangesToCurrentFile(cardinalView.getRequest), () => Unit)
+      } else {
+        showConfirmDialog("Save unsaved changes?", () => saveAs(cardinalView.getRequest), () => Unit)
+      }
+    }
     currentFile = None
+    unsavedChangesMade = false
     currentStage.setTitle("Cardinal")
     cardinalView.clearAll()
   }
 
   private def setCurrentFile(file: File): Unit = {
-    this.currentFile = Option(file)
-    if (this.currentFile.isDefined) {
+    currentFile = Option(file)
+    if (currentFile.isDefined) {
       currentStage.setTitle(file.getAbsolutePath)
     }
   }
@@ -86,11 +108,20 @@ class Cardinal extends Application {
     val fileChooser = new FileChooser
     val selectedFile = fileChooser.showOpenDialog(currentStage)
     if (selectedFile != null) {
+      if (unsavedChangesMade) {
+        if (currentFile.isDefined) {
+          showConfirmDialog("Save changes to " + currentFile.get.getName + "?", () => saveChangesToCurrentFile(cardinalView.getRequest), () => Unit)
+        } else {
+          showConfirmDialog("Save unsaved changes?", () => saveAs(cardinalView.getRequest), () => Unit)
+        }
+      }
+
       val lines = scala.io.Source.fromFile(selectedFile).getLines().mkString
       clearAll()
-      setCurrentFile(selectedFile)
       cardinalView.loadRequest(Request(lines))
       cardinalView.setSaveDisabled(false)
+      setCurrentFile(selectedFile)
+      unsavedChangesMade = false
     }
   }
 
@@ -106,12 +137,14 @@ class Cardinal extends Application {
       IOUtil.writeToFile(fileWithExtension, request.toJson)
       setCurrentFile(fileWithExtension)
       cardinalView.setSaveDisabled(false)
+      unsavedChangesMade = false
     }
   }
 
   private def showConfirmDialog(message: String, onYesCallback:() => Unit, onNoCallback:() => Unit): Unit = {
     val alert = new Alert(AlertType.CONFIRMATION)
-    alert.setHeaderText(message)
+    alert.setTitle("Save Changes")
+    alert.setContentText(message)
     alert.getButtonTypes.setAll(ButtonType.NO, ButtonType.YES)
     val result = alert.showAndWait()
     if (result.get == ButtonType.YES) {

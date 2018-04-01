@@ -22,9 +22,10 @@ class CardinalView(clearAllCallback: () => Unit,
                    setCurrentFileCallback: (File) => Unit,
                    openFileCallback: () => Unit,
                    saveAsCallback: (Request) => Unit,
-                   sendRequestCallback: (Request) => HttpResponseWrapper) extends BorderPane {
+                   sendRequestCallback: (Request) => HttpResponseWrapper,
+                   triggerUnsavedChangesMade: () => Unit) extends BorderPane {
 
-  private val requestInputPane = new RequestInputPane
+  private val requestInputPane = new RequestInputPane(triggerUnsavedChangesMade)
   private val responsePane = new ResponsePane(sendRequestCallback, showErrorDialog)
   private val requestControlPane = new RequestControlPane(sendRequestAndLoadResponse, showBulkRequestInput)
 
