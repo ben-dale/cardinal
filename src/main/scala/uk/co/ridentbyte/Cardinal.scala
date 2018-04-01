@@ -8,7 +8,7 @@ import javafx.scene.control.{Alert, ButtonType}
 import javafx.scene.control.Alert.AlertType
 import javafx.scene.input.KeyCode
 import javafx.stage.{FileChooser, Stage}
-import uk.co.ridentbyte.model.{HttpResponseWrapper, Request}
+import uk.co.ridentbyte.model.{Config, HttpResponseWrapper, Request}
 import uk.co.ridentbyte.util.{HttpUtil, IOUtil}
 import uk.co.ridentbyte.view.CardinalView
 
@@ -20,11 +20,12 @@ object Cardinal {
 
 class Cardinal extends Application {
 
+  private var currentConfig: Config = _
   private var currentFile: Option[File] = None
   private var currentStage: Stage = _
   private var unsavedChangesMade: Boolean = false
   private val httpUtil = new HttpUtil
-  private val cardinalView = new CardinalView(clearAll, saveChangesToCurrentFile, setCurrentFile, open, saveAs, sendRequest, triggerUnsavedChangesMade)
+  private val cardinalView = new CardinalView(clearAllWithSavePrompt, saveChangesToCurrentFile, setCurrentFile, open, saveAs, sendRequest, setEnvironmentVariables, triggerUnsavedChangesMade)
 
   override def start(primaryStage: Stage): Unit = {
     currentStage = primaryStage
@@ -34,6 +35,8 @@ class Cardinal extends Application {
 
     val scene = new Scene(cardinalView, 1000, 500)
     scene.getStylesheets.add(getClass.getClassLoader.getResource("style.css").toExternalForm)
+
+    loadConfig()
 
     // Temporary action for dev
 //    scene.setOnKeyPressed((k) => {
@@ -61,6 +64,11 @@ class Cardinal extends Application {
     primaryStage.show()
   }
 
+  private def setEnvironmentVariables(vars: List[String]): Unit = {
+    currentConfig = currentConfig.withEnvironmentVariables(vars)
+    saveChangesToConfig(currentConfig)
+  }
+
   private def triggerUnsavedChangesMade(): Unit = {
     this.unsavedChangesMade = true
     if (currentFile.isDefined) {
@@ -70,7 +78,7 @@ class Cardinal extends Application {
 
   private def sendRequest(request: Request): HttpResponseWrapper = {
     val startTime = System.currentTimeMillis()
-    val response = httpUtil.sendRequest(request)
+    val response = httpUtil.sendRequest(request.processEnvironmentVariables(currentConfig.getEnvironmentVariables))
     val totalTime = System.currentTimeMillis() - startTime
     HttpResponseWrapper(response, totalTime)
   }
@@ -83,7 +91,24 @@ class Cardinal extends Application {
     }
   }
 
-  private def clearAll(): Unit = {
+  private def loadConfig(): Unit = {
+    val file = new File(System.getProperty("user.home") + "/.cardinal_config.json")
+    if (file.exists && !file.isDirectory) {
+      val lines = scala.io.Source.fromFile(file).getLines().mkString
+      currentConfig = Config(lines)
+    } else {
+      // Create new empty config file if not present
+      saveChangesToConfig(Config(List.empty[String]))
+    }
+  }
+
+  private def saveChangesToConfig(config: Config): Unit = {
+    val configFile = new File(System.getProperty("user.home") + "/.cardinal_config.json")
+    println(config.toJson)
+    IOUtil.writeToFile(configFile, config.toJson)
+  }
+
+  private def clearAllWithSavePrompt(): Unit = {
     if (unsavedChangesMade) {
       if (currentFile.isDefined) {
         showConfirmDialog("Save changes to " + currentFile.get.getName + "?", () => saveChangesToCurrentFile(cardinalView.getRequest), () => Unit)
@@ -91,6 +116,10 @@ class Cardinal extends Application {
         showConfirmDialog("Save unsaved changes?", () => saveAs(cardinalView.getRequest), () => Unit)
       }
     }
+    clearAll()
+  }
+
+  private def clearAll(): Unit = {
     currentFile = None
     unsavedChangesMade = false
     currentStage.setTitle("Cardinal")
@@ -115,7 +144,6 @@ class Cardinal extends Application {
           showConfirmDialog("Save unsaved changes?", () => saveAs(cardinalView.getRequest), () => Unit)
         }
       }
-
       val lines = scala.io.Source.fromFile(selectedFile).getLines().mkString
       clearAll()
       cardinalView.loadRequest(Request(lines))
@@ -153,5 +181,6 @@ class Cardinal extends Application {
       onNoCallback()
     }
   }
+
 
 }

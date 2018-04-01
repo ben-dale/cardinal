@@ -8,14 +8,12 @@ import java.util.Base64
 import javafx.scene.control.Alert.AlertType
 import javafx.scene.control._
 import javafx.scene.layout.{BorderPane, GridPane, Priority}
-import javafx.stage.FileChooser
 import javax.net.ssl.SSLHandshakeException
 import uk.co.ridentbyte.model.{HttpResponseWrapper, Request}
-import uk.co.ridentbyte.util.IOUtil
 import uk.co.ridentbyte.view.request.{RequestControlPane, RequestInputPane}
 import uk.co.ridentbyte.view.response.ResponsePane
 import uk.co.ridentbyte.view.util.{ColumnConstraintsBuilder, RowConstraintsBuilder}
-import uk.co.ridentbyte.view.dialog.{BasicAuthInputDialog, FormUrlEncodedInputDialog}
+import uk.co.ridentbyte.view.dialog.{BasicAuthInputDialog, EnvironmentVariablesInputDialog, FormUrlEncodedInputDialog}
 
 class CardinalView(clearAllCallback: () => Unit,
                    saveChangesToCurrentFileCallback: (Request) => Unit,
@@ -23,6 +21,7 @@ class CardinalView(clearAllCallback: () => Unit,
                    openFileCallback: () => Unit,
                    saveAsCallback: (Request) => Unit,
                    sendRequestCallback: (Request) => HttpResponseWrapper,
+                   setEnvironmentVariablesCallback: (List[String]) => Unit,
                    triggerUnsavedChangesMade: () => Unit) extends BorderPane {
 
   private val requestInputPane = new RequestInputPane(triggerUnsavedChangesMade)
@@ -99,6 +98,14 @@ class CardinalView(clearAllCallback: () => Unit,
 
   menuBar.getMenus.add(menuForm)
 
+  val menuConfig = new Menu("Config")
+
+  val menuItemEnvVars = new MenuItem("Environment Variables...")
+  menuItemEnvVars.setOnAction((_) => showEnvironmentVariablesInput())
+  menuConfig.getItems.add(menuItemEnvVars)
+
+  menuBar.getMenus.add(menuConfig)
+
   setTop(menuBar)
   setCenter(grid)
 
@@ -164,6 +171,15 @@ class CardinalView(clearAllCallback: () => Unit,
       requestInputPane.addHeader("Content-Type: application/x-www-form-urlencoded")
     }
   }
+
+  def showEnvironmentVariablesInput(): Unit = {
+    val dialog = new EnvironmentVariablesInputDialog(List())
+    val results = dialog.showAndWait()
+    if (results.isPresent) {
+      setEnvironmentVariablesCallback(results.get)
+    }
+  }
+
 
   def setSaveDisabled(boolean: Boolean): Unit = {
     menuItemSave.setDisable(boolean)

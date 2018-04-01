@@ -24,6 +24,12 @@ case class Request(uri: String, verb: String, headers: List[String], body: Optio
     )
   }
 
+  def processEnvironmentVariables(vars: Map[String, String]): Request = {
+    var newUri = uri
+    vars.foreach { case (k, v) => newUri = replaceEachIn(newUri, k, () => v)}
+    Request(newUri, verb, headers, body)
+  }
+
   def processConstants(): Request = {
     val newUri = parseAndReplacePlaceholders(uri)
     val newHeaders = headers.map(parseAndReplacePlaceholders)
@@ -80,9 +86,9 @@ case class Request(uri: String, verb: String, headers: List[String], body: Optio
     contentCopy
   }
 
-  private def replaceEachIn(body: String, replace: String, valueGenerator: () => String): String = {
-    var bodyCopy = body
-    0.until(replace.r.findAllMatchIn(body).length).foreach { _ =>
+  private def replaceEachIn(value: String, replace: String, valueGenerator: () => String): String = {
+    var bodyCopy = value
+    0.until(replace.r.findAllMatchIn(value).length).foreach { _ =>
       bodyCopy = bodyCopy.replaceFirst(replace, valueGenerator())
     }
     bodyCopy
