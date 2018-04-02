@@ -37,14 +37,14 @@ class CardinalMenuBar(showAsCurlCallback: () => Unit,
 
   getMenus.add(menuFile)
 
-  // *** TOOLS ***
-  private val menuTools = new Menu("Tools")
+  // *** EXPORT ***
+  private val menuExport = new Menu("Export")
 
-  private val menuItemViewAsCurl = new MenuItem("View as cURL")
-  menuItemViewAsCurl.setOnAction((_) => showAsCurlCallback())
-  menuTools.getItems.add(menuItemViewAsCurl)
+  private val menuItemExportAsCurl = new MenuItem("Export as cURL")
+  menuItemExportAsCurl.setOnAction((_) => showAsCurlCallback())
+  menuExport.getItems.add(menuItemExportAsCurl)
 
-  getMenus.add(menuTools)
+  getMenus.add(menuExport)
 
   // *** AUTHORISATION ***
   private val menuAuthorisation = new Menu("Auth")
@@ -66,7 +66,7 @@ class CardinalMenuBar(showAsCurlCallback: () => Unit,
 
   // *** CONFIG ***
   private val menuConfig = new Menu("Config")
-  private val menuItemEnvVars = new MenuItem("Environment Variables...")
+  private val menuItemEnvVars = new MenuItem("Edit Environment Variables...")
   menuItemEnvVars.setOnAction((_) => editEnvironmentVarsCallback())
   menuConfig.getItems.add(menuItemEnvVars)
   getMenus.add(menuConfig)

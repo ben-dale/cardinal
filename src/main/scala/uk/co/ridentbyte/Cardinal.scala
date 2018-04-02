@@ -29,8 +29,8 @@ class Cardinal extends Application {
   private var currentStage: Stage = _
   private var unsavedChangesMade: Boolean = false
   private val httpUtil = new HttpUtil
-  private val cardinalView = new CardinalView(showErrorDialog, () => getConfig, clearAllWithSavePrompt, sendRequest, triggerUnsavedChangesMade)
-  private val menuBar = new CardinalMenuBar(showAsCurl, open, saveChangesToCurrentFile,saveAs,clearAll, showEnvironmentVariablesInput,showFormUrlEncodedInput,showBasicAuthInput)
+  private val cardinalView = new CardinalView(showErrorDialog, () => currentConfig, sendRequest, triggerUnsavedChangesMade)
+  private val menuBar = new CardinalMenuBar(showAsCurl, open, saveChangesToCurrentFile,saveAs,clearAll, showEnvironmentVariablesInput, showFormUrlEncodedInput, showBasicAuthInput)
 
   override def start(primaryStage: Stage): Unit = {
     currentStage = primaryStage
@@ -73,8 +73,6 @@ class Cardinal extends Application {
     primaryStage.show()
 
   }
-
-  private def getConfig: Config = currentConfig
 
   private def setEnvironmentVariables(vars: List[String]): Unit = {
     currentConfig = currentConfig.withEnvironmentVariables(vars)
@@ -133,6 +131,7 @@ class Cardinal extends Application {
   private def clearAll(): Unit = {
     currentFile = None
     unsavedChangesMade = false
+    menuBar.setSaveDisabled(true)
     currentStage.setTitle("Cardinal")
     cardinalView.clearAll()
   }
@@ -235,6 +234,5 @@ class Cardinal extends Application {
       cardinalView.loadCurlCommand(request.toCurl(currentConfig))
     }
   }
-
 
 }

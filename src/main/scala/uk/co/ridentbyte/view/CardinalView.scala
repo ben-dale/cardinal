@@ -1,23 +1,15 @@
 package uk.co.ridentbyte.view
 
-import java.io.File
 import java.net.{ConnectException, URISyntaxException, UnknownHostException}
-import java.nio.charset.StandardCharsets
-import java.util.Base64
-
-import javafx.scene.control.Alert.AlertType
-import javafx.scene.control._
 import javafx.scene.layout.{BorderPane, GridPane, Priority}
 import javax.net.ssl.SSLHandshakeException
 import uk.co.ridentbyte.model.{Config, HttpResponseWrapper, Request}
 import uk.co.ridentbyte.view.request.{RequestControlPane, RequestInputPane}
 import uk.co.ridentbyte.view.response.ResponsePane
 import uk.co.ridentbyte.view.util.{ColumnConstraintsBuilder, RowConstraintsBuilder}
-import uk.co.ridentbyte.view.dialog.{BasicAuthInputDialog, EnvironmentVariablesEditDialog, FormUrlEncodedInputDialog}
 
 class CardinalView(showErrorDialogCallback:(String) => Unit,
                    getConfigCallback: () => Config,
-                   clearAllCallback: () => Unit,
                    sendRequestCallback: (Request) => HttpResponseWrapper,
                    triggerUnsavedChangesMade: () => Unit) extends BorderPane {
 
@@ -37,13 +29,11 @@ class CardinalView(showErrorDialogCallback:(String) => Unit,
   GridPane.setColumnSpan(requestControlPane, 2)
   grid.add(requestControlPane, 0, 1)
 
-
   setCenter(grid)
 
   def clearAll(): Unit = {
     requestInputPane.clear()
     responsePane.clearContents()
-//    menuItemSave.setDisable(true)
   }
 
   private def sendRequestAndLoadResponse(): Unit = {
@@ -73,24 +63,14 @@ class CardinalView(showErrorDialogCallback:(String) => Unit,
     }
   }
 
-  def loadRequest(request: Request): Unit = {
-    requestInputPane.loadRequest(request)
-  }
+  def loadRequest(request: Request): Unit = requestInputPane.loadRequest(request)
 
-  def loadCurlCommand(curl: String): Unit = {
-    responsePane.loadCurlCommand(curl)
-  }
+  def loadCurlCommand(curl: String): Unit = responsePane.loadCurlCommand(curl)
 
   def getRequest: Request = requestInputPane.getRequest
 
-  def setBody(body: String): Unit = {
-    requestInputPane.setBody(body)
-  }
+  def setBody(body: String): Unit = requestInputPane.setBody(body)
 
-  def addHeader(header: String): Unit = {
-    requestInputPane.addHeader(header)
-  }
-
-
+  def addHeader(header: String): Unit = requestInputPane.addHeader(header)
 
 }
