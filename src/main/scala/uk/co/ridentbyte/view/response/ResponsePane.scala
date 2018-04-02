@@ -66,7 +66,7 @@ class ResponsePane(getConfigCallback: () => Config,
     Platform.runLater(() => setCenter(grid))
   }
 
-  def setCurlCommand(command: String): Unit = {
+  def loadCurlCommand(command: String): Unit = {
     val grid = new GridPane
 //    grid.setPadding(new Insets(10, 10, 10, 10))
     grid.setVgap(10)

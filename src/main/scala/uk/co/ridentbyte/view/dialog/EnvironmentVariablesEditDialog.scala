@@ -3,9 +3,9 @@ package uk.co.ridentbyte.view.dialog
 import javafx.scene.control._
 import javafx.scene.layout.GridPane
 
-class EnvironmentVariablesInputDialog(existingParameters: List[String] = List.empty[String]) extends Dialog[List[String]] {
+class EnvironmentVariablesEditDialog(existingParameters: List[String] = List.empty[String]) extends Dialog[List[String]] {
 
-  setTitle("Environment Variables")
+  setTitle("Edit Environment Variables")
 
   getDialogPane.getButtonTypes.addAll(ButtonType.CANCEL, ButtonType.OK)
 
