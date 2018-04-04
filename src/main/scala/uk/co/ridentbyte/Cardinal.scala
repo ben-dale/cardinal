@@ -134,7 +134,7 @@ class Cardinal extends Application {
       cardinalTabs.getTabs.add(CardinalTab(Some(selectedFile), cardinalView))
       cardinalTabs.getSelectionModel.selectLast()
       cardinalView.loadRequest(Request(lines))
-//      menuBar.setSaveDisabled(false)
+      getCurrentTab.setUnsavedChanges(false)
     }
   }
 
@@ -230,6 +230,12 @@ class Cardinal extends Application {
     extends Tab(if (currentFile.isDefined) currentFile.get.getName else "Untitled", content) {
     private var unsavedChanges = false
 
+    setOnCloseRequest((_) => {
+      if (unsavedChanges) {
+        showConfirmDialog("Save unsaved changes?", saveChangesToCurrentFile, () => Unit)
+      }
+    })
+
     def handleUnsavedChangesMade(): Unit = {
       if (!getText.endsWith("*")) {
         unsavedChanges = true
@@ -242,9 +248,18 @@ class Cardinal extends Application {
       setText(currentFile.getName)
     }
 
-
     def hasUnsavedChanges: Boolean = unsavedChanges
-    def setUnsavedChanges(unsavedChanges: Boolean): Unit = this.unsavedChanges = unsavedChanges
+    def setUnsavedChanges(unsavedChanges: Boolean): Unit = {
+      if (!unsavedChanges) {
+        currentFile match {
+          case Some(f) => setText(f.getName)
+          case _ => setText("Untitled")
+        }
+      }
+      this.unsavedChanges = unsavedChanges
+    }
+
+
   }
 
 }
