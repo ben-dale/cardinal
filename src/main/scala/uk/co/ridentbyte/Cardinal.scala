@@ -25,12 +25,10 @@ class Cardinal extends Application {
 
   private val configLocation: String = System.getProperty("user.home") + "/.cardinal_config.json"
   private var currentConfig: Config = _
-  private var currentFile: Option[File] = None
   private var currentStage: Stage = _
-  private var unsavedChangesMade: Boolean = false
   private val httpUtil = new HttpUtil
-  private val cardinalView = new CardinalView(showErrorDialog, () => currentConfig, sendRequest, triggerUnsavedChangesMade)
-  private val menuBar = new CardinalMenuBar(showAsCurl, open, saveChangesToCurrentFile,saveAs,clearAll, showEnvironmentVariablesInput, showFormUrlEncodedInput, showBasicAuthInput)
+  private val menuBar = new CardinalMenuBar(showAsCurl, open, saveChangesToCurrentFile, saveAs, clearAll, showEnvironmentVariablesInput, showFormUrlEncodedInput, showBasicAuthInput)
+  private val cardinalTabs = new TabPane()
 
   override def start(primaryStage: Stage): Unit = {
     currentStage = primaryStage
@@ -40,7 +38,9 @@ class Cardinal extends Application {
 
     val view = new BorderPane()
     view.setTop(menuBar)
-    view.setCenter(cardinalView)
+
+    cardinalTabs.getTabs.add(CardinalTab(None, new CardinalView(showErrorDialog, () => currentConfig, sendRequest, triggerUnsavedChangesMade)))
+    view.setCenter(cardinalTabs)
 
     val scene = new Scene(view, 1000, 500)
     scene.getStylesheets.add(getClass.getClassLoader.getResource("style.css").toExternalForm)
@@ -60,13 +60,13 @@ class Cardinal extends Application {
 //    })
 
     primaryStage.setOnCloseRequest((_) => {
-      if (unsavedChangesMade) {
-        if (currentFile.isDefined) {
-          showConfirmDialog("Save changes to " + currentFile.get.getName + "?", () => saveChangesToCurrentFile(), () => Unit)
-        } else {
-          showConfirmDialog("Save unsaved changes?", () => saveAs(), () => Unit)
-        }
-      }
+//      if (unsavedChangesMade) {
+//        if (currentFile.isDefined) {
+//          showConfirmDialog("Save changes to " + currentFile.get.getName + "?", () => saveChangesToCurrentFile(), () => Unit)
+//        } else {
+//          showConfirmDialog("Save unsaved changes?", () => saveAs(), () => Unit)
+//        }
+//      }
     })
 
     primaryStage.setScene(scene)
@@ -80,10 +80,11 @@ class Cardinal extends Application {
   }
 
   private def triggerUnsavedChangesMade(): Unit = {
-    this.unsavedChangesMade = true
-    if (currentFile.isDefined) {
-      currentStage.setTitle(currentFile.get.getAbsolutePath + " *")
-    }
+//    currentStage.setTitle(currentFile.get.getAbsolutePath + " *")
+//    val currentTab = getCurrentTab
+//    if (currentTab != null) {
+      getCurrentTab.handleUnsavedChangesMade()
+//    }
   }
 
   private def sendRequest(request: Request): HttpResponseWrapper = {
@@ -94,10 +95,10 @@ class Cardinal extends Application {
   }
 
   private def saveChangesToCurrentFile(): Unit = {
-    if (currentFile.isDefined) {
-      IOUtil.writeToFile(currentFile.get, cardinalView.getRequest.toJson)
-      currentStage.setTitle(currentFile.get.getAbsolutePath)
-      unsavedChangesMade = false
+    val currentTab = getCurrentTab
+    if (currentTab != null && currentTab.currentFile.isDefined) {
+      IOUtil.writeToFile(currentTab.currentFile.get, currentTab.content.getRequest.toJson)
+      currentTab.setUnsavedChanges(false)
     }
   }
 
@@ -117,29 +118,10 @@ class Cardinal extends Application {
     IOUtil.writeToFile(configFile, config.toJson)
   }
 
-  private def clearAllWithSavePrompt(): Unit = {
-    if (unsavedChangesMade) {
-      if (currentFile.isDefined) {
-        showConfirmDialog("Save changes to " + currentFile.get.getName + "?", () => saveChangesToCurrentFile(), () => Unit)
-      } else {
-        showConfirmDialog("Save unsaved changes?", () => saveAs(), () => Unit)
-      }
-    }
-    clearAll()
-  }
-
   private def clearAll(): Unit = {
-    currentFile = None
-    unsavedChangesMade = false
-    menuBar.setSaveDisabled(true)
-    currentStage.setTitle("Cardinal")
-    cardinalView.clearAll()
-  }
-
-  private def setCurrentFile(file: File): Unit = {
-    currentFile = Option(file)
-    if (currentFile.isDefined) {
-      currentStage.setTitle(file.getAbsolutePath)
+    val currentTab = getCurrentTab
+    if (currentTab != null) {
+      currentTab.content.clearAll()
     }
   }
 
@@ -147,35 +129,31 @@ class Cardinal extends Application {
     val fileChooser = new FileChooser
     val selectedFile = fileChooser.showOpenDialog(currentStage)
     if (selectedFile != null) {
-      if (unsavedChangesMade) {
-        if (currentFile.isDefined) {
-          showConfirmDialog("Save changes to " + currentFile.get.getName + "?", () => saveChangesToCurrentFile(), () => Unit)
-        } else {
-          showConfirmDialog("Save unsaved changes?", () => saveAs(), () => Unit)
-        }
-      }
       val lines = scala.io.Source.fromFile(selectedFile).getLines().mkString
-      clearAll()
+      val cardinalView = new CardinalView(showErrorDialog, () => currentConfig, sendRequest, triggerUnsavedChangesMade)
+      cardinalTabs.getTabs.add(CardinalTab(Some(selectedFile), cardinalView))
+      cardinalTabs.getSelectionModel.selectLast()
       cardinalView.loadRequest(Request(lines))
-      menuBar.setSaveDisabled(false)
-      setCurrentFile(selectedFile)
-      unsavedChangesMade = false
+//      menuBar.setSaveDisabled(false)
     }
   }
 
   private def saveAs(): Unit = {
-    val fileChooser = new FileChooser
-    val file = fileChooser.showSaveDialog(currentStage)
-    if (file != null) {
-      val fileWithExtension = if (!file.getAbsolutePath.endsWith(".json")) {
+    val currentTab = getCurrentTab
+    if (currentTab != null) {
+      val fileChooser = new FileChooser
+      val file = fileChooser.showSaveDialog(currentStage)
+      if (file != null) {
+        val fileWithExtension = if (!file.getAbsolutePath.endsWith(".json")) {
           new File(file.getAbsolutePath + ".json")
         } else {
           file
         }
-      IOUtil.writeToFile(fileWithExtension, cardinalView.getRequest.toJson)
-      setCurrentFile(fileWithExtension)
-      menuBar.setSaveDisabled(false)
-      unsavedChangesMade = false
+        IOUtil.writeToFile(fileWithExtension, currentTab.content.getRequest.toJson)
+//        menuBar.setSaveDisabled(false)
+        currentTab.setCurrentFile(fileWithExtension)
+        currentTab.setUnsavedChanges(false)
+      }
     }
   }
 
@@ -193,22 +171,28 @@ class Cardinal extends Application {
   }
 
   def showBasicAuthInput(): Unit = {
-    val dialog = new BasicAuthInputDialog
-    val results = dialog.showAndWait()
-    if (results.isPresent) {
-      val username = results.get.username
-      val password = results.get.password
-      val encoded = Base64.getEncoder.encodeToString((username + ":" + password).getBytes(StandardCharsets.UTF_8))
-      cardinalView.addHeader("Authorization: Basic " + encoded)
+    val currentTab = getCurrentTab
+    if (currentTab != null) {
+      val dialog = new BasicAuthInputDialog
+      val results = dialog.showAndWait()
+      if (results.isPresent) {
+        val username = results.get.username
+        val password = results.get.password
+        val encoded = Base64.getEncoder.encodeToString((username + ":" + password).getBytes(StandardCharsets.UTF_8))
+        currentTab.content.addHeader("Authorization: Basic " + encoded)
+      }
     }
   }
 
   def showFormUrlEncodedInput(): Unit = {
-    val dialog = new FormUrlEncodedInputDialog(cardinalView.getRequest.body.getOrElse(""))
-    val results = dialog.showAndWait()
-    if (results.isPresent) {
-      cardinalView.setBody(results.get.toBodyString)
-      cardinalView.addHeader("Content-Type: application/x-www-form-urlencoded")
+    val currentTab = getCurrentTab
+    if (currentTab != null) {
+      val dialog = new FormUrlEncodedInputDialog(currentTab.content.getRequest.body.getOrElse(""))
+      val results = dialog.showAndWait()
+      if (results.isPresent) {
+        currentTab.content.setBody(results.get.toBodyString)
+        currentTab.content.addHeader("Content-Type: application/x-www-form-urlencoded")
+      }
     }
   }
 
@@ -227,12 +211,40 @@ class Cardinal extends Application {
   }
 
   def showAsCurl(): Unit = {
-    val request = cardinalView.getRequest
-    if (request.uri.trim.length == 0) {
-      showErrorDialog("Please enter a URL.")
-    } else {
-      cardinalView.loadCurlCommand(request.toCurl(currentConfig))
+    val currentTab = getCurrentTab
+    if (currentTab != null) {
+      val request = currentTab.content.getRequest
+      if (request.uri.trim.length == 0) {
+        showErrorDialog("Please enter a URL.")
+      } else {
+        currentTab.content.loadCurlCommand(request.toCurl(currentConfig))
+      }
     }
+  }
+
+  private def getCurrentTab: CardinalTab = {
+    cardinalTabs.getSelectionModel.getSelectedItem.asInstanceOf[CardinalTab]
+  }
+
+  case class CardinalTab(var currentFile: Option[File], content: CardinalView)
+    extends Tab(if (currentFile.isDefined) currentFile.get.getName else "Untitled", content) {
+    private var unsavedChanges = false
+
+    def handleUnsavedChangesMade(): Unit = {
+      if (!getText.endsWith("*")) {
+        unsavedChanges = true
+        setText(getText + "*")
+      }
+    }
+
+    def setCurrentFile(currentFile: File): Unit = {
+      this.currentFile = Some(currentFile)
+      setText(currentFile.getName)
+    }
+
+
+    def hasUnsavedChanges: Boolean = unsavedChanges
+    def setUnsavedChanges(unsavedChanges: Boolean): Unit = this.unsavedChanges = unsavedChanges
   }
 
 }
