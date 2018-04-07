@@ -20,13 +20,7 @@ class EnvironmentVariablesEditDialog(existingParameters: List[String] = List.emp
   textVariables.setText(existingParameters.mkString("\n"))
   textVariables.setPrefHeight(300)
   textVariables.setPrefWidth(500)
-  textVariables.setStyle(
-    """
-      |-fx-font-family: Monospaced;
-      |-fx-font-size: 13;
-      |-fx-font-weight: 600;
-    """.stripMargin
-  )
+  textVariables.getStyleClass.add("cardinal-font")
   grid.add(textVariables, 0, 1)
 
   getDialogPane.setContent(grid)

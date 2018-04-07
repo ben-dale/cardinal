@@ -23,13 +23,7 @@ class RequestHeadersInputPane(triggerUnsavedChangesMade: () => Unit) extends Gri
   private val listHeaders = new ListView[String]()
   listHeaders.getItems.addListener((_) => triggerUnsavedChangesMade())
   listHeaders.setEditable(true)
-  listHeaders.setStyle(
-    """
-      |-fx-font-family: Monospaced;
-      |-fx-font-size: 13;
-      |-fx-font-weight: 600;
-    """.stripMargin
-  )
+  listHeaders.getStyleClass.add("cardinal-font")
   listHeaders.setCellFactory(TextFieldListCell.forListView())
   GridPane.setColumnSpan(listHeaders, 2)
   GridPane.setVgrow(listHeaders, Priority.ALWAYS)

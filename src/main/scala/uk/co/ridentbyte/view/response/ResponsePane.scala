@@ -23,15 +23,11 @@ class ResponsePane(getConfigCallback: () => Config,
     val emptyPanel = new BorderPane
     emptyPanel.getStyleClass.addAll("dashed-border", "round-border")
     emptyPanel.setBorder(new Border(new BorderStroke(Color.LIGHTGREY, BorderStrokeStyle.DASHED, CornerRadii.EMPTY, BorderWidths.DEFAULT)))
-    val label = new Label("Cardinal 0.1")
-    label.getStyleClass.add("cardinal-font")
-    emptyPanel.setCenter(label)
     setCenter(emptyPanel)
   }
 
   def setResponse(response: HttpResponseWrapper): Unit = {
     val grid = new GridPane
-//    grid.setPadding(new Insets(20, 20, 20, 0))
     grid.setVgap(10)
     grid.setHgap(10)
     grid.getColumnConstraints.add(ColumnConstraintsBuilder().withHgrow(Priority.ALWAYS).build)
@@ -39,13 +35,7 @@ class ResponsePane(getConfigCallback: () => Config,
     grid.getRowConstraints.add(RowConstraintsBuilder().withVgrow(Priority.ALWAYS).withPercentageHeight(60).build)
 
     val listHeaders = new ListView[String]()
-    listHeaders.setStyle(
-      """
-        |-fx-font-family: Monospaced;
-        |-fx-font-size: 13;
-        |-fx-font-weight: 600;
-      """.stripMargin
-    )
+    listHeaders.getStyleClass.add("cardinal-font")
     response.httpResponse.headers.foreach {
       header => listHeaders.getItems.add(header._1 + ": " + header._2.mkString(""))
     }
@@ -53,13 +43,7 @@ class ResponsePane(getConfigCallback: () => Config,
 
     val textAreaBody = new TextArea()
     textAreaBody.setEditable(false)
-    textAreaBody.setStyle(
-      """
-        |-fx-font-family: Monospaced;
-        |-fx-font-size: 13;
-        |-fx-font-weight: 600;
-      """.stripMargin
-    )
+    textAreaBody.getStyleClass.add("cardinal-font")
     textAreaBody.setText(response.formattedBody)
     grid.add(textAreaBody, 0, 1)
 
@@ -68,18 +52,11 @@ class ResponsePane(getConfigCallback: () => Config,
 
   def loadCurlCommand(command: String): Unit = {
     val grid = new GridPane
-//    grid.setPadding(new Insets(10, 10, 10, 10))
     grid.setVgap(10)
     grid.setHgap(10)
 
     val textAreaCurl = new TextArea()
-    textAreaCurl.setStyle(
-      """
-        |-fx-font-family: Monospaced;
-        |-fx-font-size: 13;
-        |-fx-font-weight: 600;
-      """.stripMargin
-    )
+    textAreaCurl.getStyleClass.add("cardinal-font")
     textAreaCurl.setText(command)
     textAreaCurl.setWrapText(true)
     GridPane.setHgrow(textAreaCurl, Priority.ALWAYS)
@@ -138,7 +115,6 @@ class ResponsePane(getConfigCallback: () => Config,
     }
 
     val grid = new GridPane
-//    grid.setPadding(new Insets(10, 10, 10, 10))
     grid.setHgap(10)
     grid.setVgap(10)
     grid.setMinWidth(400)

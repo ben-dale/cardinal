@@ -21,13 +21,7 @@ class FormUrlEncodedInputDialog(existingParameters: String = "") extends Dialog[
   textParameters.setText(FormUrlEncodedParameters(existingParameters).toBodyEditString)
   textParameters.setPrefHeight(300)
   textParameters.setPrefWidth(500)
-  textParameters.setStyle(
-    """
-      |-fx-font-family: Monospaced;
-      |-fx-font-size: 13;
-      |-fx-font-weight: 600;
-    """.stripMargin
-  )
+  textParameters.getStyleClass.add("cardinal-font")
   grid.add(textParameters, 0, 1)
 
   getDialogPane.setContent(grid)

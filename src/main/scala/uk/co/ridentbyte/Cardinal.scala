@@ -8,12 +8,14 @@ import javafx.application.Application
 import javafx.scene.Scene
 import javafx.scene.control._
 import javafx.scene.control.Alert.AlertType
+import javafx.scene.input.KeyCode
 import javafx.scene.layout.BorderPane
 import javafx.stage.{FileChooser, Stage}
 import uk.co.ridentbyte.model.{Config, HttpResponseWrapper, Request}
 import uk.co.ridentbyte.util.{HttpUtil, IOUtil}
-import uk.co.ridentbyte.view.{CardinalMenuBar, CardinalView}
+import uk.co.ridentbyte.view.{CardinalInfoTab, CardinalMenuBar, CardinalView}
 import uk.co.ridentbyte.view.dialog.{BasicAuthInputDialog, EnvironmentVariablesEditDialog, FormUrlEncodedInputDialog}
+
 import scala.collection.JavaConverters._
 
 object Cardinal {
@@ -59,7 +61,7 @@ class Cardinal extends Application {
 //    })
 
     primaryStage.setOnCloseRequest((e) => {
-      val allTabs = cardinalTabs.getTabs.asScala.map(_.asInstanceOf[CardinalTab])
+      val allTabs = cardinalTabs.getTabs.asScala.filter(_.isInstanceOf[CardinalTab]).map(_.asInstanceOf[CardinalTab])
       val unsavedTabs = allTabs.count(_.hasUnsavedChanges)
       if (unsavedTabs > 0) {
         showConfirmDialog("You have unsaved changes! Are you sure you want to quit?", () => Unit, () => e.consume())
@@ -69,6 +71,7 @@ class Cardinal extends Application {
     primaryStage.setScene(scene)
     primaryStage.show()
 
+    cardinalTabs.getTabs.add(CardinalInfoTab())
     newTab()
 
   }

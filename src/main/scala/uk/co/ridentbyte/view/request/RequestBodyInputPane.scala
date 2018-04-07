@@ -23,13 +23,7 @@ class RequestBodyInputPane(triggerUnsavedChangesMade: () => Unit) extends GridPa
       e.consume()
     }
   })
-  textAreaBody.setStyle(
-    """
-      |-fx-font-family: Monospaced;
-      |-fx-font-size: 13;
-      |-fx-font-weight: 600;
-    """.stripMargin
-  )
+  textAreaBody.getStyleClass.add("cardinal-font")
   GridPane.setVgrow(textAreaBody, Priority.ALWAYS)
   GridPane.setHgrow(textAreaBody, Priority.ALWAYS)
   add(textAreaBody, 0, 1)

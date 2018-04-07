@@ -7,8 +7,6 @@
 .cardinal-font {
     -fx-font-family: Monospaced;
     -fx-font-size: 13;
-    -fx-font-weight: 600;
-    -fx-text-fill: grey;
 }
 
 .dashed-border {
@@ -18,4 +16,8 @@
 
 .round-border {
     -fx-border-radius: 2;
+}
+
+.info {
+    -fx-padding: 20;
 }

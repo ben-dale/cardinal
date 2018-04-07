@@ -12,6 +12,7 @@ class RequestUriVerbInputPane(triggerUnsavedChangesMade: () => Unit) extends Gri
   setVgap(10)
 
   private val textUri = new TextField()
+  textUri.getStyleClass.add("cardinal-font")
   textUri.textProperty().addListener((_, _, _) => triggerUnsavedChangesMade())
   GridPane.setVgrow(textUri, Priority.NEVER)
   GridPane.setHgrow(textUri, Priority.ALWAYS)
