@@ -2,7 +2,8 @@ package uk.co.ridentbyte.view
 
 import javafx.scene.control.{Menu, MenuBar, MenuItem}
 
-class CardinalMenuBar(showAsCurlCallback: () => Unit,
+class CardinalMenuBar(newTabCallback: () => Unit,
+                      showAsCurlCallback: () => Unit,
                       openCallback:() => Unit,
                       saveChangesToCurrentFileCallback: () => Unit,
                       saveAsCallback: () => Unit,
@@ -17,6 +18,10 @@ class CardinalMenuBar(showAsCurlCallback: () => Unit,
 
   // *** FILE ***
   private val menuFile = new Menu("File")
+
+  val menuItemNew = new MenuItem("New")
+  menuItemNew.setOnAction((_) => newTabCallback())
+  menuFile.getItems.add(menuItemNew)
 
   val menuItemOpen = new MenuItem("Open...")
   menuItemOpen.setOnAction((_) => openCallback())

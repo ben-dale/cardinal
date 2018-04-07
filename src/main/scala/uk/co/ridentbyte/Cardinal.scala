@@ -14,6 +14,7 @@ import uk.co.ridentbyte.model.{Config, HttpResponseWrapper, Request}
 import uk.co.ridentbyte.util.{HttpUtil, IOUtil}
 import uk.co.ridentbyte.view.{CardinalMenuBar, CardinalView}
 import uk.co.ridentbyte.view.dialog.{BasicAuthInputDialog, EnvironmentVariablesEditDialog, FormUrlEncodedInputDialog}
+import scala.collection.JavaConverters._
 
 object Cardinal {
   def main(args: Array[String]): Unit = {
@@ -27,7 +28,7 @@ class Cardinal extends Application {
   private var currentConfig: Config = _
   private var currentStage: Stage = _
   private val httpUtil = new HttpUtil
-  private val menuBar = new CardinalMenuBar(showAsCurl, open, saveChangesToCurrentFile, saveAs, clearAll, showEnvironmentVariablesInput, showFormUrlEncodedInput, showBasicAuthInput)
+  private val menuBar = new CardinalMenuBar(newTab, showAsCurl, open, saveChangesToCurrentFile, saveAs, clearAll, showEnvironmentVariablesInput, showFormUrlEncodedInput, showBasicAuthInput)
   private val cardinalTabs = new TabPane()
 
   override def start(primaryStage: Stage): Unit = {
@@ -38,8 +39,6 @@ class Cardinal extends Application {
 
     val view = new BorderPane()
     view.setTop(menuBar)
-
-    cardinalTabs.getTabs.add(CardinalTab(None, new CardinalView(showErrorDialog, () => currentConfig, sendRequest, triggerUnsavedChangesMade)))
     view.setCenter(cardinalTabs)
 
     val scene = new Scene(view, 1000, 500)
@@ -59,18 +58,18 @@ class Cardinal extends Application {
 //      }
 //    })
 
-    primaryStage.setOnCloseRequest((_) => {
-//      if (unsavedChangesMade) {
-//        if (currentFile.isDefined) {
-//          showConfirmDialog("Save changes to " + currentFile.get.getName + "?", () => saveChangesToCurrentFile(), () => Unit)
-//        } else {
-//          showConfirmDialog("Save unsaved changes?", () => saveAs(), () => Unit)
-//        }
-//      }
+    primaryStage.setOnCloseRequest((e) => {
+      val allTabs = cardinalTabs.getTabs.asScala.map(_.asInstanceOf[CardinalTab])
+      val unsavedTabs = allTabs.count(_.hasUnsavedChanges)
+      if (unsavedTabs > 0) {
+        showConfirmDialog("You have unsaved changes! Are you sure you want to quit?", () => Unit, () => e.consume())
+      }
     })
 
     primaryStage.setScene(scene)
     primaryStage.show()
+
+    newTab()
 
   }
 
@@ -80,11 +79,7 @@ class Cardinal extends Application {
   }
 
   private def triggerUnsavedChangesMade(): Unit = {
-//    currentStage.setTitle(currentFile.get.getAbsolutePath + " *")
-//    val currentTab = getCurrentTab
-//    if (currentTab != null) {
-      getCurrentTab.handleUnsavedChangesMade()
-//    }
+    getCurrentTab.handleUnsavedChangesMade()
   }
 
   private def sendRequest(request: Request): HttpResponseWrapper = {
@@ -136,6 +131,11 @@ class Cardinal extends Application {
       cardinalView.loadRequest(Request(lines))
       getCurrentTab.setUnsavedChanges(false)
     }
+  }
+
+  private def newTab(): Unit = {
+    cardinalTabs.getTabs.add(CardinalTab(None, new CardinalView(showErrorDialog, () => currentConfig, sendRequest, triggerUnsavedChangesMade)))
+    cardinalTabs.getSelectionModel.selectLast()
   }
 
   private def saveAs(): Unit = {
