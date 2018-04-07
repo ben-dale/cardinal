@@ -20,6 +20,7 @@ class RequestUriVerbInputPane(triggerUnsavedChangesMade: () => Unit) extends Gri
   add(textUri, 0, 0)
 
   private val selectVerb = new ChoiceBox[String](FXCollections.observableArrayList("GET", "POST", "PUT", "DELETE", "HEAD", "CONNECT", "OPTIONS", "TRACE", "PATCH"))
+  selectVerb.getStyleClass.add("cardinal-font")
   selectVerb.getSelectionModel.selectFirst()
   selectVerb.getSelectionModel.selectedItemProperty.addListener((_, _, _) => triggerUnsavedChangesMade())
   GridPane.setVgrow(selectVerb, Priority.NEVER)

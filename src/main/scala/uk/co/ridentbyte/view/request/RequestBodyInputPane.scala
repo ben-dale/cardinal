@@ -10,7 +10,7 @@ class RequestBodyInputPane(triggerUnsavedChangesMade: () => Unit) extends GridPa
   setVgap(5)
 
   private val labelBody = new Label("Body")
-  labelBody.setStyle(labelStyle)
+  labelBody.getStyleClass.add("cardinal-font")
   GridPane.setVgrow(labelBody, Priority.NEVER)
   GridPane.setHgrow(labelBody, Priority.ALWAYS)
   add(labelBody, 0, 0)
@@ -27,12 +27,6 @@ class RequestBodyInputPane(triggerUnsavedChangesMade: () => Unit) extends GridPa
   GridPane.setVgrow(textAreaBody, Priority.ALWAYS)
   GridPane.setHgrow(textAreaBody, Priority.ALWAYS)
   add(textAreaBody, 0, 1)
-
-  private def labelStyle: String = {
-    """
-      |-fx-font-size: 12;
-    """.stripMargin
-  }
 
   def setBody(body: Option[String]): Unit = {
     body.foreach(textAreaBody.setText(_))

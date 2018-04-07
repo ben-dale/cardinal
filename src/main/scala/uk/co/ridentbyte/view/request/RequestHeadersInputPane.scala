@@ -14,7 +14,7 @@ class RequestHeadersInputPane(triggerUnsavedChangesMade: () => Unit) extends Gri
   setVgap(5)
 
   private val labelHeaders = new Label("Headers")
-  labelHeaders.setStyle(labelStyle)
+  labelHeaders.getStyleClass.add("cardinal-font")
   GridPane.setColumnSpan(labelHeaders, 2)
   GridPane.setVgrow(labelHeaders, Priority.NEVER)
   GridPane.setHgrow(labelHeaders, Priority.ALWAYS)
@@ -33,6 +33,7 @@ class RequestHeadersInputPane(triggerUnsavedChangesMade: () => Unit) extends Gri
   private val buttonRemoveHeader = new Button("-")
   buttonRemoveHeader.setOnAction(removeHeaderAction)
   buttonRemoveHeader.setStyle("-fx-padding: 2 6 2 6;")
+  buttonRemoveHeader.getStyleClass.add("cardinal-font")
   GridPane.setColumnSpan(buttonRemoveHeader, 1)
   GridPane.setHalignment(buttonRemoveHeader, HPos.RIGHT)
   GridPane.setVgrow(buttonRemoveHeader, Priority.NEVER)
@@ -42,6 +43,7 @@ class RequestHeadersInputPane(triggerUnsavedChangesMade: () => Unit) extends Gri
   private val buttonAddHeader = new Button("+")
   buttonAddHeader.setOnAction(addNewHeaderAction)
   buttonAddHeader.setStyle("-fx-padding: 2 6 2 6;")
+  buttonAddHeader.getStyleClass.add("cardinal-font")
   GridPane.setColumnSpan(buttonAddHeader, 1)
   GridPane.setVgrow(buttonAddHeader, Priority.NEVER)
   GridPane.setHgrow(buttonAddHeader, Priority.NEVER)
@@ -72,11 +74,4 @@ class RequestHeadersInputPane(triggerUnsavedChangesMade: () => Unit) extends Gri
     listHeaders.requestFocus()
     listHeaders.getSelectionModel.select(index)
   }
-
-  private def labelStyle: String = {
-    """
-      |-fx-font-size: 12;
-    """.stripMargin
-  }
-
 }

@@ -11,6 +11,7 @@ class RequestControlPane(sendRequestCallback: () => Unit, showBulkRequestCallbac
   getStyleClass.add("control-pane")
 
   private val buttonSendBulkRequest = new Button("Send Bulk Request...")
+  buttonSendBulkRequest.getStyleClass.add("cardinal-font")
   GridPane.setVgrow(buttonSendBulkRequest, Priority.NEVER)
   GridPane.setHgrow(buttonSendBulkRequest, Priority.ALWAYS)
   GridPane.setHalignment(buttonSendBulkRequest, HPos.RIGHT)
@@ -18,6 +19,7 @@ class RequestControlPane(sendRequestCallback: () => Unit, showBulkRequestCallbac
   add(buttonSendBulkRequest, 0, 0)
 
   private val buttonSendRequest = new Button("Send Request")
+  buttonSendRequest.getStyleClass.add("cardinal-font")
   GridPane.setVgrow(buttonSendRequest, Priority.NEVER)
   GridPane.setHgrow(buttonSendRequest, Priority.NEVER)
   buttonSendRequest.setOnAction((_) => sendRequestCallback())

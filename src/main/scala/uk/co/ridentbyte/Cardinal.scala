@@ -11,6 +11,7 @@ import javafx.scene.control.Alert.AlertType
 import javafx.scene.input.KeyCode
 import javafx.scene.layout.BorderPane
 import javafx.stage.{FileChooser, Stage}
+import javafx.scene.text.Font
 import uk.co.ridentbyte.model.{Config, HttpResponseWrapper, Request}
 import uk.co.ridentbyte.util.{HttpUtil, IOUtil}
 import uk.co.ridentbyte.view.{CardinalInfoTab, CardinalMenuBar, CardinalView}
@@ -46,19 +47,22 @@ class Cardinal extends Application {
     val scene = new Scene(view, 1000, 500)
     scene.getStylesheets.add(getClass.getClassLoader.getResource("style.css").toExternalForm)
 
+    val font = Font.loadFont(getClass.getClassLoader.getResource("OpenSans-Regular.ttf").toExternalForm, 13)
+    println(font.getName)
+
     loadConfig()
 
     // Temporary action for dev
-//    scene.setOnKeyPressed((k) => {
-//      if (k.getCode == KeyCode.R) {
-//        if (currentStage != null) {
-//          currentStage.getScene.getStylesheets.clear()
-//          println("[" + System.currentTimeMillis() + "] Reloading CSS")
-//          val f = new File("src/main/resources/style.css")
-//          currentStage.getScene.getStylesheets.add("file://" + f.getAbsolutePath)
-//        }
-//      }
-//    })
+    scene.setOnKeyPressed((k) => {
+      if (k.getCode == KeyCode.R) {
+        if (currentStage != null) {
+          currentStage.getScene.getStylesheets.clear()
+          println("[" + System.currentTimeMillis() + "] Reloading CSS")
+          val f = new File("src/main/resources/style.css")
+          currentStage.getScene.getStylesheets.add("file://" + f.getAbsolutePath)
+        }
+      }
+    })
 
     primaryStage.setOnCloseRequest((e) => {
       val allTabs = cardinalTabs.getTabs.asScala.filter(_.isInstanceOf[CardinalTab]).map(_.asInstanceOf[CardinalTab])
@@ -232,6 +236,8 @@ class Cardinal extends Application {
   case class CardinalTab(var currentFile: Option[File], content: CardinalView)
     extends Tab(if (currentFile.isDefined) currentFile.get.getName else "Untitled", content) {
     private var unsavedChanges = false
+
+    getStyleClass.add("cardinal-font")
 
     setOnCloseRequest((_) => {
       if (unsavedChanges) {
