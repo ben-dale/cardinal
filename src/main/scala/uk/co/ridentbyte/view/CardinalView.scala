@@ -69,7 +69,7 @@ class CardinalView(showErrorDialogCallback:(String) => Unit,
 
   def getRequest: Request = requestInputPane.getRequest
 
-  def setBody(body: String): Unit = requestInputPane.setBody(body)
+  def setBody(body: String): Unit = requestInputPane.setBody(Some(body))
 
   def addHeader(header: String): Unit = requestInputPane.addHeader(header)
 
