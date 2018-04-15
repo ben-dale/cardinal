@@ -48,7 +48,6 @@ class Cardinal extends Application {
     scene.getStylesheets.add(getClass.getClassLoader.getResource("style.css").toExternalForm)
 
     val font = Font.loadFont(getClass.getClassLoader.getResource("OpenSans-Regular.ttf").toExternalForm, 13)
-    println(font.getName)
 
     loadConfig()
 
@@ -68,7 +67,7 @@ class Cardinal extends Application {
       val allTabs = cardinalTabs.getTabs.asScala.filter(_.isInstanceOf[CardinalTab]).map(_.asInstanceOf[CardinalTab])
       val unsavedTabs = allTabs.count(_.hasUnsavedChanges)
       if (unsavedTabs > 0) {
-        showConfirmDialog("You have unsaved changes! Are you sure you want to quit?", () => Unit, () => e.consume())
+        showConfirmDialog("Save unsaved changes?", saveAllUnsavedChanges, () => Unit)
       }
     })
 
@@ -233,6 +232,17 @@ class Cardinal extends Application {
     cardinalTabs.getSelectionModel.getSelectedItem.asInstanceOf[CardinalTab]
   }
 
+  def saveAllUnsavedChanges(): Unit = {
+    cardinalTabs.getTabs.asScala.foreach {
+      case t: CardinalTab =>
+        val currentFile = t.currentFile
+        if (currentFile.isDefined) {
+          IOUtil.writeToFile(currentFile.get, t.content.getRequest.toJson)
+        }
+      case _ => // Currently does not save unsaved changes to "Untitled" files
+    }
+  }
+
   case class CardinalTab(var currentFile: Option[File], content: CardinalView)
     extends Tab(if (currentFile.isDefined) currentFile.get.getName else "Untitled", content) {
     private var unsavedChanges = false
@@ -267,8 +277,6 @@ class Cardinal extends Application {
       }
       this.unsavedChanges = unsavedChanges
     }
-
-
   }
 
 }
