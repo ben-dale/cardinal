@@ -18,14 +18,15 @@ import uk.co.ridentbyte.view.{CardinalInfoTab, CardinalMenuBar, CardinalView}
 import uk.co.ridentbyte.view.dialog.{BasicAuthInputDialog, EnvironmentVariablesEditDialog, FormUrlEncodedInputDialog}
 
 import scala.collection.JavaConverters._
+import scala.util.Random
 
 object Cardinal {
 
   private val firstNamesData = io.Source.fromFile(getClass.getClassLoader.getResource("firstNames.txt").getFile).getLines().toList
-  val firstNames: Names = Names(firstNamesData)
+  val firstNames: Names = Names(firstNamesData, Random)
 
   private val lastNamesData = io.Source.fromFile(getClass.getClassLoader.getResource("lastNames.txt").getFile).getLines().toList
-  val lastNames: Names = Names(lastNamesData)
+  val lastNames: Names = Names(lastNamesData, Random)
 
   def main(args: Array[String]): Unit = {
     Application.launch(classOf[Cardinal], args: _*)
