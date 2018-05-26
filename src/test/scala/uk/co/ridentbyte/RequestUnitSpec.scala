@@ -2,7 +2,8 @@ package uk.co.ridentbyte
 
 import org.scalatest.FlatSpec
 import org.scalatest.Matchers._
-import uk.co.ridentbyte.model.{Config, Request}
+
+import uk.co.ridentbyte.model.Request
 
 class RequestUnitSpec extends FlatSpec {
 
@@ -65,30 +66,6 @@ class RequestUnitSpec extends FlatSpec {
     result.verb shouldBe "POST"
     result.headers shouldBe List("X-Thing: 4")
     result.body shouldBe Some("""{"hello": "4"}""")
-  }
-
-  it should "return Response with #{guid} placeholders replaced" in {
-    // Given
-    val request = Request(
-      "https://google.com/#{guid}/search",
-      "POST",
-      List("X-Thing: #{guid}", "X-Another: hello/world/#{guid}"),
-      Some("#{guid}")
-    )
-
-    // When
-    val result = request.processConstants(Config(List.empty[String]))
-
-    // Then
-    verifyPlaceholdersReplaced("#{guid}", request, result)
-  }
-
-  private def verifyPlaceholdersReplaced(placeholder: String, request: Request, result: Request): Unit = {
-    val value = result.body.get
-    value shouldNot be (placeholder)
-    result.headers.filter(_.contains(placeholder)) shouldBe empty
-    result.uri shouldNot contain (placeholder)
-    result.verb shouldBe request.verb
   }
 
 }
