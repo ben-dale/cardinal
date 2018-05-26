@@ -1,8 +1,6 @@
 package uk.co.ridentbyte
 
 import java.io.File
-import java.nio.charset.StandardCharsets
-import java.util.Base64
 
 import javafx.application.Application
 import javafx.scene.Scene
@@ -12,8 +10,8 @@ import javafx.scene.input.KeyCode
 import javafx.scene.layout.BorderPane
 import javafx.stage.{FileChooser, Stage}
 import javafx.scene.text.Font
-import uk.co.ridentbyte.model.{Config, HttpResponseWrapper, Names, Request}
-import uk.co.ridentbyte.util.{HttpUtil, IOUtil}
+import uk.co.ridentbyte.model._
+import uk.co.ridentbyte.util.IOUtil
 import uk.co.ridentbyte.view.{CardinalInfoTab, CardinalMenuBar, CardinalView}
 import uk.co.ridentbyte.view.dialog.{BasicAuthInputDialog, EnvironmentVariablesEditDialog, FormUrlEncodedInputDialog}
 
@@ -38,7 +36,7 @@ class Cardinal extends Application {
   private val configLocation: String = System.getProperty("user.home") + "/.cardinal_config.json"
   private var currentConfig: Config = _
   private var currentStage: Stage = _
-  private val httpUtil = new HttpUtil
+//  private val httpUtil = new HttpUtil
   private val menuBar = new CardinalMenuBar(newTab, showAsCurl, open, saveChangesToCurrentFile, saveAs, clearAll, showEnvironmentVariablesInput, showFormUrlEncodedInput, showBasicAuthInput)
   private val cardinalTabs = new TabPane()
 
@@ -98,7 +96,7 @@ class Cardinal extends Application {
 
   private def sendRequest(request: Request): HttpResponseWrapper = {
     val startTime = System.currentTimeMillis()
-    val response = httpUtil.sendRequest(request)
+    val response = Http(request).send
     val totalTime = System.currentTimeMillis() - startTime
     HttpResponseWrapper(response, totalTime)
   }

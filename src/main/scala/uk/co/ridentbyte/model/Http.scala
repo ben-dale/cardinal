@@ -1,12 +1,10 @@
-package uk.co.ridentbyte.util
+package uk.co.ridentbyte.model
 
-import java.net._
-import uk.co.ridentbyte.model.Request
-import scalaj.http.{Http, HttpOptions, HttpResponse}
+import java.net.{MalformedURLException, URI, URL, URLDecoder}
 
-class HttpUtil {
+case class Http(request: Request) {
 
-  def parseURI(rawUri: String): String = {
+  private def parseURI(rawUri: String): String = {
     val rawUriWithProtocol = try {
       new URL(rawUri)
       new URI(rawUri)
@@ -20,7 +18,7 @@ class HttpUtil {
     uri.toASCIIString
   }
 
-  def sendRequest(request: Request): HttpResponse[String] = {
+  def send: scalaj.http.HttpResponse[String] = {
     val parsedUri = parseURI(request.uri)
     val splitHeaders = request.headers.map { header =>
       val splitHeader = header.split(":")
@@ -33,22 +31,22 @@ class HttpUtil {
 
     request.verb match {
       case "POST" if request.body.isDefined => {
-        Http(parsedUri)
-          .option(HttpOptions.followRedirects(true))
+        scalaj.http.Http(parsedUri)
+          .option(scalaj.http.HttpOptions.followRedirects(true))
           .headers(splitHeaders)
           .postData(request.body.get)
           .asString
       }
       case "PUT" if request.body.isDefined => {
-        Http(parsedUri)
-          .option(HttpOptions.followRedirects(true))
+        scalaj.http.Http(parsedUri)
+          .option(scalaj.http.HttpOptions.followRedirects(true))
           .headers(splitHeaders)
           .put(request.body.get)
           .asString
       }
       case _ => {
-        Http(parsedUri)
-          .option(HttpOptions.followRedirects(true))
+        scalaj.http.Http(parsedUri)
+          .option(scalaj.http.HttpOptions.followRedirects(true))
           .method(request.verb)
           .headers(splitHeaders)
           .asString
