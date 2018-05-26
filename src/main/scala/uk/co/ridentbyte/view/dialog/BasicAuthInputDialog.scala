@@ -34,7 +34,7 @@ class BasicAuthInputDialog extends Dialog[BasicAuth] {
 
   Platform.runLater(() => textUsername.requestFocus())
 
-  setResultConverter((buttonType) => {
+  setResultConverter(buttonType => {
     if (buttonType == ButtonType.OK) {
       BasicAuth(textUsername.getText, textPassword.getText)
     } else {

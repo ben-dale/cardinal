@@ -188,12 +188,9 @@ class Cardinal extends Application {
     val currentTab = getCurrentTab
     if (currentTab != null) {
       val dialog = new BasicAuthInputDialog
-      val results = dialog.showAndWait()
-      if (results.isPresent) {
-        val username = results.get.username
-        val password = results.get.password
-        val encoded = Base64.getEncoder.encodeToString((username + ":" + password).getBytes(StandardCharsets.UTF_8))
-        currentTab.content.addHeader("Authorization: Basic " + encoded)
+      val result = dialog.showAndWait()
+      if (result.isPresent) {
+        currentTab.content.addHeader(result.get.asAuthHeader)
       }
     }
   }
