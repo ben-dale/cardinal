@@ -60,16 +60,16 @@ class Cardinal extends Application {
     loadConfig()
 
     // Temporary action for dev
-    scene.setOnKeyPressed(k => {
-      if (k.getCode == KeyCode.R) {
-        if (currentStage != null) {
-          currentStage.getScene.getStylesheets.clear()
-          println("[" + System.currentTimeMillis() + "] Reloading CSS")
-          val f = new File("src/main/resources/style.css")
-          currentStage.getScene.getStylesheets.add("file://" + f.getAbsolutePath)
-        }
-      }
-    })
+//    scene.setOnKeyPressed(k => {
+//      if (k.getCode == KeyCode.R) {
+//        if (currentStage != null) {
+//          currentStage.getScene.getStylesheets.clear()
+//          println("[" + System.currentTimeMillis() + "] Reloading CSS")
+//          val f = new File("src/main/resources/style.css")
+//          currentStage.getScene.getStylesheets.add("file://" + f.getAbsolutePath)
+//        }
+//      }
+//    })
 
     primaryStage.setOnCloseRequest(e => {
       val allTabs = cardinalTabs.getTabs.asScala.filter(_.isInstanceOf[CardinalTab]).map(_.asInstanceOf[CardinalTab])
@@ -199,10 +199,10 @@ class Cardinal extends Application {
     val currentTab = getCurrentTab
     if (currentTab != null) {
       val dialog = new FormUrlEncodedInputDialog(currentTab.content.getRequest.body.getOrElse(""))
-      val results = dialog.showAndWait()
-      if (results.isPresent) {
-        currentTab.content.setBody(results.get.toBodyString)
-        currentTab.content.addHeader("Content-Type: application/x-www-form-urlencoded")
+      val result = dialog.showAndWait()
+      if (result.isPresent) {
+        currentTab.content.setBody(result.get.toString)
+        currentTab.content.addHeader(result.get.header)
       }
     }
   }

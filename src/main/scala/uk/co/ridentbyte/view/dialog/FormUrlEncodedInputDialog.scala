@@ -2,9 +2,9 @@ package uk.co.ridentbyte.view.dialog
 
 import javafx.scene.control._
 import javafx.scene.layout.GridPane
-import uk.co.ridentbyte.model.FormUrlEncodedParameters
+import uk.co.ridentbyte.model.FormUrlEncoded
 
-class FormUrlEncodedInputDialog(existingParameters: String = "") extends Dialog[FormUrlEncodedParameters] {
+class FormUrlEncodedInputDialog(existingParameters: String = "") extends Dialog[FormUrlEncoded] {
 
   setTitle("Basic Auth")
 
@@ -18,7 +18,7 @@ class FormUrlEncodedInputDialog(existingParameters: String = "") extends Dialog[
   grid.add(labelUsername, 0, 0)
 
   private val textParameters = new TextArea()
-  textParameters.setText(FormUrlEncodedParameters(existingParameters).toBodyEditString)
+  textParameters.setText(FormUrlEncoded(existingParameters).lines)
   textParameters.setPrefHeight(300)
   textParameters.setPrefWidth(500)
   textParameters.getStyleClass.add("cardinal-font")
@@ -26,9 +26,9 @@ class FormUrlEncodedInputDialog(existingParameters: String = "") extends Dialog[
 
   getDialogPane.setContent(grid)
 
-  setResultConverter((buttonType) => {
+  setResultConverter(buttonType => {
     if (buttonType == ButtonType.OK) {
-      FormUrlEncodedParameters(textParameters.getText.split("\n").toList)
+      FormUrlEncoded(textParameters.getText.split("\n").toList)
     } else {
       null
     }
