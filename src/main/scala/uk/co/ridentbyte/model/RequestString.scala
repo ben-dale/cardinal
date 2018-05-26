@@ -3,11 +3,9 @@ package uk.co.ridentbyte.model
 import java.util.UUID
 import java.util.regex.Pattern
 
-import uk.co.ridentbyte.util.{LastNames, Names}
-
 import scala.util.Random
 
-case class RequestString(content: String, environmentVars: Map[String, String]) {
+case class RequestString(content: String, environmentVars: Map[String, String], firstNames: Names, lastNames: Names) {
 
   def process: String = {
     var contentCopy = content
@@ -15,8 +13,8 @@ case class RequestString(content: String, environmentVars: Map[String, String]) 
     val guid = UUID.randomUUID.toString.split("-")(0)
     val int = Math.abs(Random.nextInt).toString
     val float = Math.abs(Random.nextFloat).toString
-    val firstName = Names.getRandom
-    val lastName = LastNames.getRandom
+    val firstName = firstNames.getRandom
+    val lastName = lastNames.getRandom
 
     // Constants
     contentCopy = contentCopy.replaceAll("#\\{guid\\}", guid)
@@ -31,8 +29,8 @@ case class RequestString(content: String, environmentVars: Map[String, String]) 
     contentCopy = replaceEachIn(contentCopy, "#\\{randomGuid\\}", () => UUID.randomUUID.toString.split("-")(0))
     contentCopy = replaceEachIn(contentCopy, "#\\{randomInt\\}", () => Math.abs(Random.nextInt).toString)
     contentCopy = replaceEachIn(contentCopy, "#\\{randomFloat\\}", () => Math.abs(Random.nextFloat).toString)
-    contentCopy = replaceEachIn(contentCopy, "#\\{randomFirstName\\}", () => Names.getRandom)
-    contentCopy = replaceEachIn(contentCopy, "#\\{randomLastName\\}", () => LastNames.getRandom)
+    contentCopy = replaceEachIn(contentCopy, "#\\{randomFirstName\\}", () => firstNames.getRandom)
+    contentCopy = replaceEachIn(contentCopy, "#\\{randomLastName\\}", () => lastNames.getRandom)
 
     // Functions
     val randomIntRangeMatcher = "#\\{random\\([\\s]*([0-9]+)[\\s]*\\.\\.([0-9]+)[\\s]*\\)\\}".r

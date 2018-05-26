@@ -12,7 +12,7 @@ import javafx.scene.input.KeyCode
 import javafx.scene.layout.BorderPane
 import javafx.stage.{FileChooser, Stage}
 import javafx.scene.text.Font
-import uk.co.ridentbyte.model.{Config, HttpResponseWrapper, Request}
+import uk.co.ridentbyte.model.{Config, HttpResponseWrapper, Names, Request}
 import uk.co.ridentbyte.util.{HttpUtil, IOUtil}
 import uk.co.ridentbyte.view.{CardinalInfoTab, CardinalMenuBar, CardinalView}
 import uk.co.ridentbyte.view.dialog.{BasicAuthInputDialog, EnvironmentVariablesEditDialog, FormUrlEncodedInputDialog}
@@ -20,6 +20,13 @@ import uk.co.ridentbyte.view.dialog.{BasicAuthInputDialog, EnvironmentVariablesE
 import scala.collection.JavaConverters._
 
 object Cardinal {
+
+  private val firstNamesData = io.Source.fromFile(getClass.getClassLoader.getResource("firstNames.txt").getFile).getLines().toList
+  val firstNames: Names = Names(firstNamesData)
+
+  private val lastNamesData = io.Source.fromFile(getClass.getClassLoader.getResource("lastNames.txt").getFile).getLines().toList
+  val lastNames: Names = Names(lastNamesData)
+
   def main(args: Array[String]): Unit = {
     Application.launch(classOf[Cardinal], args: _*)
   }
@@ -52,7 +59,7 @@ class Cardinal extends Application {
     loadConfig()
 
     // Temporary action for dev
-    scene.setOnKeyPressed((k) => {
+    scene.setOnKeyPressed(k => {
       if (k.getCode == KeyCode.R) {
         if (currentStage != null) {
           currentStage.getScene.getStylesheets.clear()
@@ -63,7 +70,7 @@ class Cardinal extends Application {
       }
     })
 
-    primaryStage.setOnCloseRequest((e) => {
+    primaryStage.setOnCloseRequest(e => {
       val allTabs = cardinalTabs.getTabs.asScala.filter(_.isInstanceOf[CardinalTab]).map(_.asInstanceOf[CardinalTab])
       val unsavedTabs = allTabs.count(_.hasUnsavedChanges)
       if (unsavedTabs > 0) {
@@ -249,7 +256,7 @@ class Cardinal extends Application {
 
     getStyleClass.add("cardinal-font")
 
-    setOnCloseRequest((_) => {
+    setOnCloseRequest(_ => {
       if (unsavedChanges) {
         showConfirmDialog("Save unsaved changes?", saveChangesToCurrentFile, () => Unit)
       }

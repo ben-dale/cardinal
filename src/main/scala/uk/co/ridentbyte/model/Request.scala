@@ -3,6 +3,7 @@ package uk.co.ridentbyte.model
 import org.json4s.DefaultFormats
 import org.json4s.jackson.JsonMethods.parse
 import org.json4s.jackson.Serialization.writePretty
+import uk.co.ridentbyte.Cardinal
 
 case class Request(uri: String, verb: String, headers: List[String], body: Option[String]) {
   private implicit val formats: DefaultFormats = DefaultFormats
@@ -26,10 +27,10 @@ case class Request(uri: String, verb: String, headers: List[String], body: Optio
 
   def processConstants(config: Config): Request = {
     val vars = config.getEnvironmentVariables
-    val newUri = RequestString(uri, vars).process
-    val newHeaders = headers.map(h => RequestString(h, vars).process)
+    val newUri = RequestString(uri, vars, Cardinal.firstNames, Cardinal.lastNames).process
+    val newHeaders = headers.map(h => RequestString(h, vars, Cardinal.firstNames, Cardinal.lastNames).process)
     val newBody = body match {
-      case Some(b) => Some(RequestString(b, vars).process)
+      case Some(b) => Some(RequestString(b, vars, Cardinal.firstNames, Cardinal.lastNames).process)
       case _  => None
     }
     Request(newUri, verb, newHeaders, newBody)
@@ -39,9 +40,9 @@ case class Request(uri: String, verb: String, headers: List[String], body: Optio
     val vars = config.getEnvironmentVariables
     val sb = new StringBuilder
     sb.append("curl ")
-    headers.foreach { header => sb.append(s"""-H '${RequestString(header, vars).process}' """) }
-    body.foreach { b => sb.append(s"""-d '${RequestString(b, vars).process}' """) }
-    sb.append(s"""-X $verb ${RequestString(uri, vars).process}""")
+    headers.foreach { header => sb.append(s"""-H '${RequestString(header, vars, Cardinal.firstNames, Cardinal.lastNames).process}' """) }
+    body.foreach { b => sb.append(s"""-d '${RequestString(b, vars, Cardinal.firstNames, Cardinal.lastNames).process}' """) }
+    sb.append(s"""-X $verb ${RequestString(uri, vars, Cardinal.firstNames, Cardinal.lastNames).process}""")
     sb.toString()
   }
 

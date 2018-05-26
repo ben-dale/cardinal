@@ -10,4 +10,8 @@ object IOUtil {
     fileWriter.close()
   }
 
+  def readFile(fileName: String): List[String] = {
+    scala.io.Source.fromFile(fileName).getLines.toList
+  }
+
 }
