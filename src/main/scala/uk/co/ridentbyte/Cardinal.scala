@@ -1,6 +1,6 @@
 package uk.co.ridentbyte
 
-import java.io.File
+import java.io.{File, FileWriter}
 
 import javafx.application.Application
 import javafx.scene.Scene
@@ -11,7 +11,6 @@ import javafx.scene.layout.BorderPane
 import javafx.stage.{FileChooser, Stage}
 import javafx.scene.text.Font
 import uk.co.ridentbyte.model._
-import uk.co.ridentbyte.util.IOUtil
 import uk.co.ridentbyte.view.{CardinalInfoTab, CardinalMenuBar, CardinalView}
 import uk.co.ridentbyte.view.dialog.{BasicAuthInputDialog, EnvironmentVariablesEditDialog, FormUrlEncodedInputDialog}
 
@@ -36,7 +35,6 @@ class Cardinal extends Application {
   private val configLocation: String = System.getProperty("user.home") + "/.cardinal_config.json"
   private var currentConfig: Config = _
   private var currentStage: Stage = _
-//  private val httpUtil = new HttpUtil
   private val menuBar = new CardinalMenuBar(newTab, showAsCurl, open, saveChangesToCurrentFile, saveAs, clearAll, showEnvironmentVariablesInput, showFormUrlEncodedInput, showBasicAuthInput)
   private val cardinalTabs = new TabPane()
 
@@ -53,7 +51,7 @@ class Cardinal extends Application {
     val scene = new Scene(view, 1000, 500)
     scene.getStylesheets.add(getClass.getClassLoader.getResource("style.css").toExternalForm)
 
-    val font = Font.loadFont(getClass.getClassLoader.getResource("OpenSans-Regular.ttf").toExternalForm, 13)
+    Font.loadFont(getClass.getClassLoader.getResource("OpenSans-Regular.ttf").toExternalForm, 13)
 
     loadConfig()
 
@@ -104,7 +102,7 @@ class Cardinal extends Application {
   private def saveChangesToCurrentFile(): Unit = {
     val currentTab = getCurrentTab
     if (currentTab != null && currentTab.currentFile.isDefined) {
-      IOUtil.writeToFile(currentTab.currentFile.get, currentTab.content.getRequest.toJson)
+      writeToFile(currentTab.currentFile.get, currentTab.content.getRequest.toJson)
       currentTab.setUnsavedChanges(false)
     }
   }
@@ -122,7 +120,7 @@ class Cardinal extends Application {
 
   private def saveChangesToConfig(config: Config): Unit = {
     val configFile = new File(configLocation)
-    IOUtil.writeToFile(configFile, config.toJson)
+    writeToFile(configFile, config.toJson)
   }
 
   private def clearAll(): Unit = {
@@ -161,7 +159,7 @@ class Cardinal extends Application {
         } else {
           file
         }
-        IOUtil.writeToFile(fileWithExtension, currentTab.content.getRequest.toJson)
+        writeToFile(fileWithExtension, currentTab.content.getRequest.toJson)
 //        menuBar.setSaveDisabled(false)
         currentTab.setCurrentFile(fileWithExtension)
         currentTab.setUnsavedChanges(false)
@@ -240,7 +238,7 @@ class Cardinal extends Application {
       case t: CardinalTab =>
         val currentFile = t.currentFile
         if (currentFile.isDefined) {
-          IOUtil.writeToFile(currentFile.get, t.content.getRequest.toJson)
+          writeToFile(currentFile.get, t.content.getRequest.toJson)
         }
       case _ => // Currently does not save unsaved changes to "Untitled" files
     }
@@ -280,6 +278,12 @@ class Cardinal extends Application {
       }
       this.unsavedChanges = unsavedChanges
     }
+  }
+
+  def writeToFile(file: File, data: String): Unit = {
+    val fileWriter = new FileWriter(file)
+    fileWriter.write(data)
+    fileWriter.close()
   }
 
 }
