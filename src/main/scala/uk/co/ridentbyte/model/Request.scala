@@ -5,6 +5,11 @@ import org.json4s.jackson.JsonMethods.parse
 import org.json4s.jackson.Serialization.writePretty
 import uk.co.ridentbyte.Cardinal
 
+object Request {
+  private implicit val formats: DefaultFormats = DefaultFormats
+  def apply(json: String): Request = parse(json).extract[Request]
+}
+
 case class Request(uri: String, verb: String, headers: List[String], body: Option[String]) {
   private implicit val formats: DefaultFormats = DefaultFormats
 
@@ -19,36 +24,19 @@ case class Request(uri: String, verb: String, headers: List[String], body: Optio
     )
   }
 
-  def processEnvironmentVariables(value: String, vars: Map[String, String]): String = {
-    var valueCopy = value
-    vars.foreach { case (k, v) => valueCopy = valueCopy.replaceAll("#\\{" + k + "\\}", v) }
-    valueCopy
-  }
-
   def processConstants(config: Config): Request = {
     val vars = config.getEnvironmentVariables
     val newUri = RequestString(uri, vars, Cardinal.firstNames, Cardinal.lastNames).process
     val newHeaders = headers.map(h => RequestString(h, vars, Cardinal.firstNames, Cardinal.lastNames).process)
     val newBody = body match {
       case Some(b) => Some(RequestString(b, vars, Cardinal.firstNames, Cardinal.lastNames).process)
-      case _  => None
+      case _ => None
     }
     Request(newUri, verb, newHeaders, newBody)
   }
 
   def toCurl(config: Config): String = {
-    val vars = config.getEnvironmentVariables
-    val sb = new StringBuilder
-    sb.append("curl ")
-    headers.foreach { header => sb.append(s"""-H '${RequestString(header, vars, Cardinal.firstNames, Cardinal.lastNames).process}' """) }
-    body.foreach { b => sb.append(s"""-d '${RequestString(b, vars, Cardinal.firstNames, Cardinal.lastNames).process}' """) }
-    sb.append(s"""-X $verb ${RequestString(uri, vars, Cardinal.firstNames, Cardinal.lastNames).process}""")
-    sb.toString()
+    Curl(uri, verb, body, headers, config.getEnvironmentVariables).toCommand
   }
 
-}
-
-object Request {
-  private implicit val formats: DefaultFormats = DefaultFormats
-  def apply(json: String): Request = parse(json).extract[Request]
 }
