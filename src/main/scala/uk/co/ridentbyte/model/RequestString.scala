@@ -13,24 +13,26 @@ case class RequestString(content: String, environmentVars: Map[String, String], 
     val guid = UUID.randomUUID.toString.split("-")(0)
     val int = Math.abs(Random.nextInt).toString
     val float = Math.abs(Random.nextFloat).toString
-    val firstName = firstNames.getRandom
-    val lastName = lastNames.getRandom
+    val firstName = firstNames.random()
+    val lastName = lastNames.random()
 
     // Constants
-    contentCopy = contentCopy.replaceAll("#\\{guid\\}", guid)
-    contentCopy = contentCopy.replaceAll("#\\{int\\}", int)
-    contentCopy = contentCopy.replaceAll("#\\{float\\}", float)
-    contentCopy = contentCopy.replaceAll("#\\{firstName\\}", firstName)
-    contentCopy = contentCopy.replaceAll("#\\{firstNameLower\\}", firstName.toLowerCase)
-    contentCopy = contentCopy.replaceAll("#\\{lastName\\}", lastName)
-    contentCopy = contentCopy.replaceAll("#\\{lastNameLower\\}", lastName.toLowerCase)
+    contentCopy = Replace("#\\{guid\\}").in(contentCopy).withValue(guid)
+    contentCopy = Replace("#\\{int\\}").in(contentCopy).withValue(int)
+    contentCopy = Replace("#\\{float\\}").in(contentCopy).withValue(float)
+    contentCopy = Replace("#\\{firstName\\}").in(contentCopy).withValue(firstName)
+    contentCopy = Replace("#\\{firstNameLower\\}").in(contentCopy).withValue(firstName.toLowerCase)
+    contentCopy = Replace("#\\{lastName\\}").in(contentCopy).withValue(lastName)
+    contentCopy = Replace("#\\{lastNameLower\\}").in(contentCopy).withValue(lastName.toLowerCase)
 
-    // Random values
-    contentCopy = replaceEachIn(contentCopy, "#\\{randomGuid\\}", () => UUID.randomUUID.toString.split("-")(0))
-    contentCopy = replaceEachIn(contentCopy, "#\\{randomInt\\}", () => Math.abs(Random.nextInt).toString)
-    contentCopy = replaceEachIn(contentCopy, "#\\{randomFloat\\}", () => Math.abs(Random.nextFloat).toString)
-    contentCopy = replaceEachIn(contentCopy, "#\\{randomFirstName\\}", () => firstNames.getRandom)
-    contentCopy = replaceEachIn(contentCopy, "#\\{randomLastName\\}", () => lastNames.getRandom)
+    // Unique values
+    contentCopy = Replace("#\\{uniqueGuid\\}").in(contentCopy).withValueFrom(() => UUID.randomUUID.toString.split("-")(0))
+    contentCopy = Replace("#\\{uniqueInt\\}").in(contentCopy).withValueFrom(() => Math.abs(Random.nextInt).toString)
+    contentCopy = Replace("#\\{uniqueFloat\\}").in(contentCopy).withValueFrom(() => Math.abs(Random.nextFloat).toString)
+    contentCopy = Replace("#\\{uniqueFirstName\\}").in(contentCopy).withValueFrom(firstNames.random)
+    contentCopy = Replace("#\\{uniqueFirstNameLower\\}").in(contentCopy).withValueFrom(firstNames.randomLower)
+    contentCopy = Replace("#\\{uniqueLastName\\}").in(contentCopy).withValueFrom(lastNames.random)
+    contentCopy = Replace("#\\{uniqueLastNameLower\\}").in(contentCopy).withValueFrom(lastNames.randomLower)
 
     // Functions
     val randomIntRangeMatcher = "#\\{random\\([\\s]*([0-9]+)[\\s]*\\.\\.([0-9]+)[\\s]*\\)\\}".r
@@ -41,17 +43,31 @@ case class RequestString(content: String, environmentVars: Map[String, String], 
       contentCopy = contentCopy.replaceFirst(Pattern.quote(matchedValue.toString()), (int1 + Random.nextInt((int2 + 1) - int1)).toString)
     }
 
-    environmentVars.foreach { case (k, v) => contentCopy = contentCopy.replaceAll("#\\{" + k + "\\}", v) }
+    environmentVars.foreach { case (k, v) =>
+      contentCopy = Replace("#\\{" + k + "\\}").in(contentCopy).withValue(v)
+    }
 
     contentCopy
   }
 
-  private def replaceEachIn(value: String, replace: String, valueGenerator: () => String): String = {
-    var bodyCopy = value
-    0.until(replace.r.findAllMatchIn(value).length).foreach { _ =>
-      bodyCopy = bodyCopy.replaceFirst(replace, valueGenerator())
+  case class Replace(private val token: String) {
+    def in(content: String): ContentWithToken = {
+      ContentWithToken(content, token)
     }
-    bodyCopy
+
+    case class ContentWithToken(private val content: String, private val token: String) {
+      def withValueFrom(f: () => String): String = {
+        var bodyCopy = content
+        0.until(token.r.findAllMatchIn(content).length).foreach { _ =>
+          bodyCopy = bodyCopy.replaceFirst(token, f())
+        }
+        bodyCopy
+      }
+
+      def withValue(value: String): String = {
+        content.replaceAll(token, value)
+      }
+    }
   }
 
 }
