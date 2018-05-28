@@ -43,6 +43,13 @@ case class RequestString(content: String, environmentVars: Map[String, String], 
       contentCopy = contentCopy.replaceFirst(Pattern.quote(matchedValue.toString()), (int1 + Random.nextInt((int2 + 1) - int1)).toString)
     }
 
+    val randomListMatcher = "#\\{random\\((.*)\\)\\}".r
+    0.until(randomListMatcher.findAllMatchIn(contentCopy).length).foreach { _ =>
+      val matchedValue = randomListMatcher.findFirstMatchIn(contentCopy).get
+      val items = matchedValue.group(1).split(",").map(_.trim)
+      contentCopy = contentCopy.replaceFirst(Pattern.quote(matchedValue.toString()), items(Random.nextInt(items.length)))
+    }
+
     environmentVars.foreach { case (k, v) =>
       contentCopy = Replace("#\\{" + k + "\\}").in(contentCopy).withValue(v)
     }
