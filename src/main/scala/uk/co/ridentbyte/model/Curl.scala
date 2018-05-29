@@ -9,14 +9,14 @@ case class Curl(uri: String, verb: String, body: Option[String], headers: List[S
     sb.append("curl ")
 
     headers.foreach { header =>
-      sb.append(s"""-H '${RequestString(header, envVars, Cardinal.firstNames, Cardinal.lastNames).process}' """)
+      sb.append(s"""-H '${RequestString(header, envVars, Cardinal.firstNames, Cardinal.lastNames, Cardinal.verbs, Cardinal.nouns).process}' """)
     }
 
     body.foreach { b =>
-      sb.append(s"""-d '${RequestString(b, envVars, Cardinal.firstNames, Cardinal.lastNames).process}' """)
+      sb.append(s"""-d '${RequestString(b, envVars, Cardinal.firstNames, Cardinal.lastNames, Cardinal.verbs, Cardinal.nouns).process}' """)
     }
 
-    sb.append(s"""-X $verb ${RequestString(uri, envVars, Cardinal.firstNames, Cardinal.lastNames).process}""")
+    sb.append(s"""-X $verb ${RequestString(uri, envVars, Cardinal.firstNames, Cardinal.lastNames, Cardinal.verbs, Cardinal.nouns).process}""")
 
     sb.toString()
   }

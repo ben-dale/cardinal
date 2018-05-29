@@ -20,8 +20,10 @@ import scala.io.Source
 import scala.util.Random
 
 object Cardinal {
-  val firstNames: Names = Names(Source.fromResource("firstNames.txt").getLines().toList, Random)
-  val lastNames: Names = Names(Source.fromResource("firstNames.txt").getLines().toList, Random)
+  val firstNames: Words = Words(Source.fromResource("firstNames.txt").getLines().toList, Random)
+  val lastNames: Words = Words(Source.fromResource("firstNames.txt").getLines().toList, Random)
+  val nouns: Words = Words(Source.fromResource("nouns.txt").getLines().toList, Random)
+  val verbs: Words = Words(Source.fromResource("verbs.txt").getLines().toList, Random)
 
   def main(args: Array[String]): Unit = {
     Application.launch(classOf[Cardinal], args: _*)
