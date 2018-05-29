@@ -10,20 +10,18 @@ import javafx.scene.input.KeyCode
 import javafx.scene.layout.BorderPane
 import javafx.stage.{FileChooser, Stage}
 import javafx.scene.text.Font
+import uk.co.ridentbyte.Cardinal.getClass
 import uk.co.ridentbyte.model._
 import uk.co.ridentbyte.view.{CardinalInfoTab, CardinalMenuBar, CardinalView}
 import uk.co.ridentbyte.view.dialog.{BasicAuthInputDialog, EnvironmentVariablesEditDialog, FormUrlEncodedInputDialog}
 
 import scala.collection.JavaConverters._
+import scala.io.Source
 import scala.util.Random
 
 object Cardinal {
-
-  private val firstNamesData = io.Source.fromFile(getClass.getClassLoader.getResource("firstNames.txt").getFile).getLines().toList
-  val firstNames: Names = Names(firstNamesData, Random)
-
-  private val lastNamesData = io.Source.fromFile(getClass.getClassLoader.getResource("lastNames.txt").getFile).getLines().toList
-  val lastNames: Names = Names(lastNamesData, Random)
+  val firstNames: Names = Names(Source.fromResource("firstNames.txt").getLines().toList, Random)
+  val lastNames: Names = Names(Source.fromResource("firstNames.txt").getLines().toList, Random)
 
   def main(args: Array[String]): Unit = {
     Application.launch(classOf[Cardinal], args: _*)
@@ -53,7 +51,14 @@ class Cardinal extends Application {
 
     Font.loadFont(getClass.getClassLoader.getResource("OpenSans-Regular.ttf").toExternalForm, 13)
 
-    loadConfig()
+    val file = new File(configLocation)
+    if (file.exists && !file.isDirectory) {
+      val lines = scala.io.Source.fromFile(file).getLines().mkString
+      currentConfig = Config(lines)
+    } else {
+      // Create new empty config file if not present
+      saveChangesToConfig(Config(List.empty[String]))
+    }
 
     // Temporary action for dev
 //    scene.setOnKeyPressed(k => {
@@ -67,7 +72,7 @@ class Cardinal extends Application {
 //      }
 //    })
 
-    primaryStage.setOnCloseRequest(e => {
+    primaryStage.setOnCloseRequest(_ => {
       val allTabs = cardinalTabs.getTabs.asScala.filter(_.isInstanceOf[CardinalTab]).map(_.asInstanceOf[CardinalTab])
       val unsavedTabs = allTabs.count(_.hasUnsavedChanges)
       if (unsavedTabs > 0) {
@@ -104,17 +109,6 @@ class Cardinal extends Application {
     if (currentTab != null && currentTab.currentFile.isDefined) {
       writeToFile(currentTab.currentFile.get, currentTab.content.getRequest.toJson)
       currentTab.setUnsavedChanges(false)
-    }
-  }
-
-  private def loadConfig(): Unit = {
-    val file = new File(configLocation)
-    if (file.exists && !file.isDirectory) {
-      val lines = scala.io.Source.fromFile(file).getLines().mkString
-      currentConfig = Config(lines)
-    } else {
-      // Create new empty config file if not present
-      saveChangesToConfig(Config(List.empty[String]))
     }
   }
 
