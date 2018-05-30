@@ -26,10 +26,10 @@ case class Request(uri: String, verb: String, headers: List[String], body: Optio
 
   def processConstants(config: Config): Request = {
     val vars = config.getEnvironmentVariables
-    val newUri = RequestString(uri, vars, Cardinal.firstNames, Cardinal.lastNames, Cardinal.verbs, Cardinal.nouns).process
-    val newHeaders = headers.map(h => RequestString(h, vars, Cardinal.firstNames, Cardinal.lastNames, Cardinal.verbs, Cardinal.nouns).process)
+    val newUri = RequestString(uri, vars, Cardinal.vocabulary).process
+    val newHeaders = headers.map(h => RequestString(h, vars, Cardinal.vocabulary).process)
     val newBody = body match {
-      case Some(b) => Some(RequestString(b, vars, Cardinal.firstNames, Cardinal.lastNames, Cardinal.verbs, Cardinal.nouns).process)
+      case Some(b) => Some(RequestString(b, vars, Cardinal.vocabulary).process)
       case _ => None
     }
     Request(newUri, verb, newHeaders, newBody)

@@ -1,0 +1,14 @@
+Clean
+Sell
+Repair
+Destroy
+Develop
+Invent
+Question
+Request
+Collect
+Program
+Design
+Suspend
+Expand
+Steer

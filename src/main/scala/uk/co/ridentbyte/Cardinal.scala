@@ -6,11 +6,9 @@ import javafx.application.Application
 import javafx.scene.Scene
 import javafx.scene.control._
 import javafx.scene.control.Alert.AlertType
-import javafx.scene.input.KeyCode
 import javafx.scene.layout.BorderPane
 import javafx.stage.{FileChooser, Stage}
 import javafx.scene.text.Font
-import uk.co.ridentbyte.Cardinal.getClass
 import uk.co.ridentbyte.model._
 import uk.co.ridentbyte.view.{CardinalInfoTab, CardinalMenuBar, CardinalView}
 import uk.co.ridentbyte.view.dialog.{BasicAuthInputDialog, EnvironmentVariablesEditDialog, FormUrlEncodedInputDialog}
@@ -22,8 +20,14 @@ import scala.util.Random
 object Cardinal {
   val firstNames: Words = Words(Source.fromResource("firstNames.txt").getLines().toList, Random)
   val lastNames: Words = Words(Source.fromResource("firstNames.txt").getLines().toList, Random)
-  val nouns: Words = Words(Source.fromResource("nouns.txt").getLines().toList, Random)
-  val verbs: Words = Words(Source.fromResource("verbs.txt").getLines().toList, Random)
+  val countries: Words = Words(Source.fromResource("countries.txt").getLines().toList, Random)
+  val objects: Words = Words(Source.fromResource("objects.txt").getLines().toList, Random)
+  val actions: Words = Words(Source.fromResource("actions.txt").getLines().toList, Random)
+  val businessEntities: Words = Words(Source.fromResource("businessEntities.txt").getLines().toList, Random)
+  val communications: Words = Words(Source.fromResource("communications.txt").getLines().toList, Random)
+  val places: Words = Words(Source.fromResource("places.txt").getLines().toList, Random)
+
+  val vocabulary = Vocabulary(firstNames, lastNames, places, objects, actions, countries, communications, businessEntities)
 
   def main(args: Array[String]): Unit = {
     Application.launch(classOf[Cardinal], args: _*)

@@ -5,7 +5,9 @@ import java.util.regex.Pattern
 
 import scala.util.Random
 
-case class RequestString(content: String, environmentVars: Map[String, String], firstNames: Words, lastNames: Words, verbs: Words, nouns: Words) {
+case class RequestString(content: String,
+                         environmentVars: Map[String, String],
+                         vocabulary: Vocabulary) {
 
   def process: String = {
     var contentCopy = content
@@ -13,10 +15,8 @@ case class RequestString(content: String, environmentVars: Map[String, String], 
     val guid = UUID.randomUUID.toString.split("-")(0)
     val int = Math.abs(Random.nextInt).toString
     val float = Math.abs(Random.nextFloat).toString
-    val firstName = firstNames.random()
-    val lastName = lastNames.random()
-    val verb = verbs.random()
-    val noun = nouns.random()
+    val firstName = vocabulary.firstNames.random()
+    val lastName = vocabulary.lastNames.random()
 
     // Constants
     contentCopy = Replace("#\\{guid\\}").in(contentCopy).withValue(guid)
@@ -26,23 +26,23 @@ case class RequestString(content: String, environmentVars: Map[String, String], 
     contentCopy = Replace("#\\{firstNameLower\\}").in(contentCopy).withValue(firstName.toLowerCase)
     contentCopy = Replace("#\\{lastName\\}").in(contentCopy).withValue(lastName)
     contentCopy = Replace("#\\{lastNameLower\\}").in(contentCopy).withValue(lastName.toLowerCase)
-    contentCopy = Replace("#\\{verb\\}").in(contentCopy).withValue(verb)
-    contentCopy = Replace("#\\{verbLower\\}").in(contentCopy).withValue(verb.toLowerCase)
-    contentCopy = Replace("#\\{noun\\}").in(contentCopy).withValue(noun)
-    contentCopy = Replace("#\\{nounLower\\}").in(contentCopy).withValue(noun.toLowerCase)
 
     // Unique values
     contentCopy = Replace("#\\{uniqueGuid\\}").in(contentCopy).withValueFrom(() => UUID.randomUUID.toString.split("-")(0))
     contentCopy = Replace("#\\{uniqueInt\\}").in(contentCopy).withValueFrom(() => Math.abs(Random.nextInt).toString)
     contentCopy = Replace("#\\{uniqueFloat\\}").in(contentCopy).withValueFrom(() => Math.abs(Random.nextFloat).toString)
-    contentCopy = Replace("#\\{uniqueFirstName\\}").in(contentCopy).withValueFrom(firstNames.random)
-    contentCopy = Replace("#\\{uniqueFirstNameLower\\}").in(contentCopy).withValueFrom(firstNames.randomLower)
-    contentCopy = Replace("#\\{uniqueLastName\\}").in(contentCopy).withValueFrom(lastNames.random)
-    contentCopy = Replace("#\\{uniqueLastNameLower\\}").in(contentCopy).withValueFrom(lastNames.randomLower)
-    contentCopy = Replace("#\\{uniqueNoun\\}").in(contentCopy).withValueFrom(nouns.random)
-    contentCopy = Replace("#\\{uniqueNounLower\\}").in(contentCopy).withValueFrom(nouns.randomLower)
-    contentCopy = Replace("#\\{uniqueVerb\\}").in(contentCopy).withValueFrom(verbs.random)
-    contentCopy = Replace("#\\{uniqueVerbLower\\}").in(contentCopy).withValueFrom(verbs.randomLower)
+    contentCopy = Replace("#\\{uniqueFirstName\\}").in(contentCopy).withValueFrom(vocabulary.firstNames.random)
+    contentCopy = Replace("#\\{uniqueFirstNameLower\\}").in(contentCopy).withValueFrom(vocabulary.firstNames.randomLower)
+    contentCopy = Replace("#\\{uniqueLastName\\}").in(contentCopy).withValueFrom(vocabulary.lastNames.random)
+    contentCopy = Replace("#\\{uniqueLastNameLower\\}").in(contentCopy).withValueFrom(vocabulary.lastNames.randomLower)
+
+    // Randoms
+    contentCopy = Replace("#\\{action\\}").in(contentCopy).withValueFrom(vocabulary.actions.random)
+    contentCopy = Replace("#\\{businessEntity\\}").in(contentCopy).withValueFrom(vocabulary.businessEntities.random)
+    contentCopy = Replace("#\\{communication\\}").in(contentCopy).withValueFrom(vocabulary.communications.random)
+    contentCopy = Replace("#\\{country\\}").in(contentCopy).withValueFrom(vocabulary.countries.random)
+    contentCopy = Replace("#\\{object\\}").in(contentCopy).withValueFrom(vocabulary.objects.random)
+    contentCopy = Replace("#\\{place\\}").in(contentCopy).withValueFrom(vocabulary.places.random)
 
     // Functions
     val randomIntRangeMatcher = "#\\{random\\([\\s]*([0-9]+)[\\s]*\\.\\.([0-9]+)[\\s]*\\)\\}".r
