@@ -26,28 +26,30 @@ class ResponsePane(getConfigCallback: () => Config,
     setCenter(emptyPanel)
   }
 
-  def setResponse(response: HttpResponseWrapper): Unit = {
-    val grid = new GridPane
-    grid.setVgap(10)
-    grid.setHgap(10)
-    grid.getColumnConstraints.add(ColumnConstraintsBuilder().withHgrow(Priority.ALWAYS).build)
-    grid.getRowConstraints.add(RowConstraintsBuilder().withVgrow(Priority.ALWAYS).withPercentageHeight(40).build)
-    grid.getRowConstraints.add(RowConstraintsBuilder().withVgrow(Priority.ALWAYS).withPercentageHeight(60).build)
+  def setResponse(response: Option[HttpResponseWrapper]): Unit = {
+    if (response.isDefined) {
+      val grid = new GridPane
+      grid.setVgap(10)
+      grid.setHgap(10)
+      grid.getColumnConstraints.add(ColumnConstraintsBuilder().withHgrow(Priority.ALWAYS).build)
+      grid.getRowConstraints.add(RowConstraintsBuilder().withVgrow(Priority.ALWAYS).withPercentageHeight(40).build)
+      grid.getRowConstraints.add(RowConstraintsBuilder().withVgrow(Priority.ALWAYS).withPercentageHeight(60).build)
 
-    val listHeaders = new ListView[String]()
-    listHeaders.getStyleClass.add("cardinal-font")
-    response.httpResponse.headers.foreach {
-      header => listHeaders.getItems.add(header._1 + ": " + header._2.mkString(""))
+      val listHeaders = new ListView[String]()
+      listHeaders.getStyleClass.add("cardinal-font")
+      response.get.httpResponse.headers.foreach {
+        header => listHeaders.getItems.add(header._1 + ": " + header._2.mkString(""))
+      }
+      grid.add(listHeaders, 0, 0)
+
+      val textAreaBody = new TextArea()
+      textAreaBody.setEditable(false)
+      textAreaBody.getStyleClass.add("cardinal-font")
+      textAreaBody.setText(response.get.formattedBody)
+      grid.add(textAreaBody, 0, 1)
+
+      Platform.runLater(() => setCenter(grid))
     }
-    grid.add(listHeaders, 0, 0)
-
-    val textAreaBody = new TextArea()
-    textAreaBody.setEditable(false)
-    textAreaBody.getStyleClass.add("cardinal-font")
-    textAreaBody.setText(response.formattedBody)
-    grid.add(textAreaBody, 0, 1)
-
-    Platform.runLater(() => setCenter(grid))
   }
 
   def loadCurlCommand(command: String): Unit = {

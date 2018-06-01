@@ -2,7 +2,7 @@ package uk.co.ridentbyte
 
 import java.io.{File, FileWriter}
 
-import javafx.application.Application
+import javafx.application.{Application, Platform}
 import javafx.scene.Scene
 import javafx.scene.control._
 import javafx.scene.control.Alert.AlertType
@@ -235,9 +235,11 @@ class Cardinal extends Application {
   }
 
   def showErrorDialog(errorMessage: String): Unit = {
-    val alert = new Alert(AlertType.ERROR)
-    alert.setContentText(errorMessage)
-    alert.showAndWait
+    Platform.runLater(() => {
+      val alert = new Alert(AlertType.ERROR)
+      alert.setContentText(errorMessage)
+      alert.showAndWait
+    })
   }
 
   def showAsCurl(): Unit = {
