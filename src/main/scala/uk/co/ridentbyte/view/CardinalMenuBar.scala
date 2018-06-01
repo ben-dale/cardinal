@@ -5,8 +5,8 @@ import javafx.scene.control.{Menu, MenuBar, MenuItem}
 class CardinalMenuBar(newTabCallback: () => Unit,
                       showAsCurlCallback: () => Unit,
                       openCallback:() => Unit,
-                      saveChangesToCurrentFileCallback: () => Unit,
-                      saveAsCallback: () => Unit,
+                      saveChangesToCurrentFileCallback: (() => Unit) => Unit,
+                      saveAsCallback: (() => Unit) => Unit,
                       clearAllCallback: () => Unit,
                       editEnvironmentVarsCallback: () => Unit,
                       showFormUrlEncodedInputCallback: () => Unit,
@@ -28,11 +28,11 @@ class CardinalMenuBar(newTabCallback: () => Unit,
   menuFile.getItems.add(menuItemOpen)
 
   private val menuItemSave = new MenuItem("Save")
-  menuItemSave.setOnAction((_) => saveChangesToCurrentFileCallback())
+  menuItemSave.setOnAction((_) => saveChangesToCurrentFileCallback(() => Unit))
   menuFile.getItems.add(menuItemSave)
 
   private val menuItemSaveAs = new MenuItem("Save As...")
-  menuItemSaveAs.setOnAction((_) => saveAsCallback())
+  menuItemSaveAs.setOnAction((_) => saveAsCallback(() => Unit))
   menuFile.getItems.add(menuItemSaveAs)
 
   private val menuItemClearAll = new MenuItem("Clear All")

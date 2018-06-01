@@ -64,9 +64,9 @@ class Cardinal extends Application {
       val newCombo = new KeyCodeCombination(KeyCode.N, KeyCombination.SHORTCUT_DOWN)
 
       if (saveCombo.`match`(keyEvent)) {
-        save()
+        save(() => Unit)
       } else if (saveAsCombo.`match`(keyEvent)) {
-        saveAs()
+        saveAs(() => Unit)
       } else if (closeTabCombo.`match`(keyEvent) && getCurrentTab != null) {
         val currentTab = getCurrentTab
         val remove: () => Unit = () => {
@@ -75,8 +75,11 @@ class Cardinal extends Application {
         }
         if (currentTab.hasUnsavedChanges) {
           val saveCallback: () => Unit = () => {
-            save()
-            remove()
+            var shouldRemove = true
+            save(() => shouldRemove = false)
+            if (shouldRemove) {
+              remove()
+            }
           }
           showConfirmDialog("Save unsaved changes?", saveCallback, remove, () => Unit)
         } else {
@@ -143,13 +146,13 @@ class Cardinal extends Application {
     HttpResponseWrapper(response, totalTime)
   }
 
-  private def save(): Unit = {
+  private def save(onCancel: () => Unit): Unit = {
     val currentTab = getCurrentTab
     if (currentTab != null && currentTab.currentFile.isDefined) {
       writeToFile(currentTab.currentFile.get, currentTab.content.getRequest.toJson)
       currentTab.setUnsavedChanges(false)
     } else {
-      saveAs()
+      saveAs(onCancel)
     }
   }
 
@@ -185,7 +188,7 @@ class Cardinal extends Application {
     cardinalTabs.getSelectionModel.selectLast()
   }
 
-  private def saveAs(): Unit = {
+  private def saveAs(onCancel: () => Unit): Unit = {
     val currentTab = getCurrentTab
     if (currentTab != null) {
       val fileChooser = new FileChooser
@@ -212,6 +215,8 @@ class Cardinal extends Application {
           cardinalView.loadRequest(request)
           getCurrentTab.setUnsavedChanges(false)
         }
+      } else {
+        onCancel()
       }
     }
   }
@@ -310,9 +315,9 @@ class Cardinal extends Application {
 
     setOnCloseRequest(r => {
       if (unsavedChanges) {
-        showConfirmDialog("Save unsaved changes?", save, () => Unit, () => r.consume())
+        showConfirmDialog("Save unsaved changes?", () => save(r.consume), () => Unit, () => r.consume())
       }
-      Platform.runLater(() =>openNewFileIfNoneOpen())
+      Platform.runLater(() => openNewFileIfNoneOpen())
     })
 
     def handleUnsavedChangesMade(): Unit = {
