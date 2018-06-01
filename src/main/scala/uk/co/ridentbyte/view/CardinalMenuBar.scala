@@ -2,15 +2,15 @@ package uk.co.ridentbyte.view
 
 import javafx.scene.control.{Menu, MenuBar, MenuItem}
 
-class CardinalMenuBar(newTabCallback: () => Unit,
-                      showAsCurlCallback: () => Unit,
-                      openCallback:() => Unit,
-                      saveChangesToCurrentFileCallback: (() => Unit) => Unit,
-                      saveAsCallback: (() => Unit) => Unit,
-                      clearAllCallback: () => Unit,
-                      editEnvironmentVarsCallback: () => Unit,
-                      showFormUrlEncodedInputCallback: () => Unit,
-                      showBasicAuthInputCallback: () => Unit) extends MenuBar {
+class CardinalMenuBar(newTab: () => Unit,
+                      showAsCurl: () => Unit,
+                      open:() => Unit,
+                      save: (() => Unit) => Unit,
+                      saveAs: (() => Unit) => Unit,
+                      clearAll: () => Unit,
+                      editEnvironmentVars: () => Unit,
+                      showFormUrlEncodedInput: () => Unit,
+                      showBasicAuthInput: () => Unit) extends MenuBar {
 
   if (System.getProperty("os.name").toLowerCase.contains("mac")) {
     setUseSystemMenuBar(true)
@@ -20,23 +20,23 @@ class CardinalMenuBar(newTabCallback: () => Unit,
   private val menuFile = new Menu("File")
 
   val menuItemNew = new MenuItem("New")
-  menuItemNew.setOnAction((_) => newTabCallback())
+  menuItemNew.setOnAction(_ => newTab())
   menuFile.getItems.add(menuItemNew)
 
   val menuItemOpen = new MenuItem("Open...")
-  menuItemOpen.setOnAction((_) => openCallback())
+  menuItemOpen.setOnAction(_ => open())
   menuFile.getItems.add(menuItemOpen)
 
   private val menuItemSave = new MenuItem("Save")
-  menuItemSave.setOnAction((_) => saveChangesToCurrentFileCallback(() => Unit))
+  menuItemSave.setOnAction(_ => save(() => Unit))
   menuFile.getItems.add(menuItemSave)
 
   private val menuItemSaveAs = new MenuItem("Save As...")
-  menuItemSaveAs.setOnAction((_) => saveAsCallback(() => Unit))
+  menuItemSaveAs.setOnAction(_ => saveAs(() => Unit))
   menuFile.getItems.add(menuItemSaveAs)
 
   private val menuItemClearAll = new MenuItem("Clear All")
-  menuItemClearAll.setOnAction((_) => clearAllCallback())
+  menuItemClearAll.setOnAction(_ => clearAll())
   menuFile.getItems.add(menuItemClearAll)
 
   getMenus.add(menuFile)
@@ -45,7 +45,7 @@ class CardinalMenuBar(newTabCallback: () => Unit,
   private val menuExport = new Menu("Export")
 
   private val menuItemExportAsCurl = new MenuItem("Export as cURL")
-  menuItemExportAsCurl.setOnAction((_) => showAsCurlCallback())
+  menuItemExportAsCurl.setOnAction(_ => showAsCurl())
   menuExport.getItems.add(menuItemExportAsCurl)
 
   getMenus.add(menuExport)
@@ -54,7 +54,7 @@ class CardinalMenuBar(newTabCallback: () => Unit,
   private val menuAuthorisation = new Menu("Auth")
 
   private val menuItemBasicAuth = new MenuItem("Basic Auth...")
-  menuItemBasicAuth.setOnAction((_) => showBasicAuthInputCallback())
+  menuItemBasicAuth.setOnAction(_ => showBasicAuthInput())
   menuAuthorisation.getItems.add(menuItemBasicAuth)
 
   getMenus.add(menuAuthorisation)
@@ -63,7 +63,7 @@ class CardinalMenuBar(newTabCallback: () => Unit,
   private val menuForm = new Menu("Form")
 
   private val menuItemUrlEncoded = new MenuItem("URL Encoded...")
-  menuItemUrlEncoded.setOnAction((_) => showFormUrlEncodedInputCallback())
+  menuItemUrlEncoded.setOnAction(_ => showFormUrlEncodedInput())
   menuForm.getItems.add(menuItemUrlEncoded)
 
   getMenus.add(menuForm)
@@ -71,7 +71,7 @@ class CardinalMenuBar(newTabCallback: () => Unit,
   // *** CONFIG ***
   private val menuConfig = new Menu("Config")
   private val menuItemEnvVars = new MenuItem("Edit Environment Variables...")
-  menuItemEnvVars.setOnAction((_) => editEnvironmentVarsCallback())
+  menuItemEnvVars.setOnAction(_ => editEnvironmentVars())
   menuConfig.getItems.add(menuItemEnvVars)
   getMenus.add(menuConfig)
 
