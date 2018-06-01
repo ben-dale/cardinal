@@ -19,10 +19,10 @@ class BulkRequestInputDialog(bulkRequest: Option[BulkRequest] = None) extends Di
   GridPane.setHalignment(labelDelay, HPos.RIGHT)
   grid.add(labelDelay, 0, 0)
 
-  private val throttle = if (bulkRequest.isEmpty) 500 else bulkRequest.get.throttle.get
+  private val throttle = if (bulkRequest.isEmpty) 200 else bulkRequest.get.throttle.get
   private val textDelay = new TextField(throttle.toString)
   GridPane.setHgrow(textDelay, Priority.ALWAYS)
-  textDelay.setText("500")
+  textDelay.setText("200")
   grid.add(textDelay, 1, 0)
 
   private val labelNumOfRequests = new Label("No. of requests")

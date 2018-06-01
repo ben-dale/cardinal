@@ -154,48 +154,31 @@ class ResponsePane(getConfigCallback: () => Config,
 
   def finishedBulkRequestCallback(responses: List[HttpResponseWrapper]): Unit = {
     val grid = new GridPane
-//    grid.setPadding(new Insets(10, 10, 10, 10))
     grid.setHgap(10)
     grid.setVgap(10)
     grid.setMinWidth(500)
-
-    val timeSeries = new XYChart.Series[String, Number]
-    responses.zipWithIndex.foreach { case(r, i) =>
-      timeSeries.getData.add(new XYChart.Data((i + 1).toString, r.time))
-    }
 
     val httpResponseData: ObservableList[PieChart.Data] = FXCollections.observableArrayList()
     val allHttpCodes = responses.map(_.httpResponse.code).distinct
     allHttpCodes.foreach { httpCode =>
       val count = responses.count(_.httpResponse.code == httpCode)
-      httpResponseData.add(new PieChart.Data("HTTP " + httpCode, count))
+      val datum = new PieChart.Data("HTTP " + httpCode, count)
+      httpResponseData.add(datum)
     }
 
-    val xAxis = new CategoryAxis
-    xAxis.setLabel("Request")
-
-    val yAxis = new NumberAxis
-    yAxis.setLabel("Time (ms)")
-
     val pieChart = new PieChart(httpResponseData)
-    pieChart.setLegendVisible(false)
-    pieChart.setLabelsVisible(true)
-    pieChart.setMaxHeight(200)
     GridPane.setHalignment(pieChart, HPos.CENTER)
     GridPane.setHgrow(pieChart, Priority.ALWAYS)
     grid.add(pieChart, 0, 0)
 
-    val lineChart = new LineChart[String, Number](xAxis, yAxis)
-    lineChart.setCreateSymbols(false)
-    lineChart.setLegendVisible(false)
-    lineChart.getData.add(timeSeries)
-    lineChart.setMaxHeight(150)
-    GridPane.setHgrow(lineChart, Priority.ALWAYS)
-    grid.add(lineChart, 0, 1)
+    val averageResponseTime = responses.map(_.time).sum / responses.size
+    val averageResponseTimeLabel = new Label("Average response time: " + averageResponseTime + " ms")
+    GridPane.setHalignment(averageResponseTimeLabel, HPos.CENTER)
+    GridPane.setVgrow(averageResponseTimeLabel, Priority.ALWAYS)
+    GridPane.setHgrow(averageResponseTimeLabel, Priority.NEVER)
+    grid.add(averageResponseTimeLabel, 0, 1)
 
     Platform.runLater(() => setCenter(grid))
   }
-
-
 
 }
