@@ -47,7 +47,6 @@ class CardinalView(showErrorDialogCallback:(String) => Unit,
         override def run(): Unit = {
           Platform.runLater(() => onStart())
           val httpResponse = try {
-            Thread.sleep(2000)
             Some(sendRequestCallback(requestInputPane.getRequest.processConstants(getConfigCallback())))
           } catch {
             case _: ConnectException => onFinish(); showErrorDialogCallback("Connection refused."); None

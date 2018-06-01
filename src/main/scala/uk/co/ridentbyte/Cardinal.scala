@@ -6,11 +6,12 @@ import javafx.application.{Application, Platform}
 import javafx.scene.Scene
 import javafx.scene.control._
 import javafx.scene.control.Alert.AlertType
+import javafx.scene.input.{KeyCode, KeyCodeCombination, KeyCombination, KeyEvent}
 import javafx.scene.layout.BorderPane
 import javafx.stage.{FileChooser, Stage}
 import javafx.scene.text.Font
 import uk.co.ridentbyte.model._
-import uk.co.ridentbyte.view.{CardinalInfoTab, CardinalMenuBar, CardinalView}
+import uk.co.ridentbyte.view.{CardinalMenuBar, CardinalView}
 import uk.co.ridentbyte.view.dialog.{BasicAuthInputDialog, EnvironmentVariablesEditDialog, FormUrlEncodedInputDialog}
 
 import scala.collection.JavaConverters._
@@ -39,7 +40,7 @@ class Cardinal extends Application {
   private val configLocation: String = System.getProperty("user.home") + "/.cardinal_config.json"
   private var currentConfig: Config = _
   private var currentStage: Stage = _
-  private val menuBar = new CardinalMenuBar(newTab, showAsCurl, open, saveChangesToCurrentFile, saveAs, clearAll, showEnvironmentVariablesInput, showFormUrlEncodedInput, showBasicAuthInput)
+  private val menuBar = new CardinalMenuBar(newTab, showAsCurl, open, save, saveAs, clearAll, showEnvironmentVariablesInput, showFormUrlEncodedInput, showBasicAuthInput)
   private val cardinalTabs = new TabPane()
 
   override def start(primaryStage: Stage): Unit = {
@@ -54,6 +55,36 @@ class Cardinal extends Application {
 
     val scene = new Scene(view, 1000, 500)
     scene.getStylesheets.add(getClass.getClassLoader.getResource("style.css").toExternalForm)
+
+    scene.addEventFilter(KeyEvent.KEY_PRESSED, (keyEvent: KeyEvent) => {
+      val saveAsCombo = new KeyCodeCombination(KeyCode.S, KeyCombination.SHIFT_DOWN, KeyCombination.SHORTCUT_DOWN)
+      val saveCombo = new KeyCodeCombination(KeyCode.S, KeyCombination.SHORTCUT_DOWN)
+      val closeTabCombo = new KeyCodeCombination(KeyCode.W, KeyCombination.SHORTCUT_DOWN)
+      val openCombo = new KeyCodeCombination(KeyCode.O, KeyCombination.SHORTCUT_DOWN)
+      val newCombo = new KeyCodeCombination(KeyCode.N, KeyCombination.SHORTCUT_DOWN)
+
+      if (saveCombo.`match`(keyEvent)) {
+        save()
+      } else if (saveAsCombo.`match`(keyEvent)) {
+        saveAs()
+      } else if (closeTabCombo.`match`(keyEvent) && getCurrentTab != null) {
+        val currentTab = getCurrentTab
+        val remove: () => Unit = () => cardinalTabs.getTabs.remove(currentTab)
+        if (currentTab.hasUnsavedChanges) {
+          val saveCallback: () => Unit = () => {
+            save()
+            remove()
+          }
+          showConfirmDialog("Save unsaved changes?", saveCallback, remove, () => Unit)
+        } else {
+          remove()
+        }
+      } else if (openCombo.`match`(keyEvent)) {
+        open()
+      } else if (newCombo.`match`(keyEvent)) {
+        newTab()
+      }
+    })
 
     Font.loadFont(getClass.getClassLoader.getResource("OpenSans-Regular.ttf").toExternalForm, 13)
 
@@ -89,7 +120,6 @@ class Cardinal extends Application {
     primaryStage.setScene(scene)
     primaryStage.show()
 
-    cardinalTabs.getTabs.add(CardinalInfoTab())
     newTab()
 
   }
@@ -110,7 +140,7 @@ class Cardinal extends Application {
     HttpResponseWrapper(response, totalTime)
   }
 
-  private def saveChangesToCurrentFile(): Unit = {
+  private def save(): Unit = {
     val currentTab = getCurrentTab
     if (currentTab != null && currentTab.currentFile.isDefined) {
       writeToFile(currentTab.currentFile.get, currentTab.content.getRequest.toJson)
@@ -277,7 +307,7 @@ class Cardinal extends Application {
 
     setOnCloseRequest(r => {
       if (unsavedChanges) {
-        showConfirmDialog("Save unsaved changes?", saveChangesToCurrentFile, () => Unit, () => r.consume())
+        showConfirmDialog("Save unsaved changes?", save, () => Unit, () => r.consume())
       }
     })
 
