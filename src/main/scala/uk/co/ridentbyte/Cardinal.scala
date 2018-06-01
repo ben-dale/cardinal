@@ -116,7 +116,7 @@ class Cardinal extends Application {
       writeToFile(currentTab.currentFile.get, currentTab.content.getRequest.toJson)
       currentTab.setUnsavedChanges(false)
     } else {
-      // TODO - Open save file dialog here
+      saveAs()
     }
   }
 

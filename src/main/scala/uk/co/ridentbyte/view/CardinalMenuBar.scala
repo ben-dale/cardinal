@@ -28,7 +28,6 @@ class CardinalMenuBar(newTabCallback: () => Unit,
   menuFile.getItems.add(menuItemOpen)
 
   private val menuItemSave = new MenuItem("Save")
-//  menuItemSave.setDisable(true)
   menuItemSave.setOnAction((_) => saveChangesToCurrentFileCallback())
   menuFile.getItems.add(menuItemSave)
 
