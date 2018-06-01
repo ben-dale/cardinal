@@ -69,7 +69,10 @@ class Cardinal extends Application {
         saveAs()
       } else if (closeTabCombo.`match`(keyEvent) && getCurrentTab != null) {
         val currentTab = getCurrentTab
-        val remove: () => Unit = () => cardinalTabs.getTabs.remove(currentTab)
+        val remove: () => Unit = () => {
+          cardinalTabs.getTabs.remove(currentTab)
+          openNewFileIfNoneOpen()
+        }
         if (currentTab.hasUnsavedChanges) {
           val saveCallback: () => Unit = () => {
             save()
@@ -309,6 +312,7 @@ class Cardinal extends Application {
       if (unsavedChanges) {
         showConfirmDialog("Save unsaved changes?", save, () => Unit, () => r.consume())
       }
+      Platform.runLater(() =>openNewFileIfNoneOpen())
     })
 
     def handleUnsavedChangesMade(): Unit = {
@@ -339,6 +343,12 @@ class Cardinal extends Application {
     val fileWriter = new FileWriter(file)
     fileWriter.write(data)
     fileWriter.close()
+  }
+
+  def openNewFileIfNoneOpen(): Unit = {
+    if (cardinalTabs.getTabs.size() == 0) {
+      newTab()
+    }
   }
 
 }
