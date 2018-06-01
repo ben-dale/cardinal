@@ -78,11 +78,11 @@ class Cardinal extends Application {
 //      }
 //    })
 
-    primaryStage.setOnCloseRequest(_ => {
+    primaryStage.setOnCloseRequest(r => {
       val allTabs = cardinalTabs.getTabs.asScala.filter(_.isInstanceOf[CardinalTab]).map(_.asInstanceOf[CardinalTab])
       val unsavedTabs = allTabs.count(_.hasUnsavedChanges)
       if (unsavedTabs > 0) {
-        showConfirmDialog("Save unsaved changes?", saveAllUnsavedChanges, () => Unit)
+        showConfirmDialog("Save all unsaved changes?", saveAllUnsavedChanges, () => Unit, () => r.consume())
       }
     })
 
@@ -115,6 +115,8 @@ class Cardinal extends Application {
     if (currentTab != null && currentTab.currentFile.isDefined) {
       writeToFile(currentTab.currentFile.get, currentTab.content.getRequest.toJson)
       currentTab.setUnsavedChanges(false)
+    } else {
+      // TODO - Open save file dialog here
     }
   }
 
@@ -132,14 +134,16 @@ class Cardinal extends Application {
 
   private def open(): Unit = {
     val fileChooser = new FileChooser
-    val selectedFile = fileChooser.showOpenDialog(currentStage)
-    if (selectedFile != null) {
-      val lines = scala.io.Source.fromFile(selectedFile).getLines().mkString
-      val cardinalView = new CardinalView(showErrorDialog, () => currentConfig, sendRequest, triggerUnsavedChangesMade)
-      cardinalTabs.getTabs.add(CardinalTab(Some(selectedFile), cardinalView))
-      cardinalTabs.getSelectionModel.selectLast()
-      cardinalView.loadRequest(Request(lines))
-      getCurrentTab.setUnsavedChanges(false)
+    val selectedFiles = fileChooser.showOpenMultipleDialog(currentStage)
+    if (selectedFiles != null) {
+      selectedFiles.asScala.foreach { selectedFile =>
+        val lines = scala.io.Source.fromFile(selectedFile).getLines().mkString
+        val cardinalView = new CardinalView(showErrorDialog, () => currentConfig, sendRequest, triggerUnsavedChangesMade)
+        cardinalTabs.getTabs.add(CardinalTab(Some(selectedFile), cardinalView))
+        cardinalTabs.getSelectionModel.selectLast()
+        cardinalView.loadRequest(Request(lines))
+        getCurrentTab.setUnsavedChanges(false)
+      }
     }
   }
 
@@ -167,16 +171,23 @@ class Cardinal extends Application {
     }
   }
 
-  private def showConfirmDialog(message: String, onYesCallback:() => Unit, onNoCallback:() => Unit): Unit = {
+  private def showConfirmDialog(message: String, onYesCallback:() => Unit, onNoCallback:() => Unit, onCancelCallback: () => Unit): Unit = {
     val alert = new Alert(AlertType.CONFIRMATION)
     alert.setTitle("Save Changes")
-    alert.setContentText(message)
-    alert.getButtonTypes.setAll(ButtonType.NO, ButtonType.YES)
+    alert.setContentText(message + "\n\n")
+
+    val yesButton = new ButtonType("Yes", ButtonBar.ButtonData.RIGHT)
+    val noButton = new ButtonType("No", ButtonBar.ButtonData.RIGHT)
+    val cancelButton = new ButtonType("Cancel", ButtonBar.ButtonData.LEFT)
+    alert.getButtonTypes.setAll(cancelButton, noButton, yesButton)
+
     val result = alert.showAndWait()
-    if (result.get == ButtonType.YES) {
+    if (result.get.getText == "Yes") {
       onYesCallback()
-    } else {
+    } else if (result.get.getText == "No") {
       onNoCallback()
+    } else if (result.get.getText == "Cancel") {
+      onCancelCallback()
     }
   }
 
@@ -250,9 +261,9 @@ class Cardinal extends Application {
 
     getStyleClass.add("cardinal-font")
 
-    setOnCloseRequest(_ => {
+    setOnCloseRequest(r => {
       if (unsavedChanges) {
-        showConfirmDialog("Save unsaved changes?", saveChangesToCurrentFile, () => Unit)
+        showConfirmDialog("Save unsaved changes?", saveChangesToCurrentFile, () => Unit, () => r.consume())
       }
     })
 
