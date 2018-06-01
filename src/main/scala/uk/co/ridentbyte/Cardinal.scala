@@ -163,10 +163,22 @@ class Cardinal extends Application {
         } else {
           file
         }
-        writeToFile(fileWithExtension, currentTab.content.getRequest.toJson)
-//        menuBar.setSaveDisabled(false)
-        currentTab.setCurrentFile(fileWithExtension)
-        currentTab.setUnsavedChanges(false)
+
+        if (currentTab.currentFile.isEmpty) {
+          // New file so just save file
+          writeToFile(fileWithExtension, currentTab.content.getRequest.toJson)
+          currentTab.setCurrentFile(fileWithExtension)
+          currentTab.setUnsavedChanges(false)
+        } else {
+          // Existing file so save and open in new tab
+          val request = currentTab.content.getRequest
+          writeToFile(fileWithExtension, request.toJson)
+          val cardinalView = new CardinalView(showErrorDialog, () => currentConfig, sendRequest, triggerUnsavedChangesMade)
+          cardinalTabs.getTabs.add(CardinalTab(Some(fileWithExtension), cardinalView))
+          cardinalTabs.getSelectionModel.selectLast()
+          cardinalView.loadRequest(request)
+          getCurrentTab.setUnsavedChanges(false)
+        }
       }
     }
   }
