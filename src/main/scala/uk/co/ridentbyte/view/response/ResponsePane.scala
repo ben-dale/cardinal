@@ -8,13 +8,13 @@ import javafx.scene.chart._
 import javafx.scene.control._
 import javafx.scene.layout._
 import javafx.scene.paint.Color
-import uk.co.ridentbyte.model.{BulkRequest, Config, HttpResponseWrapper, Request}
+import uk.co.ridentbyte.model.{BulkRequest, Config, CardinalResponse, CardinalRequest}
 import uk.co.ridentbyte.view.dialog.BulkRequestInputDialog
 import uk.co.ridentbyte.view.util.{ColumnConstraintsBuilder, RowConstraintsBuilder}
 
 class ResponsePane(getConfigCallback: () => Config,
-                   sendRequestCallback: Request => HttpResponseWrapper,
-                   exportToCsv: Map[Request, HttpResponseWrapper] => Unit,
+                   sendRequestCallback: CardinalRequest => CardinalResponse,
+                   exportToCsv: Map[CardinalRequest, CardinalResponse] => Unit,
                    showErrorDialogCallback: String => Unit) extends BorderPane {
 
   setPadding(new Insets(20, 20, 20, 0))
@@ -27,7 +27,7 @@ class ResponsePane(getConfigCallback: () => Config,
     setCenter(emptyPanel)
   }
 
-  def setResponse(response: Option[HttpResponseWrapper]): Unit = {
+  def setResponse(response: Option[CardinalResponse]): Unit = {
     if (response.isDefined) {
       val grid = new GridPane
       grid.setVgap(10)
@@ -38,7 +38,7 @@ class ResponsePane(getConfigCallback: () => Config,
 
       val listHeaders = new ListView[String]()
       listHeaders.getStyleClass.add("cardinal-font")
-      response.get.httpResponse.headers.foreach {
+      response.get.raw.headers.foreach {
         header => listHeaders.getItems.add(header._1 + ": " + header._2.mkString(""))
       }
       grid.add(listHeaders, 0, 0)
@@ -69,7 +69,7 @@ class ResponsePane(getConfigCallback: () => Config,
     Platform.runLater(() => setCenter(grid))
   }
 
-  def showBulkRequestInput(request: Request, bulkRequest: Option[BulkRequest] = None): Unit = {
+  def showBulkRequestInput(request: CardinalRequest, bulkRequest: Option[BulkRequest] = None): Unit = {
     val bulkRequestInputDialog = new BulkRequestInputDialog(bulkRequest)
     val bulkRequestResult = bulkRequestInputDialog.showAndWait()
     if (bulkRequestResult != null && bulkRequestResult.isPresent) {
@@ -82,8 +82,8 @@ class ResponsePane(getConfigCallback: () => Config,
     }
   }
 
-  def startBulkRequest(request: Request, throttle: Option[Long], requestCount: Option[Int], ids: Option[List[String]]): Unit = {
-    val requestsAndResponses = collection.mutable.Map.empty[Request, HttpResponseWrapper]
+  def startBulkRequest(request: CardinalRequest, throttle: Option[Long], requestCount: Option[Int], ids: Option[List[String]]): Unit = {
+    val requestsAndResponses = collection.mutable.Map.empty[CardinalRequest, CardinalResponse]
     val labelDelta = new Label()
 
     val task = new Task[Boolean]() {
@@ -152,7 +152,7 @@ class ResponsePane(getConfigCallback: () => Config,
     new Thread(task).start()
   }
 
-  def finishedBulkRequestCallback(requestAndResponses: Map[Request, HttpResponseWrapper]): Unit = {
+  def finishedBulkRequestCallback(requestAndResponses: Map[CardinalRequest, CardinalResponse]): Unit = {
     val grid = new GridPane
     grid.getStyleClass.addAll("plain-border", "round-border")
     grid.setPadding(new Insets(15))
@@ -167,11 +167,11 @@ class ResponsePane(getConfigCallback: () => Config,
 
     val httpResponseData: ObservableList[PieChart.Data] = FXCollections.observableArrayList()
     val allHttpCodes = requestAndResponses.map{ case (_, res) =>
-      res.httpResponse.code
+      res.raw.code
     }.toList.distinct
 
     allHttpCodes.foreach { httpCode =>
-      val count = requestAndResponses.values.count(_.httpResponse.code == httpCode)
+      val count = requestAndResponses.values.count(_.raw.code == httpCode)
       val datum = new PieChart.Data("HTTP " + httpCode, count)
       httpResponseData.add(datum)
     }
@@ -201,7 +201,7 @@ class ResponsePane(getConfigCallback: () => Config,
     GridPane.setColumnSpan(textAreaTimings, 1)
     grid.add(textAreaTimings, 0, 1)
 
-    val responseCodesWithCounts = requestAndResponses.values.groupBy(_.httpResponse.code).map { case (c, r) =>
+    val responseCodesWithCounts = requestAndResponses.values.groupBy(_.raw.code).map { case (c, r) =>
       s"HTTP $c.......... ${r.size}"
     }
 

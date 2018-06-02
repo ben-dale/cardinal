@@ -4,12 +4,12 @@ import javafx.geometry.Insets
 import javafx.scene.control.{Label, TextArea}
 import javafx.scene.input.{KeyCode, KeyEvent}
 import javafx.scene.layout._
-import uk.co.ridentbyte.model.Request
+import uk.co.ridentbyte.model.CardinalRequest
 import uk.co.ridentbyte.view.util.RowConstraintsBuilder
 
 class RequestInputPane(triggerUnsavedChangesMade: () => Unit) extends GridPane {
 
-  private var currentRequest: Option[Request] = None
+  private var currentRequest: Option[CardinalRequest] = None
 
   setHgap(10)
   setVgap(10)
@@ -78,7 +78,7 @@ class RequestInputPane(triggerUnsavedChangesMade: () => Unit) extends GridPane {
     uriVerbInputPane.clear()
   }
 
-  def loadRequest(request: Request): Unit = {
+  def loadRequest(request: CardinalRequest): Unit = {
     currentRequest = Some(request)
     setBody(request.body)
     textHeaders.setText(request.headers.mkString("\n"))
@@ -86,12 +86,12 @@ class RequestInputPane(triggerUnsavedChangesMade: () => Unit) extends GridPane {
     uriVerbInputPane.setUri(request.uri)
   }
 
-  def getRequest: Request = {
+  def getRequest: CardinalRequest = {
     val body = getBody
     val headers = getHeaders
     val verb = uriVerbInputPane.getVerb
     val uri = uriVerbInputPane.getUri
-    Request(uri, verb, headers, body)
+    CardinalRequest(uri, verb, headers, body)
   }
 
   def addHeader(header: String): Unit = {

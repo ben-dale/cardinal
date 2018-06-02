@@ -5,15 +5,15 @@ import java.net.{ConnectException, URISyntaxException, UnknownHostException}
 import javafx.application.Platform
 import javafx.scene.layout.{BorderPane, GridPane, Priority}
 import javax.net.ssl.SSLHandshakeException
-import uk.co.ridentbyte.model.{Config, HttpResponseWrapper, Request}
+import uk.co.ridentbyte.model.{Config, CardinalResponse, CardinalRequest}
 import uk.co.ridentbyte.view.request.{RequestControlPane, RequestInputPane}
 import uk.co.ridentbyte.view.response.ResponsePane
 import uk.co.ridentbyte.view.util.{ColumnConstraintsBuilder, RowConstraintsBuilder}
 
 class CardinalView(showErrorDialogCallback: String => Unit,
                    getConfigCallback: () => Config,
-                   exportToCsv: Map[Request, HttpResponseWrapper] => Unit,
-                   sendRequestCallback: Request => HttpResponseWrapper,
+                   exportToCsv: Map[CardinalRequest, CardinalResponse] => Unit,
+                   sendRequestCallback: CardinalRequest => CardinalResponse,
                    triggerUnsavedChangesMade: () => Unit) extends BorderPane {
 
   private val requestInputPane = new RequestInputPane(triggerUnsavedChangesMade)
@@ -74,11 +74,11 @@ class CardinalView(showErrorDialogCallback: String => Unit,
     }
   }
 
-  def loadRequest(request: Request): Unit = requestInputPane.loadRequest(request)
+  def loadRequest(request: CardinalRequest): Unit = requestInputPane.loadRequest(request)
 
   def loadCurlCommand(curl: String): Unit = responsePane.loadCurlCommand(curl)
 
-  def getRequest: Request = requestInputPane.getRequest
+  def getRequest: CardinalRequest = requestInputPane.getRequest
 
   def setBody(body: String): Unit = requestInputPane.setBody(Some(body))
 

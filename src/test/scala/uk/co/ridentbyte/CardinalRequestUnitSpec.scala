@@ -3,13 +3,13 @@ package uk.co.ridentbyte
 import org.scalatest.FlatSpec
 import org.scalatest.Matchers._
 
-import uk.co.ridentbyte.model.Request
+import uk.co.ridentbyte.model.CardinalRequest
 
-class RequestUnitSpec extends FlatSpec {
+class CardinalRequestUnitSpec extends FlatSpec {
 
   "Request" should "serialise to JSON" in {
     // Given
-    val request = Request(
+    val request = CardinalRequest(
       "https://google.com",
       "POST",
       List("Content-Type: application/json"),
@@ -40,7 +40,7 @@ class RequestUnitSpec extends FlatSpec {
                  |}""".stripMargin
 
     // When
-    val result = Request(json)
+    val result = CardinalRequest(json)
 
     // Then
     result.uri shouldBe "https://google.com"
@@ -51,7 +51,7 @@ class RequestUnitSpec extends FlatSpec {
 
   it should "return Response with #{id} constants replaced" in {
     // Given
-    val request = Request(
+    val request = CardinalRequest(
       "https://google.com/#{id}",
       "POST",
       List("X-Thing: #{id}"),

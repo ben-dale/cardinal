@@ -139,11 +139,11 @@ class Cardinal extends Application {
     getCurrentTab.handleUnsavedChangesMade()
   }
 
-  private def sendRequest(request: Request): HttpResponseWrapper = {
+  private def sendRequest(request: CardinalRequest): CardinalResponse = {
     val startTime = System.currentTimeMillis()
     val response = Http(request).send
     val totalTime = System.currentTimeMillis() - startTime
-    HttpResponseWrapper(response, totalTime)
+    CardinalResponse(response, totalTime)
   }
 
   private def save(onCancel: () => Unit): Unit = {
@@ -177,7 +177,7 @@ class Cardinal extends Application {
         val cardinalView = new CardinalView(showErrorDialog, () => currentConfig, exportToCsv, sendRequest, triggerUnsavedChangesMade)
         cardinalTabs.getTabs.add(CardinalTab(Some(selectedFile), cardinalView))
         cardinalTabs.getSelectionModel.selectLast()
-        cardinalView.loadRequest(Request(lines))
+        cardinalView.loadRequest(CardinalRequest(lines))
         getCurrentTab.setUnsavedChanges(false)
       }
     }
@@ -356,7 +356,7 @@ class Cardinal extends Application {
     }
   }
 
-  def exportToCsv(requestAndResponses: Map[Request, HttpResponseWrapper]): Unit = {
+  def exportToCsv(requestAndResponses: Map[CardinalRequest, CardinalResponse]): Unit = {
     println("hi")
   }
 

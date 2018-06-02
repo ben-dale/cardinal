@@ -5,18 +5,18 @@ import org.json4s.jackson.JsonMethods.parse
 import org.json4s.jackson.Serialization.writePretty
 import uk.co.ridentbyte.Cardinal
 
-object Request {
+object CardinalRequest {
   private implicit val formats: DefaultFormats = DefaultFormats
-  def apply(json: String): Request = parse(json).extract[Request]
+  def apply(json: String): CardinalRequest = parse(json).extract[CardinalRequest]
 }
 
-case class Request(uri: String, verb: String, headers: List[String], body: Option[String]) {
+case class CardinalRequest(uri: String, verb: String, headers: List[String], body: Option[String]) {
   private implicit val formats: DefaultFormats = DefaultFormats
 
   def toJson: String = writePretty(this)
 
-  def withId(id: String): Request = {
-    Request(
+  def withId(id: String): CardinalRequest = {
+    CardinalRequest(
       uri.replaceAll("#\\{id\\}", id),
       verb,
       headers.map(_.replaceAll("#\\{id\\}", id)),
@@ -24,7 +24,7 @@ case class Request(uri: String, verb: String, headers: List[String], body: Optio
     )
   }
 
-  def processConstants(config: Config): Request = {
+  def processConstants(config: Config): CardinalRequest = {
     val vars = config.getEnvironmentVariables
     val newUri = RequestString(uri, vars, Cardinal.vocabulary).process
     val newHeaders = headers.map(h => RequestString(h, vars, Cardinal.vocabulary).process)
@@ -32,7 +32,7 @@ case class Request(uri: String, verb: String, headers: List[String], body: Optio
       case Some(b) => Some(RequestString(b, vars, Cardinal.vocabulary).process)
       case _ => None
     }
-    Request(newUri, verb, newHeaders, newBody)
+    CardinalRequest(newUri, verb, newHeaders, newBody)
   }
 
   def toCurl(config: Config): String = {

@@ -2,7 +2,7 @@ package uk.co.ridentbyte.model
 
 import java.net.{MalformedURLException, URI, URL, URLDecoder}
 
-case class Http(request: Request) {
+case class Http(request: CardinalRequest) {
 
   private def parseURI(rawUri: String): String = {
     val rawUriWithProtocol = try {
