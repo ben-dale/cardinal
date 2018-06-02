@@ -89,13 +89,15 @@ class ResponsePane(getConfigCallback: () => Config,
     val task = new Task[Boolean]() {
       override def call(): Boolean = {
         if (throttle.isDefined && requestCount.isDefined) {
-          1 to requestCount.get foreach { i =>
+          0 until requestCount.get foreach { i =>
             Thread.sleep(throttle.get)
             val r = request.withId(i.toString).processConstants(getConfigCallback())
             val response = sendRequestCallback(r)
             requestsAndResponses.put(r, response)
             updateProgress(i, requestCount.get)
-            Platform.runLater(() => labelDelta.setText(requestsAndResponses.size.toString))
+            Platform.runLater(() => {
+              labelDelta.setText(requestsAndResponses.size.toString)
+            })
           }
           finishedBulkRequestCallback(requestsAndResponses.toMap)
           true
@@ -106,7 +108,9 @@ class ResponsePane(getConfigCallback: () => Config,
             val response = sendRequestCallback(r)
             requestsAndResponses.put(r, response)
             updateProgress(i + 1, ids.get.length.toDouble)
-            Platform.runLater(() => labelDelta.setText(requestsAndResponses.size.toString))
+            Platform.runLater(() => {
+              labelDelta.setText(requestsAndResponses.size.toString)
+            })
           }
           finishedBulkRequestCallback(requestsAndResponses.toMap)
           true
@@ -117,9 +121,19 @@ class ResponsePane(getConfigCallback: () => Config,
     }
 
     val grid = new GridPane
+    grid.setPadding(new Insets(10))
+    grid.getStyleClass.addAll("plain-border", "round-border")
+    grid.getRowConstraints.addAll(
+      RowConstraintsBuilder().withVgrow(Priority.NEVER).build,
+      RowConstraintsBuilder().withVgrow(Priority.NEVER).build,
+      RowConstraintsBuilder().withVgrow(Priority.NEVER).build,
+      RowConstraintsBuilder().withVgrow(Priority.NEVER).build
+    )
+    grid.getColumnConstraints.addAll(
+      ColumnConstraintsBuilder().withPercentageWidth(100).build
+    )
     grid.setHgap(10)
     grid.setVgap(10)
-    grid.setMinWidth(400)
 
     val labelSendingRequest = new Label("Sending requests...")
     GridPane.setHalignment(labelSendingRequest, HPos.CENTER)
@@ -156,72 +170,65 @@ class ResponsePane(getConfigCallback: () => Config,
     val grid = new GridPane
     grid.getStyleClass.addAll("plain-border", "round-border")
     grid.setPadding(new Insets(15))
-    grid.setHgap(10)
-    grid.setVgap(10)
+    grid.setHgap(15)
+    grid.setVgap(15)
 
     grid.getRowConstraints.addAll(
-      RowConstraintsBuilder().withPercentageHeight(70).withVgrow(Priority.ALWAYS).build,
+      RowConstraintsBuilder().withPercentageHeight(65).withVgrow(Priority.ALWAYS).build,
       RowConstraintsBuilder().withVgrow(Priority.ALWAYS).build,
       RowConstraintsBuilder().withVgrow(Priority.NEVER).build
     )
 
-    val httpResponseData: ObservableList[PieChart.Data] = FXCollections.observableArrayList()
-    val allHttpCodes = requestAndResponses.map{ case (_, res) =>
-      res.raw.code
-    }.toList.distinct
+    val xAxis = new NumberAxis
+    xAxis.setForceZeroInRange(true)
+    xAxis.setMinorTickVisible(false)
+    xAxis.setTickLabelsVisible(false)
 
-    allHttpCodes.foreach { httpCode =>
-      val count = requestAndResponses.values.count(_.raw.code == httpCode)
-      val datum = new PieChart.Data("HTTP " + httpCode, count)
-      httpResponseData.add(datum)
+    val yAxis = new NumberAxis
+    yAxis.setTickLabelFormatter(new NumberAxis.DefaultFormatter(yAxis, null, " ms"))
+    yAxis.setForceZeroInRange(true)
+
+    val timeSeries = new XYChart.Series[Number, Number]
+    requestAndResponses.values.zipWithIndex.foreach { case(r, i) =>
+      timeSeries.getData.add(new XYChart.Data(i, r.time))
     }
 
-    val pieChart = new PieChart(httpResponseData)
-    pieChart.setLegendVisible(false)
-    GridPane.setHalignment(pieChart, HPos.CENTER)
-    GridPane.setHgrow(pieChart, Priority.ALWAYS)
-    GridPane.setColumnSpan(pieChart, 2)
-    grid.add(pieChart, 0, 0)
+    val lineChart = new AreaChart[Number, Number](xAxis, yAxis)
+    lineChart.setTitle("Response time")
+    lineChart.setCreateSymbols(false)
+    lineChart.setLegendVisible(false)
+    lineChart.getData.add(timeSeries)
+    GridPane.setHgrow(lineChart, Priority.ALWAYS)
+    GridPane.setColumnSpan(lineChart, 2)
+    grid.add(lineChart, 0, 0)
 
     val allTimes = requestAndResponses.values.map(_.time).toList
     val allTimesSorted = allTimes.sorted
     val averageResponseTime = allTimes.sum / requestAndResponses.values.size
 
+    val responseCodesWithCounts = requestAndResponses.values.groupBy(_.raw.code).map { case (c, r) =>
+      s"HTTP $c.................. ${r.size}"
+    }
     val timings =
       s"""Timings
          |---
          |Average Response Time..... $averageResponseTime ms
          |Fastest Response Time..... ${allTimesSorted.head} ms
-         |Slowest Response Time..... ${allTimesSorted.last} ms""".stripMargin
+         |Slowest Response Time..... ${allTimesSorted.last} ms
+         |
+         |Request/Response Counts
+         |---
+         |Total Responses........... ${requestAndResponses.size}
+         |${responseCodesWithCounts.mkString("\n")}""".stripMargin
 
     val textAreaTimings = new TextArea(timings)
     textAreaTimings.getStyleClass.add("cardinal-font-console")
-    GridPane.setHalignment(textAreaTimings, HPos.CENTER)
     GridPane.setHgrow(textAreaTimings, Priority.ALWAYS)
-    GridPane.setColumnSpan(textAreaTimings, 1)
     grid.add(textAreaTimings, 0, 1)
-
-    val responseCodesWithCounts = requestAndResponses.values.groupBy(_.raw.code).map { case (c, r) =>
-      s"HTTP $c.......... ${r.size}"
-    }
-
-    val responseCounts =
-      s"""Request/Response Counts
-        |---
-        |Total Responses... ${requestAndResponses.size}
-        |${responseCodesWithCounts.mkString("\n")}""".stripMargin
-
-    val textAreaRequestResponseCounts = new TextArea(responseCounts)
-    textAreaRequestResponseCounts.getStyleClass.add("cardinal-font-console")
-    GridPane.setHalignment(textAreaRequestResponseCounts, HPos.CENTER)
-    GridPane.setHgrow(textAreaRequestResponseCounts, Priority.ALWAYS)
-    GridPane.setColumnSpan(textAreaRequestResponseCounts, 1)
-    grid.add(textAreaRequestResponseCounts, 1, 1)
 
     val exportButton = new Button("Export to CSV...")
     exportButton.setOnAction(_ => exportToCsv(requestAndResponses))
     GridPane.setHalignment(exportButton, HPos.CENTER)
-    GridPane.setColumnSpan(exportButton, 2)
     grid.add(exportButton, 0, 2)
 
     Platform.runLater(() => setCenter(grid))

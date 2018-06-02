@@ -31,3 +31,7 @@
 .info {
     -fx-padding: 20;
 }
+
+.default-color0.chart-area-symbol { -fx-background-color: #00a0d8, #00a0d8; }
+.default-color0.chart-series-area-line { -fx-stroke: #00a0d877; }
+.default-color0.chart-series-area-fill { -fx-fill: #00a0d833; }
