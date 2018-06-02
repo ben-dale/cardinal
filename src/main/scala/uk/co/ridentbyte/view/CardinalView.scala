@@ -10,13 +10,14 @@ import uk.co.ridentbyte.view.request.{RequestControlPane, RequestInputPane}
 import uk.co.ridentbyte.view.response.ResponsePane
 import uk.co.ridentbyte.view.util.{ColumnConstraintsBuilder, RowConstraintsBuilder}
 
-class CardinalView(showErrorDialogCallback:(String) => Unit,
+class CardinalView(showErrorDialogCallback: String => Unit,
                    getConfigCallback: () => Config,
-                   sendRequestCallback: (Request) => HttpResponseWrapper,
+                   exportToCsv: Map[Request, HttpResponseWrapper] => Unit,
+                   sendRequestCallback: Request => HttpResponseWrapper,
                    triggerUnsavedChangesMade: () => Unit) extends BorderPane {
 
   private val requestInputPane = new RequestInputPane(triggerUnsavedChangesMade)
-  private val responsePane = new ResponsePane(getConfigCallback, sendRequestCallback, showErrorDialogCallback)
+  private val responsePane = new ResponsePane(getConfigCallback, sendRequestCallback, exportToCsv, showErrorDialogCallback)
   private val requestControlPane = new RequestControlPane(sendRequestAndLoadResponse, showBulkRequestInput)
 
   val grid = new GridPane

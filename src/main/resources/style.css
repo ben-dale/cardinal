@@ -9,9 +9,19 @@
     -fx-font-size: 13;
 }
 
+.cardinal-font-console {
+    -fx-font-family: "Courier";
+    -fx-font-size: 13;
+}
+
 .dashed-border {
     -fx-border-color: lightgrey;
     -fx-border-style: dashed;
+}
+
+.plain-border {
+    -fx-border-color: lightgrey;
+    -fx-border-style: solid;
 }
 
 .round-border {

@@ -13,8 +13,9 @@ import uk.co.ridentbyte.view.dialog.BulkRequestInputDialog
 import uk.co.ridentbyte.view.util.{ColumnConstraintsBuilder, RowConstraintsBuilder}
 
 class ResponsePane(getConfigCallback: () => Config,
-                   sendRequestCallback: (Request) => HttpResponseWrapper,
-                   showErrorDialogCallback: (String) => Unit) extends BorderPane {
+                   sendRequestCallback: Request => HttpResponseWrapper,
+                   exportToCsv: Map[Request, HttpResponseWrapper] => Unit,
+                   showErrorDialogCallback: String => Unit) extends BorderPane {
 
   setPadding(new Insets(20, 20, 20, 0))
   clearContents()
@@ -82,8 +83,7 @@ class ResponsePane(getConfigCallback: () => Config,
   }
 
   def startBulkRequest(request: Request, throttle: Option[Long], requestCount: Option[Int], ids: Option[List[String]]): Unit = {
-    var allResponses = collection.mutable.ListBuffer.empty[HttpResponseWrapper]
-
+    val requestsAndResponses = collection.mutable.Map.empty[Request, HttpResponseWrapper]
     val labelDelta = new Label()
 
     val task = new Task[Boolean]() {
@@ -93,22 +93,22 @@ class ResponsePane(getConfigCallback: () => Config,
             Thread.sleep(throttle.get)
             val r = request.withId(i.toString).processConstants(getConfigCallback())
             val response = sendRequestCallback(r)
-            allResponses += response
+            requestsAndResponses.put(r, response)
             updateProgress(i, requestCount.get)
-            Platform.runLater(() => labelDelta.setText(allResponses.length.toString))
+            Platform.runLater(() => labelDelta.setText(requestsAndResponses.size.toString))
           }
-          finishedBulkRequestCallback(allResponses.toList)
+          finishedBulkRequestCallback(requestsAndResponses.toMap)
           true
         } else if (throttle.isDefined && ids.isDefined) {
           ids.get.zipWithIndex.foreach { case (id, i) =>
             Thread.sleep(throttle.get)
             val r = request.withId(id).processConstants(getConfigCallback())
             val response = sendRequestCallback(r)
-            allResponses += response
+            requestsAndResponses.put(r, response)
             updateProgress(i + 1, ids.get.length.toDouble)
-            Platform.runLater(() => labelDelta.setText(allResponses.length.toString))
+            Platform.runLater(() => labelDelta.setText(requestsAndResponses.size.toString))
           }
-          finishedBulkRequestCallback(allResponses.toList)
+          finishedBulkRequestCallback(requestsAndResponses.toMap)
           true
         } else {
           false
@@ -140,9 +140,9 @@ class ResponsePane(getConfigCallback: () => Config,
     grid.add(labelDelta, 0, 2)
 
     val buttonAbort = new Button("Abort")
-    buttonAbort.setOnAction((_) => {
+    buttonAbort.setOnAction(_ => {
       task.cancel()
-      finishedBulkRequestCallback(allResponses.toList)
+      finishedBulkRequestCallback(requestsAndResponses.toMap)
     })
     GridPane.setHalignment(buttonAbort, HPos.CENTER)
     grid.add(buttonAbort, 0, 3)
@@ -152,31 +152,77 @@ class ResponsePane(getConfigCallback: () => Config,
     new Thread(task).start()
   }
 
-  def finishedBulkRequestCallback(responses: List[HttpResponseWrapper]): Unit = {
+  def finishedBulkRequestCallback(requestAndResponses: Map[Request, HttpResponseWrapper]): Unit = {
     val grid = new GridPane
+    grid.getStyleClass.addAll("plain-border", "round-border")
+    grid.setPadding(new Insets(15))
     grid.setHgap(10)
     grid.setVgap(10)
-    grid.setMinWidth(500)
+
+    grid.getRowConstraints.addAll(
+      RowConstraintsBuilder().withPercentageHeight(70).withVgrow(Priority.ALWAYS).build,
+      RowConstraintsBuilder().withVgrow(Priority.ALWAYS).build,
+      RowConstraintsBuilder().withVgrow(Priority.NEVER).build
+    )
 
     val httpResponseData: ObservableList[PieChart.Data] = FXCollections.observableArrayList()
-    val allHttpCodes = responses.map(_.httpResponse.code).distinct
+    val allHttpCodes = requestAndResponses.map{ case (_, res) =>
+      res.httpResponse.code
+    }.toList.distinct
+
     allHttpCodes.foreach { httpCode =>
-      val count = responses.count(_.httpResponse.code == httpCode)
+      val count = requestAndResponses.values.count(_.httpResponse.code == httpCode)
       val datum = new PieChart.Data("HTTP " + httpCode, count)
       httpResponseData.add(datum)
     }
 
     val pieChart = new PieChart(httpResponseData)
+    pieChart.setLegendVisible(false)
     GridPane.setHalignment(pieChart, HPos.CENTER)
     GridPane.setHgrow(pieChart, Priority.ALWAYS)
+    GridPane.setColumnSpan(pieChart, 2)
     grid.add(pieChart, 0, 0)
 
-    val averageResponseTime = responses.map(_.time).sum / responses.size
-    val averageResponseTimeLabel = new Label("Average response time: " + averageResponseTime + " ms")
-    GridPane.setHalignment(averageResponseTimeLabel, HPos.CENTER)
-    GridPane.setVgrow(averageResponseTimeLabel, Priority.ALWAYS)
-    GridPane.setHgrow(averageResponseTimeLabel, Priority.NEVER)
-    grid.add(averageResponseTimeLabel, 0, 1)
+    val allTimes = requestAndResponses.values.map(_.time).toList
+    val allTimesSorted = allTimes.sorted
+    val averageResponseTime = allTimes.sum / requestAndResponses.values.size
+
+    val timings =
+      s"""Timings
+         |---
+         |Average Response Time..... $averageResponseTime ms
+         |Fastest Response Time..... ${allTimesSorted.head} ms
+         |Slowest Response Time..... ${allTimesSorted.last} ms""".stripMargin
+
+    val textAreaTimings = new TextArea(timings)
+    textAreaTimings.getStyleClass.add("cardinal-font-console")
+    GridPane.setHalignment(textAreaTimings, HPos.CENTER)
+    GridPane.setHgrow(textAreaTimings, Priority.ALWAYS)
+    GridPane.setColumnSpan(textAreaTimings, 1)
+    grid.add(textAreaTimings, 0, 1)
+
+    val responseCodesWithCounts = requestAndResponses.values.groupBy(_.httpResponse.code).map { case (c, r) =>
+      s"HTTP $c.......... ${r.size}"
+    }
+
+    val responseCounts =
+      s"""Request/Response Counts
+        |---
+        |Total Responses... ${requestAndResponses.size}
+        |${responseCodesWithCounts.mkString("\n")}""".stripMargin
+
+    val textAreaRequestResponseCounts = new TextArea(responseCounts)
+    textAreaRequestResponseCounts.getStyleClass.add("cardinal-font-console")
+    GridPane.setHalignment(textAreaRequestResponseCounts, HPos.CENTER)
+    GridPane.setHgrow(textAreaRequestResponseCounts, Priority.ALWAYS)
+    GridPane.setColumnSpan(textAreaRequestResponseCounts, 1)
+    grid.add(textAreaRequestResponseCounts, 1, 1)
+
+    val exportButton = new Button("Export to CSV...")
+    exportButton.setOnAction(_ => exportToCsv(requestAndResponses))
+    GridPane.setHalignment(exportButton, HPos.CENTER)
+    GridPane.setColumnSpan(exportButton, 2)
+    grid.add(exportButton, 0, 2)
 
     Platform.runLater(() => setCenter(grid))
   }
