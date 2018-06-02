@@ -1,7 +1,6 @@
 package uk.co.ridentbyte.view.response
 
 import javafx.application.Platform
-import javafx.collections.{FXCollections, ObservableList}
 import javafx.concurrent.Task
 import javafx.geometry.{HPos, Insets}
 import javafx.scene.chart._
@@ -74,7 +73,7 @@ class ResponsePane(getConfigCallback: () => Config,
     val bulkRequestResult = bulkRequestInputDialog.showAndWait()
     if (bulkRequestResult != null && bulkRequestResult.isPresent) {
       if (bulkRequestResult.get.throttle.isEmpty || (bulkRequestResult.get.count.isEmpty && bulkRequestResult.get.ids.isEmpty)) {
-        showErrorDialogCallback("Error bro")
+        showErrorDialogCallback("Invalid input. \nPlease provide a throttle and either a request count or a range value.")
         showBulkRequestInput(request, Some(bulkRequestResult.get))
       } else {
         startBulkRequest(request, bulkRequestResult.get.throttle, bulkRequestResult.get.count, bulkRequestResult.get.ids)
@@ -174,7 +173,7 @@ class ResponsePane(getConfigCallback: () => Config,
     grid.setVgap(15)
 
     grid.getRowConstraints.addAll(
-      RowConstraintsBuilder().withPercentageHeight(65).withVgrow(Priority.ALWAYS).build,
+      RowConstraintsBuilder().withPercentageHeight(70).withVgrow(Priority.ALWAYS).build,
       RowConstraintsBuilder().withVgrow(Priority.ALWAYS).build,
       RowConstraintsBuilder().withVgrow(Priority.NEVER).build
     )
@@ -194,7 +193,7 @@ class ResponsePane(getConfigCallback: () => Config,
     }
 
     val lineChart = new AreaChart[Number, Number](xAxis, yAxis)
-    lineChart.setTitle("Response time")
+    lineChart.setTitle("Response time over time")
     lineChart.setCreateSymbols(false)
     lineChart.setLegendVisible(false)
     lineChart.getData.add(timeSeries)
