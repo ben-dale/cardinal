@@ -8,6 +8,9 @@ import uk.co.ridentbyte.Cardinal
 object CardinalRequest {
   private implicit val formats: DefaultFormats = DefaultFormats
   def apply(json: String): CardinalRequest = parse(json).extract[CardinalRequest]
+  def csvHeaders: String = {
+    "requestUri,requestVerb,requestHeaders,requestBody"
+  }
 }
 
 case class CardinalRequest(uri: String, verb: String, headers: List[String], body: Option[String]) {
@@ -37,6 +40,10 @@ case class CardinalRequest(uri: String, verb: String, headers: List[String], bod
 
   def toCurl(config: Config): String = {
     Curl(uri, verb, body, headers, config.getEnvironmentVariables).toCommand
+  }
+
+  def toCSV: String = {
+    s""""${uri.replace("\"", "\"\"")}","$verb","${headers.mkString("\n").replace("\"", "\"\"")}","${body.getOrElse("").replace("\"", "\"\"")}""""
   }
 
 }

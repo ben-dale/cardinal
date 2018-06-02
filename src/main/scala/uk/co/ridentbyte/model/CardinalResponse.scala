@@ -17,6 +17,15 @@ case class CardinalResponse(raw: HttpResponse[String], time: Long) {
       }
       case _ => raw.body
     }
+  }
 
+  def toCSV: String = {
+    s""""${raw.code}","${raw.headers.map(h => h._1 + ":" + h._2.head).mkString("\n").replace("\"", "\"\"")}","${raw.body.replace("\"", "\"\"")}","$time""""
+  }
+}
+
+object CardinalResponse {
+  def csvHeaders: String = {
+    "responseCode,responseHeaders,responseBody,responseTime (ms)"
   }
 }
