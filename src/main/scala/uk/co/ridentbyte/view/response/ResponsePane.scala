@@ -94,7 +94,7 @@ class ResponsePane(getConfigCallback: () => Config,
             val r = request.withId(i.toString).processConstants(getConfigCallback())
             val response = sendRequestCallback(r)
             requestsAndResponses.put(r, response)
-            updateProgress(i, requestCount.get)
+            updateProgress(i + 1, requestCount.get)
             Platform.runLater(() => {
               labelDelta.setText(requestsAndResponses.size.toString)
             })
