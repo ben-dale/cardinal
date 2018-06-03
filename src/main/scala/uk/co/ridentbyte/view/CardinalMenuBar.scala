@@ -3,7 +3,6 @@ package uk.co.ridentbyte.view
 import javafx.scene.control.{Menu, MenuBar, MenuItem}
 
 class CardinalMenuBar(newTab: () => Unit,
-                      showAsCurl: () => Unit,
                       open:() => Unit,
                       save: (() => Unit) => Unit,
                       saveAs: (() => Unit) => Unit,
@@ -40,15 +39,6 @@ class CardinalMenuBar(newTab: () => Unit,
   menuFile.getItems.add(menuItemClearAll)
 
   getMenus.add(menuFile)
-
-  // *** EXPORT ***
-  private val menuExport = new Menu("Export")
-
-  private val menuItemExportAsCurl = new MenuItem("Export as cURL")
-  menuItemExportAsCurl.setOnAction(_ => showAsCurl())
-  menuExport.getItems.add(menuItemExportAsCurl)
-
-  getMenus.add(menuExport)
 
   // *** AUTHORISATION ***
   private val menuAuthorisation = new Menu("Auth")

@@ -40,7 +40,7 @@ class Cardinal extends Application {
   private val configLocation: String = System.getProperty("user.home") + "/.cardinal_config.json"
   private var currentConfig: Config = _
   private var currentStage: Stage = _
-  private val menuBar = new CardinalMenuBar(newTab, showAsCurl, open, save, saveAs, clearAll, showEnvironmentVariablesInput, showFormUrlEncodedInput, showBasicAuthInput)
+  private val menuBar = new CardinalMenuBar(newTab, open, save, saveAs, clearAll, showEnvironmentVariablesInput, showFormUrlEncodedInput, showBasicAuthInput)
   private val cardinalTabs = new TabPane()
 
   override def start(primaryStage: Stage): Unit = {
@@ -174,7 +174,7 @@ class Cardinal extends Application {
     if (selectedFiles != null) {
       selectedFiles.asScala.foreach { selectedFile =>
         val lines = scala.io.Source.fromFile(selectedFile).getLines().mkString
-        val cardinalView = new CardinalView(showErrorDialog, () => currentConfig, exportToCsv, sendRequest, triggerUnsavedChangesMade)
+        val cardinalView = new CardinalView(showAsCurl, showErrorDialog, () => currentConfig, exportToCsv, sendRequest, triggerUnsavedChangesMade)
         cardinalTabs.getTabs.add(CardinalTab(Some(selectedFile), cardinalView))
         cardinalTabs.getSelectionModel.selectLast()
         cardinalView.loadRequest(CardinalRequest(lines))
@@ -184,7 +184,7 @@ class Cardinal extends Application {
   }
 
   private def newTab(): Unit = {
-    cardinalTabs.getTabs.add(CardinalTab(None, new CardinalView(showErrorDialog, () => currentConfig, exportToCsv, sendRequest, triggerUnsavedChangesMade)))
+    cardinalTabs.getTabs.add(CardinalTab(None, new CardinalView(showAsCurl, showErrorDialog, () => currentConfig, exportToCsv, sendRequest, triggerUnsavedChangesMade)))
     cardinalTabs.getSelectionModel.selectLast()
   }
 
@@ -209,7 +209,7 @@ class Cardinal extends Application {
           // Existing file so save and open in new tab
           val request = currentTab.content.getRequest
           writeToFile(fileWithExtension, request.toJson)
-          val cardinalView = new CardinalView(showErrorDialog, () => currentConfig, exportToCsv, sendRequest, triggerUnsavedChangesMade)
+          val cardinalView = new CardinalView(showAsCurl, showErrorDialog, () => currentConfig, exportToCsv, sendRequest, triggerUnsavedChangesMade)
           cardinalTabs.getTabs.add(CardinalTab(Some(fileWithExtension), cardinalView))
           cardinalTabs.getSelectionModel.selectLast()
           cardinalView.loadRequest(request)

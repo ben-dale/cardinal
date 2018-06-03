@@ -5,19 +5,28 @@ import javafx.geometry.HPos
 import javafx.scene.control.Button
 import javafx.scene.layout._
 
-class RequestControlPane(sendRequestCallback: (() => Unit, () => Unit) => Unit, showBulkRequestCallback: () => Unit) extends GridPane {
+class RequestControlPane(exportToCurl: () => Unit,
+                         sendRequest: (() => Unit, () => Unit) => Unit,
+                         showBulkRequest: () => Unit) extends GridPane {
 
   setHgap(10)
   setVgap(10)
   getStyleClass.add("control-pane")
 
+  private val buttonExportToCurl = new Button("As cURL")
+  buttonExportToCurl.getStyleClass.add("cardinal-font")
+  GridPane.setVgrow(buttonExportToCurl, Priority.NEVER)
+  GridPane.setHgrow(buttonExportToCurl, Priority.ALWAYS)
+  GridPane.setHalignment(buttonExportToCurl, HPos.RIGHT)
+  buttonExportToCurl.setOnAction(_ => exportToCurl())
+  add(buttonExportToCurl, 0, 0)
+
   private val buttonSendBulkRequest = new Button("Send Bulk Request...")
   buttonSendBulkRequest.getStyleClass.add("cardinal-font")
   GridPane.setVgrow(buttonSendBulkRequest, Priority.NEVER)
-  GridPane.setHgrow(buttonSendBulkRequest, Priority.ALWAYS)
-  GridPane.setHalignment(buttonSendBulkRequest, HPos.RIGHT)
-  buttonSendBulkRequest.setOnAction(_ => showBulkRequestCallback())
-  add(buttonSendBulkRequest, 0, 0)
+  GridPane.setHgrow(buttonSendBulkRequest, Priority.NEVER)
+  buttonSendBulkRequest.setOnAction(_ => showBulkRequest())
+  add(buttonSendBulkRequest, 1, 0)
 
   private val buttonSendRequest = new Button("Send Request")
   buttonSendRequest.setMinWidth(120)
@@ -41,8 +50,8 @@ class RequestControlPane(sendRequestCallback: (() => Unit, () => Unit) => Unit, 
       })
     }
 
-    sendRequestCallback(onStart, onFinish)
+    sendRequest(onStart, onFinish)
   })
-  add(buttonSendRequest, 1, 0)
+  add(buttonSendRequest, 2, 0)
 
 }

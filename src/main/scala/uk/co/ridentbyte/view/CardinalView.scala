@@ -10,7 +10,8 @@ import uk.co.ridentbyte.view.request.{RequestControlPane, RequestInputPane}
 import uk.co.ridentbyte.view.response.ResponsePane
 import uk.co.ridentbyte.view.util.{ColumnConstraintsBuilder, RowConstraintsBuilder}
 
-class CardinalView(showErrorDialogCallback: String => Unit,
+class CardinalView(showAsCurl: () => Unit,
+                   showErrorDialogCallback: String => Unit,
                    getConfigCallback: () => Config,
                    exportToCsv: Map[CardinalRequest, CardinalResponse] => Unit,
                    sendRequestCallback: CardinalRequest => CardinalResponse,
@@ -18,7 +19,7 @@ class CardinalView(showErrorDialogCallback: String => Unit,
 
   private val requestInputPane = new RequestInputPane(triggerUnsavedChangesMade)
   private val responsePane = new ResponsePane(getConfigCallback, sendRequestCallback, exportToCsv, showErrorDialogCallback)
-  private val requestControlPane = new RequestControlPane(sendRequestAndLoadResponse, showBulkRequestInput)
+  private val requestControlPane = new RequestControlPane(showAsCurl, sendRequestAndLoadResponse, showBulkRequestInput)
 
   val grid = new GridPane
   grid.getColumnConstraints.add(ColumnConstraintsBuilder().withHgrow(Priority.ALWAYS).withPercentageWidth(45).build)
