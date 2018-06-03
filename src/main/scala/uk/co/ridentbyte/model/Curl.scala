@@ -6,7 +6,7 @@ case class Curl(uri: String, verb: String, body: Option[String], headers: List[S
 
   def toCommand: String = {
     val sb = new StringBuilder
-    sb.append("curl ")
+    sb.append("curl -i ")
 
     headers.foreach { header =>
       sb.append(s"""-H '${RequestString(header, envVars, Cardinal.vocabulary).process}' """)
