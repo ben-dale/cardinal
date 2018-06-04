@@ -1,10 +1,6 @@
-package uk.co.ridentbyte
+package uk.co.ridentbyte.model
 
 import org.scalatest.FlatSpec
-import org.scalatest.Matchers._
-import uk.co.ridentbyte.model.{Words, RequestString}
-
-import scala.util.Random
 
 class RequestStringUnitSpec extends FlatSpec {
 

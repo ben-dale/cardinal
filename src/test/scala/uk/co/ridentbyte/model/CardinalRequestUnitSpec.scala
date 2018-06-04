@@ -1,9 +1,7 @@
-package uk.co.ridentbyte
+package uk.co.ridentbyte.model
 
 import org.scalatest.FlatSpec
 import org.scalatest.Matchers._
-
-import uk.co.ridentbyte.model.CardinalRequest
 
 class CardinalRequestUnitSpec extends FlatSpec {
 
