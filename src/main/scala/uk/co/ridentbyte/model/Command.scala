@@ -19,7 +19,7 @@ case class Command(private val command: String) {
       .getOrElse(command)
   }
 
-  def rawCommand = command
+  def rawCommand: String = command
 
   def processWith(variables: Map[String, () => String], prev: Option[String] = None, r: Random = new Random()): String = {
     val rawContents = prev.getOrElse(contents)
@@ -48,6 +48,7 @@ case class Command(private val command: String) {
           val processedValues = splitValues.map { v => processWith(variables, Some(v.trim)) }
           processedValues(r.nextInt(processedValues.length))
         case v if v.matches(rawString) => v.replace("\"", "")
+        case v => v
       }
     }
   }
