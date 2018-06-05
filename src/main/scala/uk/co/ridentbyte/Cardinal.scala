@@ -46,7 +46,7 @@ class Cardinal extends Application {
   private val newRequestTab = new Tab("+")
   newRequestTab.setClosable(false)
   newRequestTab.setOnSelectionChanged(e => {
-    if (e.getSource == newRequestTab) {
+    if (e.getSource.asInstanceOf[Tab] == newRequestTab) {
       newTab()
     }
   })
@@ -181,8 +181,7 @@ class Cardinal extends Application {
       selectedFiles.asScala.foreach { selectedFile =>
         val lines = scala.io.Source.fromFile(selectedFile).getLines().mkString
         val cardinalView = new CardinalView(showAsCurl, showErrorDialog, () => currentConfig, exportToCsv, sendRequest, triggerUnsavedChangesMade)
-        cardinalTabs.getTabs.add(CardinalTab(Some(selectedFile), cardinalView))
-        cardinalTabs.getSelectionModel.selectLast()
+        addTab(CardinalTab(Some(selectedFile), cardinalView))
         cardinalView.loadRequest(CardinalRequest(lines))
         getCurrentTab.setUnsavedChanges(false)
       }
@@ -195,13 +194,6 @@ class Cardinal extends Application {
       CardinalTab(None, new CardinalView(showAsCurl, showErrorDialog, () => currentConfig, exportToCsv, sendRequest, triggerUnsavedChangesMade))
     )
     cardinalTabs.getSelectionModel.select(cardinalTabs.getTabs.size() - 2)
-//    newTabTab.setOnSelectionChanged(e => {
-//      if (e.getSource.asInstanceOf[Tab] == newTabTab) {
-//        cardinalTabs.getTabs.add(CardinalTab(None, new CardinalView(showAsCurl, showErrorDialog, () => currentConfig, exportToCsv, sendRequest, triggerUnsavedChangesMade)))
-//        cardinalTabs.getSelectionModel.select(cardinalTabs.getTabs.size() - 2)
-//      }
-//    })
-//    cardinalTabs.getSelectionModel.select(cardinalTabs.getTabs.size() - 2)
   }
 
   private def saveAs(onCancel: () => Unit): Unit = {
@@ -226,8 +218,7 @@ class Cardinal extends Application {
           val request = currentTab.content.getRequest
           writeToFile(fileWithExtension, request.toJson)
           val cardinalView = new CardinalView(showAsCurl, showErrorDialog, () => currentConfig, exportToCsv, sendRequest, triggerUnsavedChangesMade)
-          cardinalTabs.getTabs.add(CardinalTab(Some(fileWithExtension), cardinalView))
-          cardinalTabs.getSelectionModel.selectLast()
+          addTab(CardinalTab(Some(fileWithExtension), cardinalView))
           cardinalView.loadRequest(request)
           getCurrentTab.setUnsavedChanges(false)
         }
@@ -385,6 +376,11 @@ class Cardinal extends Application {
       }
       writeToFile(fileWithExtension, header + "\n" + content)
     }
+  }
+
+  def addTab(tab: Tab): Unit = {
+    cardinalTabs.getTabs.add(cardinalTabs.getTabs.size - 1, tab)
+    cardinalTabs.getSelectionModel.select(cardinalTabs.getTabs.size() - 2)
   }
 
 }
