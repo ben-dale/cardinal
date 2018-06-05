@@ -54,4 +54,16 @@ class RequestControlPane(exportToCurl: () => Unit,
   })
   add(buttonSendRequest, 2, 0)
 
+  def lock(): Unit = {
+    buttonExportToCurl.setDisabled(true)
+    buttonSendBulkRequest.setDisabled(true)
+    buttonSendRequest.setDisabled(true)
+  }
+
+  def unlock(): Unit = {
+    buttonExportToCurl.setDisabled(false)
+    buttonSendBulkRequest.setDisabled(false)
+    buttonSendRequest.setDisabled(false)
+  }
+
 }
