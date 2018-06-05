@@ -203,7 +203,7 @@ class ResponsePane(getConfigCallback: () => Config,
 
     val allTimes = requestAndResponses.values.map(_.time).toList
     val allTimesSorted = allTimes.sorted
-    val averageResponseTime = allTimes.sum / requestAndResponses.values.size
+    val averageResponseTime = allTimes.sum / (if (requestAndResponses.values.isEmpty) 1 else requestAndResponses.values.size)
 
     val responseCodesWithCounts = requestAndResponses.values.groupBy(_.raw.code).map { case (c, r) =>
       s"HTTP $c.................. ${r.size}"
@@ -212,8 +212,8 @@ class ResponsePane(getConfigCallback: () => Config,
       s"""Timings
          |---
          |Average Response Time..... $averageResponseTime ms
-         |Fastest Response Time..... ${allTimesSorted.head} ms
-         |Slowest Response Time..... ${allTimesSorted.last} ms
+         |Fastest Response Time..... ${allTimesSorted.headOption.getOrElse(0)} ms
+         |Slowest Response Time..... ${allTimesSorted.lastOption.getOrElse(0)} ms
          |
          |Request/Response Counts
          |---
