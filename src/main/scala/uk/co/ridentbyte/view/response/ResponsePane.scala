@@ -13,7 +13,7 @@ import uk.co.ridentbyte.view.util.{ColumnConstraintsBuilder, RowConstraintsBuild
 
 class ResponsePane(getConfigCallback: () => Config,
                    sendRequestCallback: CardinalRequest => CardinalResponse,
-                   exportToCsv: Map[CardinalRequest, CardinalResponse] => Unit,
+                   exportToCsv: List[(CardinalRequest, Option[CardinalResponse])] => Unit,
                    showErrorDialogCallback: String => Unit) extends BorderPane {
 
   setPadding(new Insets(20, 20, 20, 0))
@@ -82,7 +82,7 @@ class ResponsePane(getConfigCallback: () => Config,
   }
 
   def startBulkRequest(request: CardinalRequest, throttle: Option[Long], requestCount: Option[Int], ids: Option[List[String]]): Unit = {
-    val requestsAndResponses = collection.mutable.Map.empty[CardinalRequest, CardinalResponse]
+    var requestsAndResponses = collection.mutable.ListBuffer.empty[(CardinalRequest, Option[CardinalResponse])]
     val labelDelta = new Label()
 
     val task = new Task[Boolean]() {
@@ -91,27 +91,47 @@ class ResponsePane(getConfigCallback: () => Config,
           0 until requestCount.get foreach { i =>
             Thread.sleep(throttle.get)
             val r = request.withId(i.toString).processConstants(getConfigCallback())
-            val response = sendRequestCallback(r)
-            requestsAndResponses.put(r, response)
-            updateProgress(i + 1, requestCount.get)
-            Platform.runLater(() => {
-              labelDelta.setText(requestsAndResponses.size.toString)
-            })
+            try {
+              val response = sendRequestCallback(r)
+              requestsAndResponses += ((r, Some(response)))
+              updateProgress(i + 1, requestCount.get)
+              Platform.runLater(() => {
+                labelDelta.setText(i.toString)
+              })
+            } catch {
+              case _: Exception =>
+                // Todo - update exception log to show on screen?
+                requestsAndResponses += ((r, None))
+                updateProgress(i + 1, requestCount.get)
+                Platform.runLater(() => {
+                  labelDelta.setText((i + 1).toString)
+                })
+            }
           }
-          finishedBulkRequestCallback(requestsAndResponses.toMap)
+          finishedBulkRequestCallback(requestsAndResponses.toList)
           true
         } else if (throttle.isDefined && ids.isDefined) {
           ids.get.zipWithIndex.foreach { case (id, i) =>
             Thread.sleep(throttle.get)
             val r = request.withId(id).processConstants(getConfigCallback())
-            val response = sendRequestCallback(r)
-            requestsAndResponses.put(r, response)
-            updateProgress(i + 1, ids.get.length.toDouble)
-            Platform.runLater(() => {
-              labelDelta.setText(requestsAndResponses.size.toString)
-            })
+            try {
+              val response = sendRequestCallback(r)
+              requestsAndResponses += ((r, Some(response)))
+              updateProgress(i + 1, ids.get.length.toDouble)
+              Platform.runLater(() => {
+                labelDelta.setText((i + 1).toString)
+              })
+            } catch {
+              case _: Exception =>
+                // Todo - update exception log to show on screen?
+                requestsAndResponses += ((r, None))
+                updateProgress(i + 1, ids.get.length.toDouble)
+                Platform.runLater(() => {
+                  labelDelta.setText((i + 1).toString)
+                })
+            }
           }
-          finishedBulkRequestCallback(requestsAndResponses.toMap)
+          finishedBulkRequestCallback(requestsAndResponses.toList)
           true
         } else {
           false
@@ -155,7 +175,7 @@ class ResponsePane(getConfigCallback: () => Config,
     val buttonAbort = new Button("Abort")
     buttonAbort.setOnAction(_ => {
       task.cancel()
-      finishedBulkRequestCallback(requestsAndResponses.toMap)
+      finishedBulkRequestCallback(requestsAndResponses.toList)
     })
     GridPane.setHalignment(buttonAbort, HPos.CENTER)
     grid.add(buttonAbort, 0, 3)
@@ -165,7 +185,11 @@ class ResponsePane(getConfigCallback: () => Config,
     new Thread(task).start()
   }
 
-  def finishedBulkRequestCallback(requestAndResponses: Map[CardinalRequest, CardinalResponse]): Unit = {
+  def finishedBulkRequestCallback(requestAndResponses: List[(CardinalRequest, Option[CardinalResponse])]): Unit = {
+
+//    val requests = requestAndResponses.map(_._1)
+    val responses = requestAndResponses.map(_._2)
+
     val grid = new GridPane
     grid.getStyleClass.addAll("plain-border", "round-border")
     grid.setPadding(new Insets(15))
@@ -188,8 +212,10 @@ class ResponsePane(getConfigCallback: () => Config,
     yAxis.setForceZeroInRange(true)
 
     val timeSeries = new XYChart.Series[Number, Number]
-    requestAndResponses.values.zipWithIndex.foreach { case(r, i) =>
-      timeSeries.getData.add(new XYChart.Data(i, r.time))
+    responses.zipWithIndex.foreach { case(r, i) =>
+      if (r.isDefined) {
+        timeSeries.getData.add(new XYChart.Data(i, r.get.time))
+      }
     }
 
     val lineChart = new AreaChart[Number, Number](xAxis, yAxis)
@@ -201,13 +227,20 @@ class ResponsePane(getConfigCallback: () => Config,
     GridPane.setColumnSpan(lineChart, 2)
     grid.add(lineChart, 0, 0)
 
-    val allTimes = requestAndResponses.values.map(_.time).toList
+    val allTimes = responses.filter(_.isDefined).map(_.get.time)
     val allTimesSorted = allTimes.sorted
-    val averageResponseTime = allTimes.sum / (if (requestAndResponses.values.isEmpty) 1 else requestAndResponses.values.size)
+    val averageResponseTime = if (responses.isEmpty) 0 else allTimes.sum / responses.size
 
-    val responseCodesWithCounts = requestAndResponses.values.groupBy(_.raw.code).map { case (c, r) =>
-      s"HTTP $c.................. ${r.size}"
+    val responseCodesWithCounts = responses.filter(_.isDefined).groupBy(_.get.raw.code)
+
+    val requestCountsOutput = if (responseCodesWithCounts.isEmpty) {
+      List("No responses")
+    } else {
+      responseCodesWithCounts.map { case (c, r) =>
+        s"HTTP $c.................. ${r.size}"
+      }
     }
+
     val timings =
       s"""Timings
          |---
@@ -217,8 +250,7 @@ class ResponsePane(getConfigCallback: () => Config,
          |
          |Request/Response Counts
          |---
-         |Total Responses........... ${requestAndResponses.size}
-         |${responseCodesWithCounts.mkString("\n")}""".stripMargin
+         |${requestCountsOutput.mkString("\n")}""".stripMargin
 
     val textAreaTimings = new TextArea(timings)
     textAreaTimings.getStyleClass.add("cardinal-font-console")

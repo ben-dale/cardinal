@@ -13,7 +13,7 @@ import uk.co.ridentbyte.view.util.{ColumnConstraintsBuilder, RowConstraintsBuild
 class CardinalView(showAsCurl: () => Unit,
                    showErrorDialogCallback: String => Unit,
                    getConfigCallback: () => Config,
-                   exportToCsv: Map[CardinalRequest, CardinalResponse] => Unit,
+                   exportToCsv: List[(CardinalRequest, Option[CardinalResponse])] => Unit,
                    sendRequestCallback: CardinalRequest => CardinalResponse,
                    triggerUnsavedChangesMade: () => Unit) extends BorderPane {
 

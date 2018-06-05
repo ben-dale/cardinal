@@ -5,7 +5,7 @@ import org.json4s.jackson.JsonMethods.parse
 import org.json4s.jackson.Serialization.writePretty
 import scalaj.http.HttpResponse
 
-case class CardinalResponse(raw: HttpResponse[String], time: Long) {
+class CardinalResponse(val raw: HttpResponse[String], val time: Long) {
   private implicit val formats: DefaultFormats = DefaultFormats
 
   def formattedBody: String = {
@@ -22,6 +22,11 @@ case class CardinalResponse(raw: HttpResponse[String], time: Long) {
   def toCSV: String = {
     s""""${raw.code}","${raw.headers.map(h => h._1 + ":" + h._2.head).mkString("\n").replace("\"", "\"\"")}","${raw.body.replace("\"", "\"\"")}","$time""""
   }
+}
+
+case class BlankCardinalResponse() extends CardinalResponse(HttpResponse.apply("", 0, Map.empty), 0L) {
+  override def toCSV: String = ",,,"
+  override def formattedBody: String = ""
 }
 
 object CardinalResponse {

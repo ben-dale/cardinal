@@ -149,7 +149,7 @@ class Cardinal extends Application {
     val startTime = System.currentTimeMillis()
     val response = Http(request).send
     val totalTime = System.currentTimeMillis() - startTime
-    CardinalResponse(response, totalTime)
+    new CardinalResponse(response, totalTime)
   }
 
   private def save(onCancel: () => Unit): Unit = {
@@ -363,9 +363,11 @@ class Cardinal extends Application {
     }
   }
 
-  def exportToCsv(requestAndResponses: Map[CardinalRequest, CardinalResponse]): Unit = {
+  def exportToCsv(requestAndResponses: List[(CardinalRequest, Option[CardinalResponse])]): Unit = {
     val header = CardinalRequest.csvHeaders + "," + CardinalResponse.csvHeaders
-    val content = requestAndResponses.map { case (req, res) => req.toCSV + "," + res.toCSV }.mkString("\n")
+    val content = requestAndResponses.map { case (req, res) =>
+      req.toCSV + "," + res.getOrElse(BlankCardinalResponse()).toCSV
+    }.mkString("\n")
     val fileChooser = new FileChooser
     val file = fileChooser.showSaveDialog(currentStage)
     if (file != null) {
