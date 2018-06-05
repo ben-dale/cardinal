@@ -19,7 +19,7 @@ class CardinalView(showAsCurl: () => Unit,
 
   private val requestInputPane = new RequestInputPane(triggerUnsavedChangesMade)
   private val responsePane = new ResponsePane(getConfigCallback, sendRequestCallback, exportToCsv, showErrorDialogCallback)
-  private val requestControlPane = new RequestControlPane(showAsCurl, sendRequestAndLoadResponse, showBulkRequestInput)
+  private val requestControlPane = new RequestControlPane(showAsCurl, sendSingleRequest, showBulkRequestInput)
 
   val grid = new GridPane
   grid.getColumnConstraints.add(ColumnConstraintsBuilder().withHgrow(Priority.ALWAYS).withPercentageWidth(45).build)
@@ -40,7 +40,8 @@ class CardinalView(showAsCurl: () => Unit,
     responsePane.clearContents()
   }
 
-  private def sendRequestAndLoadResponse(onStart: () => Unit, onFinish: () => Unit): Unit = {
+  private def sendSingleRequest(onStart: () => Unit, onFinish: () => Unit): Unit = {
+    Platform.runLater(() => responsePane.clearContents())
     val request = requestInputPane.getRequest
     if (request.uri.trim.length == 0) {
       showErrorDialogCallback("Please enter a URL.")
