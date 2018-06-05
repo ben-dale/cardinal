@@ -43,6 +43,15 @@ class Cardinal extends Application {
   private val menuBar = new CardinalMenuBar(newTab, open, save, saveAs, clearAll, showEnvironmentVariablesInput, showFormUrlEncodedInput, showBasicAuthInput)
   private val cardinalTabs = new TabPane()
 
+  private val newRequestTab = new Tab("+")
+  newRequestTab.setClosable(false)
+  newRequestTab.setOnSelectionChanged(e => {
+    if (e.getSource == newRequestTab) {
+      newTab()
+    }
+  })
+  cardinalTabs.getTabs.add(newRequestTab)
+
   override def start(primaryStage: Stage): Unit = {
     currentStage = primaryStage
     primaryStage.setTitle("Cardinal")
@@ -125,9 +134,6 @@ class Cardinal extends Application {
 
     primaryStage.setScene(scene)
     primaryStage.show()
-
-    newTab()
-
   }
 
   private def setEnvironmentVariables(vars: List[String]): Unit = {
@@ -184,8 +190,18 @@ class Cardinal extends Application {
   }
 
   private def newTab(): Unit = {
-    cardinalTabs.getTabs.add(CardinalTab(None, new CardinalView(showAsCurl, showErrorDialog, () => currentConfig, exportToCsv, sendRequest, triggerUnsavedChangesMade)))
-    cardinalTabs.getSelectionModel.selectLast()
+    cardinalTabs.getTabs.add(
+      cardinalTabs.getTabs.size - 1,
+      CardinalTab(None, new CardinalView(showAsCurl, showErrorDialog, () => currentConfig, exportToCsv, sendRequest, triggerUnsavedChangesMade))
+    )
+    cardinalTabs.getSelectionModel.select(cardinalTabs.getTabs.size() - 2)
+//    newTabTab.setOnSelectionChanged(e => {
+//      if (e.getSource.asInstanceOf[Tab] == newTabTab) {
+//        cardinalTabs.getTabs.add(CardinalTab(None, new CardinalView(showAsCurl, showErrorDialog, () => currentConfig, exportToCsv, sendRequest, triggerUnsavedChangesMade)))
+//        cardinalTabs.getSelectionModel.select(cardinalTabs.getTabs.size() - 2)
+//      }
+//    })
+//    cardinalTabs.getSelectionModel.select(cardinalTabs.getTabs.size() - 2)
   }
 
   private def saveAs(onCancel: () => Unit): Unit = {
