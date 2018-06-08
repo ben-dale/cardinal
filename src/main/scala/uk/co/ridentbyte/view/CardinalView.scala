@@ -52,16 +52,15 @@ class CardinalView(showAsCurl: () => Unit,
           val httpResponse = try {
             Some(sendRequestCallback(requestInputPane.getRequest.processConstants(getConfigCallback())))
           } catch {
-            case _: ConnectException => onFinish(); showErrorDialogCallback("Connection refused."); None
-            case _: URISyntaxException => onFinish(); showErrorDialogCallback("Invalid URL."); None
-            case _: UnknownHostException => onFinish(); showErrorDialogCallback("Unknown Host."); None
-            case _: SSLHandshakeException => onFinish(); showErrorDialogCallback("SSL Handshake failed. Remote host closed connection during handshake."); None
-            case _: Exception => onFinish(); showErrorDialogCallback("Unknown error occurred."); None
+            case _: ConnectException => showErrorDialogCallback("Connection refused."); None
+            case _: URISyntaxException => showErrorDialogCallback("Invalid URL."); None
+            case _: UnknownHostException => showErrorDialogCallback("Unknown Host."); None
+            case _: SSLHandshakeException => showErrorDialogCallback("SSL Handshake failed. Remote host closed connection during handshake."); None
+            case _: Exception => showErrorDialogCallback("Unknown error occurred."); None
+          } finally {
+            Platform.runLater(() => { onFinish() })
           }
-          Platform.runLater(() => {
-            responsePane.setResponse(httpResponse)
-            onFinish()
-          })
+          responsePane.setResponse(httpResponse)
         }
       }.start()
     }
