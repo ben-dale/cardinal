@@ -96,7 +96,7 @@ class ResponsePane(getConfigCallback: () => Config,
               requestsAndResponses += ((r, Some(response)))
               updateProgress(i + 1, requestCount.get)
               Platform.runLater(() => {
-                labelDelta.setText(i.toString)
+                labelDelta.setText((i + 1).toString)
               })
             } catch {
               case _: Exception =>
