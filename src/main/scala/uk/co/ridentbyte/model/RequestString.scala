@@ -51,7 +51,7 @@ case class RequestString(content: String, environmentVars: Map[String, String], 
     extractedCommands.foreach { command =>
       contentCopy = contentCopy.replaceFirst(
         Pattern.quote(command.rawCommand),
-        command.processWith(variables)
+        command.processWith(variables, vocabulary)
       )
     }
 

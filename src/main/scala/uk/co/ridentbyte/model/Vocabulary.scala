@@ -7,4 +7,5 @@ case class Vocabulary(firstNames: Words,
                       actions: Words,
                       countries: Words,
                       communications: Words,
-                      businessEntities: Words)
+                      businessEntities: Words,
+                      loremIpsum: Words)

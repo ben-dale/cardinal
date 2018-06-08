@@ -27,8 +27,9 @@ object Cardinal {
   val businessEntities: Words = Words(Source.fromResource("businessEntities.txt").getLines().toList, Random)
   val communications: Words = Words(Source.fromResource("communications.txt").getLines().toList, Random)
   val places: Words = Words(Source.fromResource("places.txt").getLines().toList, Random)
+  val loremIpsum: Words = Words(Source.fromResource("loremipsum.txt").getLines().toList, Random)
 
-  val vocabulary = Vocabulary(firstNames, lastNames, places, objects, actions, countries, communications, businessEntities)
+  val vocabulary = Vocabulary(firstNames, lastNames, places, objects, actions, countries, communications, businessEntities, loremIpsum)
 
   def main(args: Array[String]): Unit = {
     Application.launch(classOf[Cardinal], args: _*)
