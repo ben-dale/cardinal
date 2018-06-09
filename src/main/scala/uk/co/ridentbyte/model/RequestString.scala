@@ -22,6 +22,7 @@ case class RequestString(content: String, environmentVars: Map[String, String], 
     val country = vocabulary.countries.random()
     val obj = vocabulary.objects.random()
     val place = vocabulary.places.random()
+    val emoji = vocabulary.emoji.random()
 
     val variables = Map[String, () => String](
       "guid" -> (() => guid),
@@ -35,6 +36,7 @@ case class RequestString(content: String, environmentVars: Map[String, String], 
       "country" -> (() => country),
       "object" -> (() => obj),
       "place" -> (() => place),
+      "emoji" -> (() => emoji),
       "randomGuid()" -> (() => UUID.randomUUID.toString.split("-")(0)),
       "randomInt()" -> Math.abs(Random.nextInt).toString,
       "randomFloat()" -> Math.abs(Random.nextFloat).toString,
@@ -45,7 +47,8 @@ case class RequestString(content: String, environmentVars: Map[String, String], 
       "randomCommunication()" -> vocabulary.communications.random,
       "randomCountry()" -> vocabulary.countries.random,
       "randomObject()" -> vocabulary.objects.random,
-      "randomPlace()" -> vocabulary.places.random
+      "randomPlace()" -> vocabulary.places.random,
+      "randomEmoji()" -> vocabulary.emoji.random
     ) ++ environmentVars.map { case (k, v) => (k, () => v) }
 
     extractedCommands.foreach { command =>

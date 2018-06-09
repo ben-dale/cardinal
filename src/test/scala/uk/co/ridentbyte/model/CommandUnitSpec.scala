@@ -16,6 +16,7 @@ class CommandUnitSpec extends FlatSpec {
     Words(List(), Random),
     Words(List(), Random),
     Words(List(), Random),
+    Words(List(), Random),
     Words(List(), Random)
   )
 

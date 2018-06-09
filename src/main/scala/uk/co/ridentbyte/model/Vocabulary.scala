@@ -8,4 +8,5 @@ case class Vocabulary(firstNames: Words,
                       countries: Words,
                       communications: Words,
                       businessEntities: Words,
-                      loremIpsum: Words)
+                      loremIpsum: Words,
+                      emoji: Words)
