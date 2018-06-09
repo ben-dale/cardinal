@@ -70,7 +70,11 @@ class RequestInputPane(triggerUnsavedChangesMade: () => Unit) extends GridPane {
   }
 
   def getHeaders: List[String] = {
-    textHeaders.getText.split("\n").toList
+    if (textHeaders.getText.trim.isEmpty) {
+      List.empty[String]
+    } else {
+      textHeaders.getText.split("\n").toList
+    }
   }
 
   def clear(): Unit = {
