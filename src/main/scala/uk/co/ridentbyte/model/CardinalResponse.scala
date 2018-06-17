@@ -12,7 +12,8 @@ class CardinalResponse(val raw: HttpResponse[String], val time: Long) {
     val contentType = raw.header("Content-Type")
     contentType match {
       case Some(ct) => ct match {
-        case _: String if ct.contains("application/json") => writePretty(parse(raw.body))
+        case _: String if ct.contains("application/json") =>
+          try { writePretty(parse(raw.body)) } catch { case _: Exception => raw.body }
         case _ => raw.body
       }
       case _ => raw.body
@@ -31,6 +32,6 @@ case class BlankCardinalResponse() extends CardinalResponse(HttpResponse.apply("
 
 object CardinalResponse {
   def csvHeaders: String = {
-    "responseCode,responseHeaders,responseBody,responseTime (ms)"
+    "response code,response headers,response body,response time (ms)"
   }
 }

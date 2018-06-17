@@ -9,7 +9,7 @@ object CardinalRequest {
   private implicit val formats: DefaultFormats = DefaultFormats
   def apply(json: String): CardinalRequest = parse(json).extract[CardinalRequest]
   def csvHeaders: String = {
-    "requestUri,requestVerb,requestHeaders,requestBody"
+    "request URI,request verb,request headers,request body"
   }
 }
 
