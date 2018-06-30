@@ -16,7 +16,7 @@ class CommandUnitSpec extends FlatSpec {
     Words(List(), Random),
     Words(List(), Random),
     Words(List(), Random),
-    Words(List(), Random),
+    Words(List("Lorem", "ipsum"), Random),
     Words(List(), Random)
   )
 
@@ -160,7 +160,74 @@ class CommandUnitSpec extends FlatSpec {
     val result = testSubject.processWith(Map("firstName" -> (() => "Jon")), vocab)
 
     // Then
-    result should fullyMatch regex "JON"
+    result shouldBe "JON"
   }
+
+  it should "process #{random(ben, bob)} and return random(ben, bob)" in {
+    // Given
+    val testSubject = Command("#{random(ben, bob)}")
+
+    // When
+    val result = testSubject.processWith(Map(), vocab)
+
+    // Then
+    result shouldBe "random(ben, bob)"
+  }
+
+  it should "process #{random(ben, \"bob\")} and return random(ben, bob)" in {
+    // Given
+    val testSubject = Command("#{random(ben, \"bob\")}")
+
+    // When
+    val result = testSubject.processWith(Map(), vocab)
+
+    // Then
+    result shouldBe "random(ben, \"bob\")"
+  }
+
+  it should "process #{lorem(\"20\")} and return lorem(\"20\")" in {
+    // Given
+    val testSubject = Command("#{lorem(\"20\")}")
+
+    // When
+    val result = testSubject.processWith(Map(), vocab)
+
+    // Then
+    result shouldBe "lorem(\"20\")"
+  }
+
+  it should "process #{lorem(1)} and return Lorem" in {
+    // Given
+    val testSubject = Command("#{lorem(1)}")
+
+    // When
+    val result = testSubject.processWith(Map(), vocab)
+
+    // Then
+    result shouldBe "Lorem"
+  }
+
+  it should "process #{random(1)} and return 1" in {
+    // Given
+    val testSubject = Command("#{random(1)}")
+
+    // When
+    val result = testSubject.processWith(Map(), vocab)
+
+    // Then
+    result shouldBe "1"
+  }
+
+  it should "process #{lorem(random(1))} and return Lorem" in {
+    // Given
+    val testSubject = Command("#{lorem(random(\"1\"))}")
+
+    // When
+    val result = testSubject.processWith(Map(), vocab)
+
+    // Then
+    result shouldBe "Lorem"
+  }
+
 
 }

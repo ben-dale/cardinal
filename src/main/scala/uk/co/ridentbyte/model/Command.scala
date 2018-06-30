@@ -55,23 +55,31 @@ case class Command(private val command: String) {
         case upperFunction(v) if !v.matches(rawString) => processWith(constants, vocabulary, Some(v)).toUpperCase
         case capitaliseFunction(v) if v.matches(rawString) => v.replace("\"", "").capitalize
         case capitaliseFunction(v) if !v.matches(rawString) => processWith(constants, vocabulary, Some(v)).capitalize
-        case loremFunction(n) if isInt(n) => vocabulary.loremIpsum.first(n.toInt).mkString(" ")
-        case loremFunction(n) if !isInt(n) =>
-          val processedContents = processWith(constants, vocabulary, Some(n))
-          if (isInt(processedContents)) {
-            vocabulary.loremIpsum.first(processedContents.toInt).mkString(" ")
+        case loremFunction(n) =>
+          val argumentType = getArgumentTypes(List(n), constants, functions).head
+          if (argumentType.isInstanceOf[IntLiteral]) {
+            vocabulary.loremIpsum.first(n.toInt).mkString(" ")
+          } else if (argumentType.isInstanceOf[Function]) {
+            val processedValue = processWith(constants, vocabulary, Some(n))
+            val processedValueArgumentType = getArgumentTypes(List(processedValue), constants, functions)
+            if (processedValueArgumentType.head.isInstanceOf[IntLiteral]) {
+              vocabulary.loremIpsum.first(processedValue.toInt).mkString(" ")
+            } else {
+              rawContents
+            }
           } else {
-            processedContents
+            rawContents
           }
+
         case randomFunction(v) =>
           val splitValues = v.split(",").map(_.trim).toList
           val argumentTypes = getArgumentTypes(splitValues, constants, functions)
-          val containsInvalidTypes = argumentTypes.count(n => n.isInstanceOf[IntLiteral] || n.isInstanceOf[InvalidLiteral]) > 0
+          val containsInvalidTypes = argumentTypes.count(n => n.isInstanceOf[InvalidLiteral]) > 0
           if (!containsInvalidTypes) {
             val processedValues = splitValues.map { v => processWith(constants, vocabulary, Some(v)) }
             processedValues(r.nextInt(processedValues.length))
           } else {
-            command
+            rawContents
           }
         case v if v.matches(rawString) => v.replace("\"", "")
         case v => v
@@ -89,14 +97,7 @@ case class Command(private val command: String) {
     }
   }
 
-  def isInt(s: String): Boolean = {
-    try {
-      s.toInt
-      true
-    } catch {
-      case _: Exception => false
-    }
-  }
+  def isRawInt(s: String): Boolean = s.matches("[0-9]+")
 
 }
 
