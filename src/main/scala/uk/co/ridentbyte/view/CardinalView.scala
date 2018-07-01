@@ -14,11 +14,12 @@ class CardinalView(showAsCurl: () => Unit,
                    showErrorDialogCallback: String => Unit,
                    getConfigCallback: () => Config,
                    exportToCsv: List[(CardinalRequest, Option[CardinalResponse])] => Unit,
+                   exportToBash: List[CardinalRequest] => Unit,
                    sendRequestCallback: CardinalRequest => CardinalResponse,
                    triggerUnsavedChangesMade: () => Unit) extends BorderPane {
 
   private val requestInputPane = new RequestInputPane(triggerUnsavedChangesMade)
-  private val responsePane = new ResponsePane(getConfigCallback, sendRequestCallback, exportToCsv, showErrorDialogCallback)
+  private val responsePane = new ResponsePane(getConfigCallback, sendRequestCallback, exportToCsv, exportToBash, showErrorDialogCallback)
   private val requestControlPane = new RequestControlPane(showAsCurl, sendSingleRequest, showBulkRequestInput)
 
   val grid = new GridPane

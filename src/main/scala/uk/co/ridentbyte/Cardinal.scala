@@ -182,7 +182,7 @@ class Cardinal extends Application {
     if (selectedFiles != null) {
       selectedFiles.asScala.foreach { selectedFile =>
         val lines = scala.io.Source.fromFile(selectedFile).getLines().mkString
-        val cardinalView = new CardinalView(showAsCurl, showErrorDialog, () => currentConfig, exportToCsv, sendRequest, triggerUnsavedChangesMade)
+        val cardinalView = new CardinalView(showAsCurl, showErrorDialog, () => currentConfig, exportToCsv, exportToBash, sendRequest, triggerUnsavedChangesMade)
         addTab(CardinalTab(Some(selectedFile), cardinalView))
         cardinalView.loadRequest(CardinalRequest(lines))
         getCurrentTab.setUnsavedChanges(false)
@@ -193,7 +193,7 @@ class Cardinal extends Application {
   private def newTab(): Unit = {
     cardinalTabs.getTabs.add(
       cardinalTabs.getTabs.size - 1,
-      CardinalTab(None, new CardinalView(showAsCurl, showErrorDialog, () => currentConfig, exportToCsv, sendRequest, triggerUnsavedChangesMade))
+      CardinalTab(None, new CardinalView(showAsCurl, showErrorDialog, () => currentConfig, exportToCsv, exportToBash, sendRequest, triggerUnsavedChangesMade))
     )
     cardinalTabs.getSelectionModel.select(cardinalTabs.getTabs.size() - 2)
   }
@@ -219,7 +219,7 @@ class Cardinal extends Application {
           // Existing file so save and open in new tab
           val request = currentTab.content.getRequest
           writeToFile(fileWithExtension, request.toJson)
-          val cardinalView = new CardinalView(showAsCurl, showErrorDialog, () => currentConfig, exportToCsv, sendRequest, triggerUnsavedChangesMade)
+          val cardinalView = new CardinalView(showAsCurl, showErrorDialog, () => currentConfig, exportToCsv, exportToBash, sendRequest, triggerUnsavedChangesMade)
           addTab(CardinalTab(Some(fileWithExtension), cardinalView))
           cardinalView.loadRequest(request)
           getCurrentTab.setUnsavedChanges(false)
@@ -379,6 +379,16 @@ class Cardinal extends Application {
         file
       }
       writeToFile(fileWithExtension, header + "\n" + content)
+    }
+  }
+
+  def exportToBash(requests: List[CardinalRequest]): Unit = {
+    val header = "#!/bin/sh"
+    val content = requests.map(_.toCurl(currentConfig)).mkString("\n")
+    val fileChooser = new FileChooser
+    val file = fileChooser.showSaveDialog(currentStage)
+    if (file != null) {
+      writeToFile(file, header + "\n\n" + content)
     }
   }
 

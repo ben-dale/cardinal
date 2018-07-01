@@ -14,6 +14,7 @@ import uk.co.ridentbyte.view.util.{ColumnConstraintsBuilder, RowConstraintsBuild
 class ResponsePane(getConfigCallback: () => Config,
                    sendRequestCallback: CardinalRequest => CardinalResponse,
                    exportToCsv: List[(CardinalRequest, Option[CardinalResponse])] => Unit,
+                   exportToBash: List[CardinalRequest] => Unit,
                    showErrorDialogCallback: String => Unit) extends BorderPane {
 
   setPadding(new Insets(20, 20, 20, 0))
@@ -197,7 +198,7 @@ class ResponsePane(getConfigCallback: () => Config,
     grid.setVgap(15)
 
     grid.getRowConstraints.addAll(
-      RowConstraintsBuilder().withPercentageHeight(70).withVgrow(Priority.ALWAYS).build,
+      RowConstraintsBuilder().withPercentageHeight(60).withVgrow(Priority.ALWAYS).build,
       RowConstraintsBuilder().withVgrow(Priority.ALWAYS).build,
       RowConstraintsBuilder().withVgrow(Priority.NEVER).build
     )
@@ -255,12 +256,20 @@ class ResponsePane(getConfigCallback: () => Config,
     val textAreaTimings = new TextArea(timings)
     textAreaTimings.getStyleClass.add("cardinal-font-console")
     GridPane.setHgrow(textAreaTimings, Priority.ALWAYS)
+    GridPane.setColumnSpan(textAreaTimings, 2)
     grid.add(textAreaTimings, 0, 1)
 
-    val exportButton = new Button("Export to CSV...")
-    exportButton.setOnAction(_ => exportToCsv(requestAndResponses))
-    GridPane.setHalignment(exportButton, HPos.CENTER)
-    grid.add(exportButton, 0, 2)
+    val exportToCsvButton = new Button("Export to CSV...")
+    exportToCsvButton.setOnAction(_ => exportToCsv(requestAndResponses))
+    GridPane.setColumnSpan(exportToCsvButton, 1)
+    GridPane.setHgrow(exportToCsvButton, Priority.NEVER)
+    grid.add(exportToCsvButton, 0, 2)
+
+    val exportToBashButton = new Button("Export as script...")
+    exportToBashButton.setOnAction(_ => exportToBash(requestAndResponses.map(_._1)))
+    GridPane.setColumnSpan(exportToBashButton, 1)
+    GridPane.setHgrow(exportToBashButton, Priority.ALWAYS)
+    grid.add(exportToBashButton, 1, 2)
 
     Platform.runLater(() => setCenter(grid))
   }
