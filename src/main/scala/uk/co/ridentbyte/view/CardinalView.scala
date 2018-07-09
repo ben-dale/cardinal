@@ -14,7 +14,7 @@ class CardinalView(showAsCurl: () => Unit,
                    showErrorDialogCallback: String => Unit,
                    getConfigCallback: () => Config,
                    exportToCsv: List[(CardinalRequest, Option[CardinalResponse])] => Unit,
-                   exportToBash: List[CardinalRequest] => Unit,
+                   exportToBash: (List[CardinalRequest], Option[Long]) => Unit,
                    sendRequestCallback: CardinalRequest => CardinalResponse,
                    triggerUnsavedChangesMade: () => Unit) extends BorderPane {
 

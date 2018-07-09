@@ -14,7 +14,7 @@ import uk.co.ridentbyte.view.util.{ColumnConstraintsBuilder, RowConstraintsBuild
 class ResponsePane(getConfigCallback: () => Config,
                    sendRequestCallback: CardinalRequest => CardinalResponse,
                    exportToCsv: List[(CardinalRequest, Option[CardinalResponse])] => Unit,
-                   exportToBash: List[CardinalRequest] => Unit,
+                   exportToBash: (List[CardinalRequest], Option[Long]) => Unit,
                    showErrorDialogCallback: String => Unit) extends BorderPane {
 
   setPadding(new Insets(20, 20, 20, 0))
@@ -109,7 +109,7 @@ class ResponsePane(getConfigCallback: () => Config,
                 })
             }
           }
-          finishedBulkRequestCallback(requestsAndResponses.toList)
+          finishedBulkRequestCallback(requestsAndResponses.toList, throttle)
           true
         } else if (throttle.isDefined && ids.isDefined) {
           ids.get.zipWithIndex.foreach { case (id, i) =>
@@ -132,7 +132,7 @@ class ResponsePane(getConfigCallback: () => Config,
                 })
             }
           }
-          finishedBulkRequestCallback(requestsAndResponses.toList)
+          finishedBulkRequestCallback(requestsAndResponses.toList, throttle)
           true
         } else {
           false
@@ -176,7 +176,7 @@ class ResponsePane(getConfigCallback: () => Config,
     val buttonAbort = new Button("Abort")
     buttonAbort.setOnAction(_ => {
       task.cancel()
-      finishedBulkRequestCallback(requestsAndResponses.toList)
+      finishedBulkRequestCallback(requestsAndResponses.toList, throttle)
     })
     GridPane.setHalignment(buttonAbort, HPos.CENTER)
     grid.add(buttonAbort, 0, 3)
@@ -186,7 +186,7 @@ class ResponsePane(getConfigCallback: () => Config,
     new Thread(task).start()
   }
 
-  def finishedBulkRequestCallback(requestAndResponses: List[(CardinalRequest, Option[CardinalResponse])]): Unit = {
+  def finishedBulkRequestCallback(requestAndResponses: List[(CardinalRequest, Option[CardinalResponse])], throttle: Option[Long]): Unit = {
 
 //    val requests = requestAndResponses.map(_._1)
     val responses = requestAndResponses.map(_._2)
@@ -266,7 +266,7 @@ class ResponsePane(getConfigCallback: () => Config,
     grid.add(exportToCsvButton, 0, 2)
 
     val exportToBashButton = new Button("Export as script...")
-    exportToBashButton.setOnAction(_ => exportToBash(requestAndResponses.map(_._1)))
+    exportToBashButton.setOnAction(_ => exportToBash(requestAndResponses.map(_._1), throttle))
     GridPane.setColumnSpan(exportToBashButton, 1)
     GridPane.setHgrow(exportToBashButton, Priority.ALWAYS)
     grid.add(exportToBashButton, 1, 2)
