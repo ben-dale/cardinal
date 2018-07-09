@@ -7,8 +7,11 @@ import uk.co.ridentbyte.model.BulkRequest
 
 class BulkRequestInputDialog(bulkRequest: Option[BulkRequest] = None) extends Dialog[BulkRequest] {
 
+  val asScript = new ButtonType("As script...")
+
+
   setTitle("Bulk Request")
-  getDialogPane.getButtonTypes.addAll(ButtonType.CANCEL, ButtonType.OK)
+  getDialogPane.getButtonTypes.addAll(asScript, ButtonType.CANCEL, ButtonType.OK)
 
   private val grid = new GridPane
   grid.setPadding(new Insets(10, 10, 10, 10))
@@ -59,7 +62,9 @@ class BulkRequestInputDialog(bulkRequest: Option[BulkRequest] = None) extends Di
 
   setResultConverter((buttonType) => {
     if (buttonType == ButtonType.OK) {
-      BulkRequest(getOptTextDelay, getOptNumberOfRequests, getTextForEach)
+      BulkRequest(getOptTextDelay, getOptNumberOfRequests, getTextForEach, asBash = false)
+    } else if (buttonType == asScript) {
+      BulkRequest(getOptTextDelay, getOptNumberOfRequests, getTextForEach, asBash = true)
     } else {
       null
     }

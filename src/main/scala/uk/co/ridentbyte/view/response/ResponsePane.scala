@@ -76,9 +76,25 @@ class ResponsePane(getConfigCallback: () => Config,
       if (bulkRequestResult.get.throttle.isEmpty || (bulkRequestResult.get.count.isEmpty && bulkRequestResult.get.ids.isEmpty)) {
         showErrorDialogCallback("Invalid input. \nPlease provide a throttle and either a request count or a range value.")
         showBulkRequestInput(request, Some(bulkRequestResult.get))
+      } else if (bulkRequestResult.get.asBash) {
+        asScript(request, bulkRequestResult.get.throttle, bulkRequestResult.get.count, bulkRequestResult.get.ids)
       } else {
         startBulkRequest(request, bulkRequestResult.get.throttle, bulkRequestResult.get.count, bulkRequestResult.get.ids)
       }
+    }
+  }
+
+  def asScript(request: CardinalRequest, throttle: Option[Long], requestCount: Option[Int], ids: Option[List[String]]): Unit = {
+    if (requestCount.isDefined) {
+      val requests = 0 until requestCount.get map { i =>
+        request.withId(i.toString).processConstants(getConfigCallback())
+      }
+      exportToBash(requests.toList, throttle)
+    } else if (ids.isDefined) {
+      val requests = ids.get.zipWithIndex.map { case (id, i) =>
+        request.withId(id).processConstants(getConfigCallback())
+      }
+      exportToBash(requests, throttle)
     }
   }
 
