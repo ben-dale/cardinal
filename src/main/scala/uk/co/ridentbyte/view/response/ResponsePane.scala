@@ -59,7 +59,7 @@ class ResponsePane(getConfigCallback: () => Config,
     grid.setHgap(10)
 
     val textAreaCurl = new TextArea()
-    textAreaCurl.getStyleClass.add("cardinal-font")
+    textAreaCurl.getStyleClass.addAll("cardinal-font-console", "curl-output")
     textAreaCurl.setText(command)
     textAreaCurl.setWrapText(true)
     GridPane.setHgrow(textAreaCurl, Priority.ALWAYS)

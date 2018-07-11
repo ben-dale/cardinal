@@ -8,6 +8,10 @@
     -fx-box-border: transparent;
 }
 
+.curl-output .content {
+    -fx-padding: 15px 20px;
+}
+
 .split-pane *.split-pane-divider {
     -fx-box-border: lightgrey;
 }
