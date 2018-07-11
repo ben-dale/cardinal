@@ -386,7 +386,7 @@ class Cardinal extends Application {
   }
 
   def exportToBash(requests: List[CardinalRequest], throttle: Option[Long]): Unit = {
-    val header = "#!/bin/sh"
+    val header = "#!/bin/bash"
     val date = "# Auto-generated " + new Date().toString
     val delay = if (throttle.isDefined) "sleep " + throttle.get / 1000.0 + "\n" else ""
     val content = requests.map(_.toCurl(currentConfig)).mkString("\necho\n" + delay) + "\necho"
