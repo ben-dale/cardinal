@@ -3,9 +3,10 @@ package uk.co.ridentbyte.view
 import java.net.{ConnectException, URISyntaxException, UnknownHostException}
 
 import javafx.application.Platform
+import javafx.scene.control.SplitPane
 import javafx.scene.layout.{BorderPane, GridPane, Priority}
 import javax.net.ssl.SSLHandshakeException
-import uk.co.ridentbyte.model.{Config, CardinalResponse, CardinalRequest}
+import uk.co.ridentbyte.model.{CardinalRequest, CardinalResponse, Config}
 import uk.co.ridentbyte.view.request.{RequestControlPane, RequestInputPane}
 import uk.co.ridentbyte.view.response.ResponsePane
 import uk.co.ridentbyte.view.util.{ColumnConstraintsBuilder, RowConstraintsBuilder}
@@ -18,20 +19,26 @@ class CardinalView(showAsCurl: () => Unit,
                    sendRequestCallback: CardinalRequest => CardinalResponse,
                    triggerUnsavedChangesMade: () => Unit) extends BorderPane {
 
+  private val requestResponseSplitPane = new SplitPane()
+  requestResponseSplitPane.setDividerPositions(0.4)
+
   private val requestInputPane = new RequestInputPane(triggerUnsavedChangesMade)
+  requestInputPane.setMinWidth(400)
   private val responsePane = new ResponsePane(getConfigCallback, sendRequestCallback, exportToCsv, exportToBash, showErrorDialogCallback)
+  responsePane.setMinWidth(400)
   private val requestControlPane = new RequestControlPane(showAsCurl, sendSingleRequest, showBulkRequestInput)
 
   val grid = new GridPane
-  grid.getColumnConstraints.add(ColumnConstraintsBuilder().withHgrow(Priority.ALWAYS).withPercentageWidth(45).build)
-  grid.getColumnConstraints.add(ColumnConstraintsBuilder().withHgrow(Priority.ALWAYS).withPercentageWidth(55).build)
+  grid.getColumnConstraints.add(ColumnConstraintsBuilder().withHgrow(Priority.ALWAYS).build)
   grid.getRowConstraints.add(RowConstraintsBuilder().withVgrow(Priority.ALWAYS).build)
   grid.getRowConstraints.add(RowConstraintsBuilder().withVgrow(Priority.NEVER).build)
 
-  grid.add(requestInputPane, 0, 0)
-  grid.add(responsePane, 1, 0)
+  requestResponseSplitPane.getItems.add(requestInputPane)
+  requestResponseSplitPane.getItems.add(responsePane)
 
-  GridPane.setColumnSpan(requestControlPane, 2)
+  grid.add(requestResponseSplitPane, 0, 0)
+
+//  GridPane.setColumnSpan(requestControlPane, 2)
   grid.add(requestControlPane, 0, 1)
 
   setCenter(grid)

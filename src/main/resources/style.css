@@ -4,6 +4,14 @@
     -fx-padding: 15 20;
 }
 
+.split-pane {
+    -fx-box-border: transparent;
+}
+
+.split-pane *.split-pane-divider {
+    -fx-box-border: lightgrey;
+}
+
 .cardinal-font {
     -fx-font-family: "Open Sans";
     -fx-font-size: 13;

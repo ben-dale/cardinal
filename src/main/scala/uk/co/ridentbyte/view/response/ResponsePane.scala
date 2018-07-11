@@ -17,7 +17,7 @@ class ResponsePane(getConfigCallback: () => Config,
                    exportToBash: (List[CardinalRequest], Option[Long]) => Unit,
                    showErrorDialogCallback: String => Unit) extends BorderPane {
 
-  setPadding(new Insets(20, 20, 20, 0))
+  setPadding(new Insets(20, 20, 20, 20))
   clearContents()
 
   def clearContents(): Unit = {

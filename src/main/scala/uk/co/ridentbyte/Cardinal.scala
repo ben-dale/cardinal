@@ -118,16 +118,16 @@ class Cardinal extends Application {
     }
 
     // Temporary action for dev
-//    scene.setOnKeyPressed(k => {
-//      if (k.getCode == KeyCode.R) {
-//        if (currentStage != null) {
-//          currentStage.getScene.getStylesheets.clear()
-//          println("[" + System.currentTimeMillis() + "] Reloading CSS")
-//          val f = new File("src/main/resources/style.css")
-//          currentStage.getScene.getStylesheets.add("file://" + f.getAbsolutePath)
-//        }
-//      }
-//    })
+    scene.setOnKeyPressed(k => {
+      if (k.getCode == KeyCode.R) {
+        if (currentStage != null) {
+          currentStage.getScene.getStylesheets.clear()
+          println("[" + System.currentTimeMillis() + "] Reloading CSS")
+          val f = new File("src/main/resources/style.css")
+          currentStage.getScene.getStylesheets.add("file://" + f.getAbsolutePath)
+        }
+      }
+    })
 
     primaryStage.setOnCloseRequest(r => {
       val allTabs = cardinalTabs.getTabs.asScala.filter(_.isInstanceOf[CardinalTab]).map(_.asInstanceOf[CardinalTab])
