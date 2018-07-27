@@ -1,14 +1,10 @@
 package uk.co.ridentbyte.view.response
 
 import javafx.application.Platform
-import javafx.concurrent.Task
-import javafx.geometry.{HPos, Insets}
-import javafx.scene.control._
+import javafx.geometry.Insets
 import javafx.scene.layout._
-import javafx.scene.paint.Color
 import uk.co.ridentbyte.model.{BulkRequest, Config, CardinalResponse, CardinalRequest}
 import uk.co.ridentbyte.view.dialog.BulkRequestInputDialog
-import uk.co.ridentbyte.view.util.{ColumnConstraintsBuilder, RowConstraintsBuilder}
 
 class ResponsePane(getConfigCallback: () => Config,
                    sendRequestCallback: CardinalRequest => CardinalResponse,
@@ -20,40 +16,17 @@ class ResponsePane(getConfigCallback: () => Config,
   clearContents()
 
   def clearContents(): Unit = {
-    val emptyPanel = new BorderPane
-    emptyPanel.getStyleClass.addAll("dashed-border", "round-border")
-    emptyPanel.setBorder(new Border(new BorderStroke(Color.LIGHTGREY, BorderStrokeStyle.DASHED, CornerRadii.EMPTY, BorderWidths.DEFAULT)))
-    setCenter(emptyPanel)
+    setCenter(ClearResponsePane())
   }
 
   def setResponse(response: Option[CardinalResponse]): Unit = {
     if (response.isDefined) {
-      val grid = new GridPane
-      grid.setVgap(10)
-      grid.setHgap(10)
-      grid.getColumnConstraints.add(ColumnConstraintsBuilder().withHgrow(Priority.ALWAYS).build)
-      grid.getRowConstraints.add(RowConstraintsBuilder().withVgrow(Priority.ALWAYS).withPercentageHeight(40).build)
-      grid.getRowConstraints.add(RowConstraintsBuilder().withVgrow(Priority.ALWAYS).withPercentageHeight(60).build)
-
-      val listHeaders = new ListView[String]()
-      listHeaders.getStyleClass.add("cardinal-font")
-      response.get.raw.headers.foreach {
-        header => listHeaders.getItems.add(header._1 + ": " + header._2.mkString(""))
-      }
-      grid.add(listHeaders, 0, 0)
-
-      val textAreaBody = new TextArea()
-      textAreaBody.setEditable(false)
-      textAreaBody.getStyleClass.add("cardinal-font")
-      textAreaBody.setText(response.get.formattedBody)
-      grid.add(textAreaBody, 0, 1)
-
-      Platform.runLater(() => setCenter(grid))
+      Platform.runLater(() => setCenter(ResponseOutputPane(response.get)))
     }
   }
 
   def loadCurlCommand(command: String): Unit = {
-    Platform.runLater(() => setCenter(CurlOutput(command)))
+    Platform.runLater(() => setCenter(CurlOutputPane(command)))
   }
 
   def showBulkRequestInput(request: CardinalRequest, bulkRequest: Option[BulkRequest] = None): Unit = {
@@ -86,112 +59,14 @@ class ResponsePane(getConfigCallback: () => Config,
   }
 
   def startBulkRequest(request: CardinalRequest, throttle: Option[Long], requestCount: Option[Int], ids: Option[List[String]]): Unit = {
-    var requestsAndResponses = collection.mutable.ListBuffer.empty[(CardinalRequest, Option[CardinalResponse])]
-    val labelDelta = new Label()
-
-    val task = new Task[Boolean]() {
-      override def call(): Boolean = {
-        if (throttle.isDefined && requestCount.isDefined) {
-          0 until requestCount.get foreach { i =>
-            Thread.sleep(throttle.get)
-            val r = request.withId(i.toString).processConstants(getConfigCallback())
-            try {
-              val response = sendRequestCallback(r)
-              requestsAndResponses += ((r, Some(response)))
-              updateProgress(i + 1, requestCount.get)
-              Platform.runLater(() => {
-                labelDelta.setText((i + 1).toString)
-              })
-            } catch {
-              case _: Exception =>
-                // Todo - update exception log to show on screen?
-                requestsAndResponses += ((r, None))
-                updateProgress(i + 1, requestCount.get)
-                Platform.runLater(() => {
-                  labelDelta.setText((i + 1).toString)
-                })
-            }
-          }
-          finishedBulkRequestCallback(requestsAndResponses.toList, throttle)
-          true
-        } else if (throttle.isDefined && ids.isDefined) {
-          ids.get.zipWithIndex.foreach { case (id, i) =>
-            Thread.sleep(throttle.get)
-            val r = request.withId(id).processConstants(getConfigCallback())
-            try {
-              val response = sendRequestCallback(r)
-              requestsAndResponses += ((r, Some(response)))
-              updateProgress(i + 1, ids.get.length.toDouble)
-              Platform.runLater(() => {
-                labelDelta.setText((i + 1).toString)
-              })
-            } catch {
-              case _: Exception =>
-                // Todo - update exception log to show on screen?
-                requestsAndResponses += ((r, None))
-                updateProgress(i + 1, ids.get.length.toDouble)
-                Platform.runLater(() => {
-                  labelDelta.setText((i + 1).toString)
-                })
-            }
-          }
-          finishedBulkRequestCallback(requestsAndResponses.toList, throttle)
-          true
-        } else {
-          false
-        }
-      }
-    }
-
-    val grid = new GridPane
-    grid.setPadding(new Insets(10))
-    grid.getStyleClass.addAll("plain-border", "round-border")
-    grid.getRowConstraints.addAll(
-      RowConstraintsBuilder().withVgrow(Priority.NEVER).build,
-      RowConstraintsBuilder().withVgrow(Priority.NEVER).build,
-      RowConstraintsBuilder().withVgrow(Priority.NEVER).build,
-      RowConstraintsBuilder().withVgrow(Priority.NEVER).build
-    )
-    grid.getColumnConstraints.addAll(
-      ColumnConstraintsBuilder().withPercentageWidth(100).build
-    )
-    grid.setHgap(10)
-    grid.setVgap(10)
-
-    val labelSendingRequest = new Label("Sending requests...")
-    GridPane.setHalignment(labelSendingRequest, HPos.CENTER)
-    GridPane.setHgrow(labelSendingRequest, Priority.ALWAYS)
-    GridPane.setFillWidth(labelSendingRequest, true)
-    grid.add(labelSendingRequest, 0, 0)
-
-    val progressBar = new ProgressBar()
-    progressBar.progressProperty().unbind()
-    progressBar.progressProperty().bind(task.progressProperty())
-    progressBar.setMaxWidth(java.lang.Double.MAX_VALUE)
-    GridPane.setHgrow(progressBar, Priority.ALWAYS)
-    grid.add(progressBar, 0, 1)
-
-    GridPane.setHalignment(labelDelta, HPos.CENTER)
-    GridPane.setHgrow(labelDelta, Priority.ALWAYS)
-    GridPane.setFillWidth(labelDelta, true)
-    grid.add(labelDelta, 0, 2)
-
-    val buttonAbort = new Button("Abort")
-    buttonAbort.setOnAction(_ => {
-      task.cancel()
-      finishedBulkRequestCallback(requestsAndResponses.toList, throttle)
-    })
-    GridPane.setHalignment(buttonAbort, HPos.CENTER)
-    grid.add(buttonAbort, 0, 3)
-
-
-    Platform.runLater(() => setCenter(grid))
-    new Thread(task).start()
+    val outputPane = BulkRequestProcessingOutputPane(getConfigCallback, sendRequestCallback, finishedBulkRequestCallback, request, throttle, requestCount, ids)
+    Platform.runLater(() => setCenter(outputPane))
+    new Thread(outputPane.task).start()
   }
 
   def finishedBulkRequestCallback(requestAndResponses: List[(CardinalRequest, Option[CardinalResponse])], throttle: Option[Long]): Unit = {
     Platform.runLater(() =>
-      setCenter(CompletedBulkRequestOutput(requestAndResponses, exportToCsv, exportToBash, throttle))
+      setCenter(BulkRequestOutputPane(requestAndResponses, exportToCsv, exportToBash, throttle))
     )
   }
 

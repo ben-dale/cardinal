@@ -3,7 +3,7 @@ package uk.co.ridentbyte.view.response
 import javafx.scene.control.TextArea
 import javafx.scene.layout.{GridPane, Priority}
 
-case class CurlOutput(command: String) extends GridPane {
+case class CurlOutputPane(command: String) extends GridPane {
   setVgap(10)
   setHgap(10)
 

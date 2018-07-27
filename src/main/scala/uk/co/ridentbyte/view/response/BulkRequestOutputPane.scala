@@ -7,10 +7,10 @@ import javafx.scene.layout.{GridPane, Priority}
 import uk.co.ridentbyte.model.{CardinalRequest, CardinalResponse}
 import uk.co.ridentbyte.view.util.RowConstraintsBuilder
 
-case class CompletedBulkRequestOutput(requestAndResponses: List[(CardinalRequest, Option[CardinalResponse])],
-                                      exportToCsv: List[(CardinalRequest, Option[CardinalResponse])] => Unit,
-                                      exportToBash: (List[CardinalRequest], Option[Long]) => Unit,
-                                      throttle: Option[Long]) extends GridPane {
+case class BulkRequestOutputPane(requestAndResponses: List[(CardinalRequest, Option[CardinalResponse])],
+                                 exportToCsv: List[(CardinalRequest, Option[CardinalResponse])] => Unit,
+                                 exportToBash: (List[CardinalRequest], Option[Long]) => Unit,
+                                 throttle: Option[Long]) extends GridPane {
 
   val responses = requestAndResponses.map(_._2)
   
