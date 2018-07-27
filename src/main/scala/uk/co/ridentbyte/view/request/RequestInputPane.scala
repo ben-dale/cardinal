@@ -2,7 +2,6 @@ package uk.co.ridentbyte.view.request
 
 import javafx.geometry.Insets
 import javafx.scene.control.{Label, TextArea}
-import javafx.scene.input.{KeyCode, KeyEvent}
 import javafx.scene.layout._
 import uk.co.ridentbyte.model.CardinalRequest
 import uk.co.ridentbyte.view.util.RowConstraintsBuilder

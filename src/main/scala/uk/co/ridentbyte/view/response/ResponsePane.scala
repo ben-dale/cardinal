@@ -3,7 +3,6 @@ package uk.co.ridentbyte.view.response
 import javafx.application.Platform
 import javafx.concurrent.Task
 import javafx.geometry.{HPos, Insets}
-import javafx.scene.chart._
 import javafx.scene.control._
 import javafx.scene.layout._
 import javafx.scene.paint.Color
@@ -54,19 +53,7 @@ class ResponsePane(getConfigCallback: () => Config,
   }
 
   def loadCurlCommand(command: String): Unit = {
-    val grid = new GridPane
-    grid.setVgap(10)
-    grid.setHgap(10)
-
-    val textAreaCurl = new TextArea()
-    textAreaCurl.getStyleClass.addAll("cardinal-font-console", "curl-output")
-    textAreaCurl.setText(command)
-    textAreaCurl.setWrapText(true)
-    GridPane.setHgrow(textAreaCurl, Priority.ALWAYS)
-    GridPane.setVgrow(textAreaCurl, Priority.ALWAYS)
-    grid.add(textAreaCurl, 0, 0)
-
-    Platform.runLater(() => setCenter(grid))
+    Platform.runLater(() => setCenter(CurlOutput(command)))
   }
 
   def showBulkRequestInput(request: CardinalRequest, bulkRequest: Option[BulkRequest] = None): Unit = {
@@ -203,91 +190,9 @@ class ResponsePane(getConfigCallback: () => Config,
   }
 
   def finishedBulkRequestCallback(requestAndResponses: List[(CardinalRequest, Option[CardinalResponse])], throttle: Option[Long]): Unit = {
-
-//    val requests = requestAndResponses.map(_._1)
-    val responses = requestAndResponses.map(_._2)
-
-    val grid = new GridPane
-    grid.getStyleClass.addAll("plain-border", "round-border")
-    grid.setPadding(new Insets(15))
-    grid.setHgap(15)
-    grid.setVgap(15)
-
-    grid.getRowConstraints.addAll(
-      RowConstraintsBuilder().withPercentageHeight(60).withVgrow(Priority.ALWAYS).build,
-      RowConstraintsBuilder().withVgrow(Priority.ALWAYS).build,
-      RowConstraintsBuilder().withVgrow(Priority.NEVER).build
+    Platform.runLater(() =>
+      setCenter(CompletedBulkRequestOutput(requestAndResponses, exportToCsv, exportToBash, throttle))
     )
-
-    val xAxis = new NumberAxis
-    xAxis.setForceZeroInRange(true)
-    xAxis.setMinorTickVisible(false)
-    xAxis.setTickLabelsVisible(false)
-
-    val yAxis = new NumberAxis
-    yAxis.setTickLabelFormatter(new NumberAxis.DefaultFormatter(yAxis, null, " ms"))
-    yAxis.setForceZeroInRange(true)
-
-    val timeSeries = new XYChart.Series[Number, Number]
-    responses.zipWithIndex.foreach { case(r, i) =>
-      if (r.isDefined) {
-        timeSeries.getData.add(new XYChart.Data(i, r.get.time))
-      }
-    }
-
-    val lineChart = new AreaChart[Number, Number](xAxis, yAxis)
-    lineChart.setTitle("Response time over time")
-    lineChart.setCreateSymbols(false)
-    lineChart.setLegendVisible(false)
-    lineChart.getData.add(timeSeries)
-    GridPane.setHgrow(lineChart, Priority.ALWAYS)
-    GridPane.setColumnSpan(lineChart, 2)
-    grid.add(lineChart, 0, 0)
-
-    val allTimes = responses.filter(_.isDefined).map(_.get.time)
-    val allTimesSorted = allTimes.sorted
-    val averageResponseTime = if (responses.isEmpty) 0 else allTimes.sum / responses.size
-
-    val responseCodesWithCounts = responses.filter(_.isDefined).groupBy(_.get.raw.code)
-
-    val requestCountsOutput = if (responseCodesWithCounts.isEmpty) {
-      List("No responses")
-    } else {
-      responseCodesWithCounts.map { case (c, r) =>
-        s"HTTP $c.................. ${r.size}"
-      }
-    }
-
-    val timings =
-      s"""Timings
-         |---
-         |Average Response Time..... $averageResponseTime ms
-         |Fastest Response Time..... ${allTimesSorted.headOption.getOrElse(0)} ms
-         |Slowest Response Time..... ${allTimesSorted.lastOption.getOrElse(0)} ms
-         |
-         |Request/Response Counts
-         |---
-         |${requestCountsOutput.mkString("\n")}""".stripMargin
-
-    val textAreaTimings = new TextArea(timings)
-    textAreaTimings.getStyleClass.add("cardinal-font-console")
-    GridPane.setHgrow(textAreaTimings, Priority.ALWAYS)
-    GridPane.setColumnSpan(textAreaTimings, 2)
-    grid.add(textAreaTimings, 0, 1)
-
-    val exportToCsvButton = new Button("Export to CSV...")
-    exportToCsvButton.setOnAction(_ => exportToCsv(requestAndResponses))
-    GridPane.setColumnSpan(exportToCsvButton, 1)
-    GridPane.setHgrow(exportToCsvButton, Priority.NEVER)
-    grid.add(exportToCsvButton, 0, 2)
-
-    val exportToBashButton = new Button("Export as script...")
-    exportToBashButton.setOnAction(_ => exportToBash(requestAndResponses.map(_._1), throttle))
-    GridPane.setColumnSpan(exportToBashButton, 1)
-    GridPane.setHgrow(exportToBashButton, Priority.ALWAYS)
-    grid.add(exportToBashButton, 1, 2)
-
-    Platform.runLater(() => setCenter(grid))
   }
 
 }
