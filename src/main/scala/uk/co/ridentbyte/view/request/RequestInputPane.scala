@@ -49,12 +49,6 @@ class RequestInputPane(triggerUnsavedChangesMade: () => Unit) extends GridPane {
 
   private val textAreaBody = new TextArea()
   textAreaBody.textProperty().addListener((_, _, _) => triggerUnsavedChangesMade())
-  textAreaBody.addEventFilter(KeyEvent.KEY_PRESSED, (e: KeyEvent) => {
-    if (e.getCode == KeyCode.TAB) {
-      textAreaBody.insertText(textAreaBody.getCaretPosition, "  ")
-      e.consume()
-    }
-  })
   textAreaBody.getStyleClass.add("cardinal-font")
   GridPane.setVgrow(textAreaBody, Priority.ALWAYS)
   GridPane.setHgrow(textAreaBody, Priority.ALWAYS)
