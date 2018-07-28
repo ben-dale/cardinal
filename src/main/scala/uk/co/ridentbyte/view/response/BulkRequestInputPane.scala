@@ -1,74 +1,56 @@
-package uk.co.ridentbyte.view.dialog
+package uk.co.ridentbyte.view.response
 
 import javafx.geometry.{HPos, Insets}
-import javafx.scene.control._
+import javafx.scene.control.{Button, Label, TextField}
 import javafx.scene.layout.{GridPane, Priority}
-import uk.co.ridentbyte.model.BulkRequest
+import uk.co.ridentbyte.model.CardinalRequest
 
-class BulkRequestInputDialog(bulkRequest: Option[BulkRequest] = None) extends Dialog[BulkRequest] {
+case class BulkRequestInputPane(startBulkRequest: (CardinalRequest, Option[Long], Option[Int], Option[List[String]]) => Unit,
+                                request: CardinalRequest) extends GridPane {
 
-  val asScript = new ButtonType("As script...")
-
-
-  setTitle("Bulk Request")
-  getDialogPane.getButtonTypes.addAll(asScript, ButtonType.CANCEL, ButtonType.OK)
-
-  private val grid = new GridPane
-  grid.setPadding(new Insets(10, 10, 10, 10))
-  grid.setHgap(10)
-  grid.setVgap(10)
+  setHgap(10)
+  setVgap(10)
+  setPadding(new Insets(10))
+  getStyleClass.addAll("plain-border", "round-border")
 
   private val labelDelay = new Label("Delay per request (ms)")
   GridPane.setHalignment(labelDelay, HPos.RIGHT)
-  grid.add(labelDelay, 0, 0)
+  add(labelDelay, 0, 0)
 
-  private val throttle = if (bulkRequest.isEmpty) 200 else bulkRequest.get.throttle.get
+  private val throttle = 200
   private val textDelay = new TextField(throttle.toString)
   GridPane.setHgrow(textDelay, Priority.ALWAYS)
   textDelay.setText("200")
-  grid.add(textDelay, 1, 0)
+  add(textDelay, 1, 0)
 
   private val labelNumOfRequests = new Label("No. of requests")
   GridPane.setHalignment(labelNumOfRequests, HPos.RIGHT)
-  grid.add(labelNumOfRequests, 0, 1)
+  add(labelNumOfRequests, 0, 1)
 
-  private val numOfRequests = bulkRequest match {
-    case Some(r) if r.count.isDefined => r.count.get.toString
-    case _ => ""
-  }
-  private val textNumOfRequests = new TextField(numOfRequests)
+  private val textNumOfRequests = new TextField()
   GridPane.setHgrow(textNumOfRequests, Priority.ALWAYS)
-  grid.add(textNumOfRequests, 1, 1)
+  add(textNumOfRequests, 1, 1)
 
   private val labelOr = new Label("- OR -")
   GridPane.setColumnSpan(labelOr, 3)
   GridPane.setHalignment(labelOr, HPos.CENTER)
-  grid.add(labelOr, 0, 2)
+  add(labelOr, 0, 2)
 
   private val labelForEach = new Label("For each")
   GridPane.setHalignment(labelForEach, HPos.RIGHT)
-  grid.add(labelForEach, 0, 3)
+  add(labelForEach, 0, 3)
 
-  private val ids = bulkRequest match {
-    case Some(r) if r.ids.isDefined => r.ids.get.mkString(",")
-    case _ => ""
-  }
-  private val textForEach = new TextField(ids)
+  private val textForEach = new TextField()
   GridPane.setHgrow(textForEach, Priority.ALWAYS)
   textForEach.setPromptText("325, 454, 432 or 12..54")
-  grid.add(textForEach, 1, 3)
+  add(textForEach, 1, 3)
 
-  getDialogPane.setContent(grid)
-
-  setResultConverter((buttonType) => {
-    if (buttonType == ButtonType.OK) {
-      BulkRequest(getOptTextDelay, getOptNumberOfRequests, getTextForEach, asBash = false)
-    } else if (buttonType == asScript) {
-      BulkRequest(getOptTextDelay, getOptNumberOfRequests, getTextForEach, asBash = true)
-    } else {
-      null
-    }
+  private val buttonStart = new Button("Start")
+  GridPane.setHgrow(textForEach, Priority.NEVER)
+  buttonStart.setOnAction(_ => {
+    startBulkRequest(request, getOptTextDelay, getOptNumberOfRequests, getOptTextForEach)
   })
+  add(buttonStart,1, 4)
 
   def getOptTextDelay: Option[Long] = {
     if (textDelay.getText.trim.length == 0) {
@@ -94,7 +76,7 @@ class BulkRequestInputDialog(bulkRequest: Option[BulkRequest] = None) extends Di
     }
   }
 
-  def getTextForEach: Option[List[String]] = {
+  def getOptTextForEach: Option[List[String]] = {
     if (textForEach.getText.trim.length == 0) {
       None
     } else {
@@ -105,4 +87,5 @@ class BulkRequestInputDialog(bulkRequest: Option[BulkRequest] = None) extends Di
       }
     }
   }
+
 }

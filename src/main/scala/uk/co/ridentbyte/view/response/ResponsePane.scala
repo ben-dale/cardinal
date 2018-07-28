@@ -4,7 +4,6 @@ import javafx.application.Platform
 import javafx.geometry.Insets
 import javafx.scene.layout._
 import uk.co.ridentbyte.model.{BulkRequest, Config, CardinalResponse, CardinalRequest}
-import uk.co.ridentbyte.view.dialog.BulkRequestInputDialog
 
 class ResponsePane(getConfigCallback: () => Config,
                    sendRequestCallback: CardinalRequest => CardinalResponse,
@@ -30,18 +29,7 @@ class ResponsePane(getConfigCallback: () => Config,
   }
 
   def showBulkRequestInput(request: CardinalRequest, bulkRequest: Option[BulkRequest] = None): Unit = {
-    val bulkRequestInputDialog = new BulkRequestInputDialog(bulkRequest)
-    val bulkRequestResult = bulkRequestInputDialog.showAndWait()
-    if (bulkRequestResult != null && bulkRequestResult.isPresent) {
-      if (bulkRequestResult.get.throttle.isEmpty || (bulkRequestResult.get.count.isEmpty && bulkRequestResult.get.ids.isEmpty)) {
-        showErrorDialogCallback("Invalid input. \nPlease provide a throttle and either a request count or a range value.")
-        showBulkRequestInput(request, Some(bulkRequestResult.get))
-      } else if (bulkRequestResult.get.asBash) {
-        asScript(request, bulkRequestResult.get.throttle, bulkRequestResult.get.count, bulkRequestResult.get.ids)
-      } else {
-        startBulkRequest(request, bulkRequestResult.get.throttle, bulkRequestResult.get.count, bulkRequestResult.get.ids)
-      }
-    }
+    Platform.runLater(() => setCenter(BulkRequestInputPane(startBulkRequest, request)))
   }
 
   def asScript(request: CardinalRequest, throttle: Option[Long], requestCount: Option[Int], ids: Option[List[String]]): Unit = {
@@ -59,9 +47,13 @@ class ResponsePane(getConfigCallback: () => Config,
   }
 
   def startBulkRequest(request: CardinalRequest, throttle: Option[Long], requestCount: Option[Int], ids: Option[List[String]]): Unit = {
-    val outputPane = BulkRequestProcessingOutputPane(getConfigCallback, sendRequestCallback, finishedBulkRequestCallback, request, throttle, requestCount, ids)
-    Platform.runLater(() => setCenter(outputPane))
-    new Thread(outputPane.task).start()
+    if (throttle.isEmpty || (requestCount.isEmpty && ids.isEmpty)) {
+      showErrorDialogCallback("Invalid input. \nPlease provide a throttle and either a request count or a range value.")
+    } else {
+      val outputPane = BulkRequestProcessingOutputPane(getConfigCallback, sendRequestCallback, finishedBulkRequestCallback, request, throttle, requestCount, ids)
+      Platform.runLater(() => setCenter(outputPane))
+      new Thread(outputPane.task).start()
+    }
   }
 
   def finishedBulkRequestCallback(requestAndResponses: List[(CardinalRequest, Option[CardinalResponse])], throttle: Option[Long]): Unit = {
