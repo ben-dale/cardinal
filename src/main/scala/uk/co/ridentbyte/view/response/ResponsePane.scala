@@ -29,21 +29,7 @@ class ResponsePane(getConfigCallback: () => Config,
   }
 
   def showBulkRequestInput(request: CardinalRequest, bulkRequest: Option[BulkRequest] = None): Unit = {
-    Platform.runLater(() => setCenter(BulkRequestInputPane(startBulkRequest, request)))
-  }
-
-  def asScript(request: CardinalRequest, throttle: Option[Long], requestCount: Option[Int], ids: Option[List[String]]): Unit = {
-    if (requestCount.isDefined) {
-      val requests = 0 until requestCount.get map { i =>
-        request.withId(i.toString).processConstants(getConfigCallback())
-      }
-      exportToBash(requests.toList, throttle)
-    } else if (ids.isDefined) {
-      val requests = ids.get.zipWithIndex.map { case (id, i) =>
-        request.withId(id).processConstants(getConfigCallback())
-      }
-      exportToBash(requests, throttle)
-    }
+    Platform.runLater(() => setCenter(BulkRequestInputPane(getConfigCallback, exportToBash, startBulkRequest, request)))
   }
 
   def startBulkRequest(request: CardinalRequest, throttle: Option[Long], requestCount: Option[Int], ids: Option[List[String]]): Unit = {

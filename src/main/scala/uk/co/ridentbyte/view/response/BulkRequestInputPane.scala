@@ -3,9 +3,11 @@ package uk.co.ridentbyte.view.response
 import javafx.geometry.{HPos, Insets}
 import javafx.scene.control.{Button, Label, TextField}
 import javafx.scene.layout.{GridPane, Priority}
-import uk.co.ridentbyte.model.CardinalRequest
+import uk.co.ridentbyte.model.{CardinalRequest, Config}
 
-case class BulkRequestInputPane(startBulkRequest: (CardinalRequest, Option[Long], Option[Int], Option[List[String]]) => Unit,
+case class BulkRequestInputPane(getConfig: () => Config,
+                                exportToBash: (List[CardinalRequest], Option[Long]) => Unit,
+                                startBulkRequest: (CardinalRequest, Option[Long], Option[Int], Option[List[String]]) => Unit,
                                 request: CardinalRequest) extends GridPane {
 
   setHgap(10)
@@ -17,10 +19,8 @@ case class BulkRequestInputPane(startBulkRequest: (CardinalRequest, Option[Long]
   GridPane.setHalignment(labelDelay, HPos.RIGHT)
   add(labelDelay, 0, 0)
 
-  private val throttle = 200
-  private val textDelay = new TextField(throttle.toString)
+  private val textDelay = new TextField("200")
   GridPane.setHgrow(textDelay, Priority.ALWAYS)
-  textDelay.setText("200")
   add(textDelay, 1, 0)
 
   private val labelNumOfRequests = new Label("No. of requests")
@@ -48,11 +48,16 @@ case class BulkRequestInputPane(startBulkRequest: (CardinalRequest, Option[Long]
   private val buttonStart = new Button("Start")
   GridPane.setHgrow(textForEach, Priority.NEVER)
   buttonStart.setOnAction(_ => {
-    startBulkRequest(request, getOptTextDelay, getOptNumberOfRequests, getOptTextForEach)
+    startBulkRequest(request, getThrottle, getNumberOfRequests, getForEach)
   })
   add(buttonStart,1, 4)
 
-  def getOptTextDelay: Option[Long] = {
+  private val buttonExportAsScript = new Button("Export as script...")
+  GridPane.setHgrow(textForEach, Priority.NEVER)
+  buttonExportAsScript.setOnAction(_ => asScript())
+  add(buttonExportAsScript,1, 5)
+
+  def getThrottle: Option[Long] = {
     if (textDelay.getText.trim.length == 0) {
       None
     } else {
@@ -64,7 +69,7 @@ case class BulkRequestInputPane(startBulkRequest: (CardinalRequest, Option[Long]
     }
   }
 
-  def getOptNumberOfRequests: Option[Int] = {
+  def getNumberOfRequests: Option[Int] = {
     if (textNumOfRequests.getText.trim.length == 0) {
       None
     } else {
@@ -76,7 +81,7 @@ case class BulkRequestInputPane(startBulkRequest: (CardinalRequest, Option[Long]
     }
   }
 
-  def getOptTextForEach: Option[List[String]] = {
+  def getForEach: Option[List[String]] = {
     if (textForEach.getText.trim.length == 0) {
       None
     } else {
@@ -85,6 +90,22 @@ case class BulkRequestInputPane(startBulkRequest: (CardinalRequest, Option[Long]
         case matcher(a, b) => Some(a.toInt.to(b.toInt).map(_.toString).toList)
         case v => Some(v.split(",").toList)
       }
+    }
+  }
+
+  def asScript(): Unit = {
+    val requestCount = getNumberOfRequests
+    val ids = getForEach
+    if (requestCount.isDefined) {
+      val requests = 0 until requestCount.get map { i =>
+        request.withId(i.toString).processConstants(getConfig())
+      }
+      exportToBash(requests.toList, getThrottle)
+    } else if (ids.isDefined) {
+      val requests = ids.get.zipWithIndex.map { case (id, i) =>
+        request.withId(id).processConstants(getConfig())
+      }
+      exportToBash(requests, getThrottle)
     }
   }
 
