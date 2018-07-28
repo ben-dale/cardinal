@@ -36,15 +36,16 @@ case class Command(private val command: String) {
         "(?:upper\\((.*)\\))".r,
         "(?:capitalise\\((.*)\\))".r,
         "(?:random\\((.*)\\))".r,
-        "(?:lorem\\((.*)\\))".r
+        "(?:lorem\\((.*)\\))".r,
+        "(?:randomBetween\\((.*)\\))".r
       )
-
 
       val lowerFunction = "(?:lower\\((.*)\\))".r
       val upperFunction = "(?:upper\\((.*)\\))".r
       val capitaliseFunction = "(?:capitalise\\((.*)\\))".r
       val randomFunction = "(?:random\\((.*)\\))".r
       val loremFunction = "(?:lorem\\((.*)\\))".r
+      val randomBetween = "(?:randomBetween\\((.*)\\))".r
 
       val rawString = "\"[^\"]*\""
 
@@ -72,6 +73,8 @@ case class Command(private val command: String) {
           }
 
         case randomFunction(v) =>
+          // TODO - need to improve text splitting here
+          // For example we want #{random(random(1, 2), random(3, 4))} to be valid
           val splitValues = v.split(",").map(_.trim).toList
           val argumentTypes = getArgumentTypes(splitValues, constants, functions)
           val containsInvalidTypes = argumentTypes.count(n => n.isInstanceOf[InvalidLiteral]) > 0
@@ -81,6 +84,23 @@ case class Command(private val command: String) {
           } else {
             rawContents
           }
+
+        case randomBetween(v) =>
+          val splitValues = v.split(",").map(_.trim).toList
+          val argumentTypes = getArgumentTypes(splitValues, constants, functions)
+          val containsInvalidTypes = argumentTypes.count(n => n.isInstanceOf[InvalidLiteral]) > 0
+          if (!containsInvalidTypes && splitValues.length == 2) {
+            try {
+              val processedValues = splitValues.map { v => processWith(constants, vocabulary, Some(v)) }
+              val allPossibleValues = processedValues.head.toInt.to(processedValues.last.toInt)
+              allPossibleValues(r.nextInt(allPossibleValues.length)).toString
+            } catch {
+              case _: Exception => rawContents
+            }
+          } else {
+            rawContents
+          }
+
         case v if v.matches(rawString) => v.replace("\"", "")
         case v => v
       }
@@ -90,10 +110,10 @@ case class Command(private val command: String) {
   def getArgumentTypes(args: List[String], constants: Map[String, () => String], functions: List[Regex]): List[ArgumentType] = {
     args.map {
       case a if a.matches("\"[^\"]*\"") => StringLiteral(a)
-      case i if i.matches("[0-9]+") => IntLiteral(i)
+      case i if i.matches("[\\-]?[0-9]+") => IntLiteral(i)
       case c if constants.contains(c) => Constant(c)
       case f if functions.exists(f2 => f.matches(f2.regex)) => Function(f)
-      case n => InvalidLiteral(n)
+      case n => println(n); InvalidLiteral(n)
     }
   }
 

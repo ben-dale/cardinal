@@ -3,7 +3,6 @@ package uk.co.ridentbyte
 import java.io.{File, FileWriter}
 import java.nio.file.Files
 import java.nio.file.attribute.PosixFilePermission
-import java.util.Date
 
 import javafx.application.{Application, Platform}
 import javafx.scene.Scene
@@ -386,14 +385,11 @@ class Cardinal extends Application {
   }
 
   def exportToBash(requests: List[CardinalRequest], throttle: Option[Long]): Unit = {
-    val header = "#!/bin/bash"
-    val date = "# Auto-generated " + new Date().toString
-    val delay = if (throttle.isDefined) "sleep " + throttle.get / 1000.0 + "\n" else ""
-    val content = requests.map(_.toCurl(currentConfig)).mkString("\necho\n" + delay) + "\necho"
+    val bashScript = BashScript(requests, throttle, currentConfig)
     val fileChooser = new FileChooser
     val file = fileChooser.showSaveDialog(currentStage)
     if (file != null) {
-      writeToFile(file, header + "\n\n" + date + "\n" + content)
+      writeToFile(file, bashScript.toString)
       val posix = Set(
         PosixFilePermission.OWNER_WRITE,
         PosixFilePermission.OWNER_READ,
