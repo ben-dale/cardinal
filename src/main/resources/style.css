@@ -1,3 +1,9 @@
+.header {
+    -fx-font-family: "Open Sans";
+    -fx-padding: 0 0 15px 0;
+    -fx-font-size: 18;
+}
+
 .control-pane {
     -fx-border-color: lightgrey;
     -fx-border-style: solid hidden hidden hidden;

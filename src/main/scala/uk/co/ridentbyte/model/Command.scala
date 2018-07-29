@@ -113,7 +113,7 @@ case class Command(private val command: String) {
       case i if i.matches("[\\-]?[0-9]+") => IntLiteral(i)
       case c if constants.contains(c) => Constant(c)
       case f if functions.exists(f2 => f.matches(f2.regex)) => Function(f)
-      case n => println(n); InvalidLiteral(n)
+      case n => InvalidLiteral(n)
     }
   }
 
