@@ -13,14 +13,14 @@ case class BulkRequestOutputPane(requestAndResponses: List[(CardinalRequest, Opt
                                  throttle: Option[Long]) extends GridPane {
 
   val responses = requestAndResponses.map(_._2)
-  
+
+  setHgap(10)
+  setVgap(10)
+  setPadding(new Insets(20))
   getStyleClass.addAll("plain-border", "round-border")
-  setPadding(new Insets(15))
-  setHgap(15)
-  setVgap(15)
 
   getRowConstraints.addAll(
-    RowConstraintsBuilder().withPercentageHeight(60).withVgrow(Priority.ALWAYS).build,
+    RowConstraintsBuilder().withPercentageHeight(55).withVgrow(Priority.ALWAYS).build,
     RowConstraintsBuilder().withVgrow(Priority.ALWAYS).build,
     RowConstraintsBuilder().withVgrow(Priority.NEVER).build
   )

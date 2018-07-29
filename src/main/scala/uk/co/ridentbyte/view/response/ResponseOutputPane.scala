@@ -1,5 +1,6 @@
 package uk.co.ridentbyte.view.response
 
+import javafx.geometry.Insets
 import javafx.scene.control.{ListView, TextArea}
 import javafx.scene.layout.{GridPane, Priority}
 import uk.co.ridentbyte.model.CardinalResponse
@@ -7,8 +8,11 @@ import uk.co.ridentbyte.view.util.{ColumnConstraintsBuilder, RowConstraintsBuild
 
 case class ResponseOutputPane(response: CardinalResponse) extends GridPane {
 
-  setVgap(10)
   setHgap(10)
+  setVgap(10)
+  setPadding(new Insets(20))
+  getStyleClass.addAll("plain-border", "round-border")
+
   getColumnConstraints.add(ColumnConstraintsBuilder().withHgrow(Priority.ALWAYS).build)
   getRowConstraints.add(RowConstraintsBuilder().withVgrow(Priority.ALWAYS).withPercentageHeight(40).build)
   getRowConstraints.add(RowConstraintsBuilder().withVgrow(Priority.ALWAYS).withPercentageHeight(60).build)

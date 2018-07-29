@@ -72,8 +72,10 @@ case class BulkRequestProcessingOutputPane(getConfigCallback: () => Config,
       }
     }
   }
-  
-  setPadding(new Insets(10))
+
+  setHgap(10)
+  setVgap(10)
+  setPadding(new Insets(20, 60, 20, 60))
   getStyleClass.addAll("plain-border", "round-border")
   getRowConstraints.addAll(
     RowConstraintsBuilder().withVgrow(Priority.NEVER).build,
@@ -84,14 +86,11 @@ case class BulkRequestProcessingOutputPane(getConfigCallback: () => Config,
   getColumnConstraints.addAll(
     ColumnConstraintsBuilder().withPercentageWidth(100).build
   )
-  setHgap(10)
-  setVgap(10)
 
-  val labelSendingRequest = new Label("Sending requests...")
-  GridPane.setHalignment(labelSendingRequest, HPos.CENTER)
-  GridPane.setHgrow(labelSendingRequest, Priority.ALWAYS)
-  GridPane.setFillWidth(labelSendingRequest, true)
-  add(labelSendingRequest, 0, 0)
+  private val labelHeader = new Label("Processing Requests")
+  labelHeader.getStyleClass.addAll("header")
+  GridPane.setHalignment(labelHeader, HPos.CENTER)
+  add(labelHeader, 0, 0)
 
   val progressBar = new ProgressBar()
   progressBar.progressProperty().unbind()
