@@ -115,6 +115,6 @@ Clicking "Export to CSV..." will export the summary of each request and the asso
 
 Clicking "Export as script..." will export the requests that were sent to a bash script so that the exact same bulk request can be sent again.
 
-#### Extras
+### Extras
 
 If you're interested in the evolution of Cardinal over time, checkout the timeline [here](timeline.md)!
