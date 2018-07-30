@@ -113,7 +113,7 @@ class Cardinal extends Application {
       currentConfig = Config(lines)
     } else {
       // Create new empty config file if not present
-      saveChangesToConfig(Config(List.empty[String]))
+      saveChangesToConfig(Config(List.empty[EnvironmentVariable]))
     }
 
     // Temporary action for dev
@@ -140,7 +140,7 @@ class Cardinal extends Application {
     primaryStage.show()
   }
 
-  private def setEnvironmentVariables(vars: List[String]): Unit = {
+  private def setEnvironmentVariables(vars: List[EnvironmentVariable]): Unit = {
     currentConfig = currentConfig.withEnvironmentVariables(vars)
     saveChangesToConfig(currentConfig)
   }
@@ -276,7 +276,7 @@ class Cardinal extends Application {
   }
 
   def showEnvironmentVariablesInput(): Unit = {
-    val dialog = new EnvironmentVariablesEditDialog(currentConfig.environmentVariables)
+    val dialog = new EnvironmentVariablesEditDialog(currentConfig.getEnvironmentVariables)
     val results = dialog.showAndWait()
     if (results.isPresent) {
       setEnvironmentVariables(results.get)

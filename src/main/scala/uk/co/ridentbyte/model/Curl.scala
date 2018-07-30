@@ -2,7 +2,7 @@ package uk.co.ridentbyte.model
 
 import uk.co.ridentbyte.Cardinal
 
-case class Curl(uri: String, verb: String, body: Option[String], headers: List[String], envVars: Map[String, String]) {
+case class Curl(uri: String, verb: String, body: Option[String], headers: List[String], envVars: List[EnvironmentVariable]) {
 
   def toCommand: String = {
     val sb = new StringBuilder

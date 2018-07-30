@@ -5,7 +5,7 @@ import java.util.regex.Pattern
 
 import scala.util.Random
 
-case class RequestString(content: String, environmentVars: Map[String, String], vocabulary: Vocabulary) {
+case class RequestString(content: String, environmentVars: List[EnvironmentVariable], vocabulary: Vocabulary) {
 
   def process: String = {
     var contentCopy = content
@@ -49,7 +49,7 @@ case class RequestString(content: String, environmentVars: Map[String, String], 
       "randomObject()" -> vocabulary.objects.random,
       "randomPlace()" -> vocabulary.places.random,
       "randomEmoji()" -> vocabulary.emoji.random
-    ) ++ environmentVars.map { case (k, v) => (k, () => v) }
+    ) ++ environmentVars.map { e => (e.key, () => e.value) }
 
     extractedCommands.foreach { command =>
       contentCopy = contentCopy.replaceFirst(
