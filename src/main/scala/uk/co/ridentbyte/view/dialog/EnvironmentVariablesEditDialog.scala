@@ -98,7 +98,6 @@ class EnvironmentVariablesEditDialog(existingParameters: List[EnvironmentVariabl
     grid.add(buttonRemove, 2, keyValueInputs.length)
     grid.add(buttonAdd, 3, keyValueInputs.length)
     getDialogPane.getScene.getWindow.sizeToScene()
-    grid.setGridLinesVisible(true)
   }
 }
 
