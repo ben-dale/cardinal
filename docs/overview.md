@@ -114,3 +114,7 @@ This shows a breakdown of the response time, over time, and a summary of counts 
 Clicking "Export to CSV..." will export the summary of each request and the assocated response to a CSV file so that each request and response can be inspected individually.
 
 Clicking "Export as script..." will export the requests that were sent to a bash script so that the exact same bulk request can be sent again.
+
+#### Extras
+
+If you're interested in the evolution of Cardinal over time, checkout the timeline [here](timeline.md)!
