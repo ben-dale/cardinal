@@ -113,7 +113,9 @@ class Cardinal extends Application {
       currentConfig = Config(lines)
     } else {
       // Create new empty config file if not present
-      saveChangesToConfig(Config(List.empty[EnvironmentVariable]))
+      val conf = Config(List.empty[EnvironmentVariable])
+      saveChangesToConfig(conf)
+      currentConfig = conf
     }
 
     // Temporary action for dev
