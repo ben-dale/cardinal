@@ -7,14 +7,14 @@ import javafx.scene.control.SplitPane
 import javafx.scene.layout.{BorderPane, GridPane, Priority}
 import javax.net.ssl.SSLHandshakeException
 import uk.co.ridentbyte.model.{CardinalRequest, CardinalResponse, Config}
-import uk.co.ridentbyte.view.request.{RequestControlPane, RequestInputPane}
+import uk.co.ridentbyte.view.request.{RequestControlPane, RequestControlPaneOld, RequestInputPane}
 import uk.co.ridentbyte.view.response.ResponsePane
 import uk.co.ridentbyte.view.util.{ColumnConstraintsBuilder, RowConstraintsBuilder}
 
 import scala.runtime.BoxedUnit
 
-class CardinalView(showAsCurl: () => Unit,
-                   showErrorDialogCallback: String => Unit,
+class CardinalView(showAsCurl: () => BoxedUnit,
+                   showErrorDialogCallback: String => BoxedUnit,
                    getConfigCallback: () => Config,
                    exportToCsv: List[(CardinalRequest, Option[CardinalResponse])] => Unit,
                    exportToBash: (List[CardinalRequest], Option[Long]) => Unit,
@@ -28,7 +28,7 @@ class CardinalView(showAsCurl: () => Unit,
   requestInputPane.setMinWidth(400)
   private val responsePane = new ResponsePane(getConfigCallback, sendRequestCallback, exportToCsv, exportToBash, showErrorDialogCallback)
   responsePane.setMinWidth(400)
-  private val requestControlPane = new RequestControlPane(showAsCurl, sendSingleRequest, showBulkRequestInput)
+  private val requestControlPane = new RequestControlPane(showAsCurl, showBulkRequestInput, sendSingleRequest)
 
   val grid = new GridPane
   grid.getColumnConstraints.add(ColumnConstraintsBuilder().withHgrow(Priority.ALWAYS).build)
@@ -50,7 +50,7 @@ class CardinalView(showAsCurl: () => Unit,
     responsePane.clearContents()
   }
 
-  private def sendSingleRequest(onStart: () => Unit, onFinish: () => Unit): Unit = {
+  private def sendSingleRequest(onStart: () => BoxedUnit, onFinish: () => BoxedUnit): BoxedUnit = {
     Platform.runLater(() => responsePane.clearContents())
     val request = requestInputPane.getRequest
     if (request.uri.trim.length == 0) {
@@ -73,15 +73,17 @@ class CardinalView(showAsCurl: () => Unit,
           responsePane.setResponse(httpResponse)
         }
       }.start()
+      scala.runtime.BoxedUnit.UNIT
     }
   }
 
-  private def showBulkRequestInput(): Unit = {
+  private def showBulkRequestInput(): BoxedUnit = {
     val request = requestInputPane.getRequest
     if (request.uri.trim.length == 0) {
       showErrorDialogCallback("Please enter a URL.")
     } else {
       responsePane.showBulkRequestInput(requestInputPane.getRequest)
+      scala.runtime.BoxedUnit.UNIT
     }
   }
 

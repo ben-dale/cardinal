@@ -3,13 +3,15 @@ package uk.co.ridentbyte.view.response
 import javafx.application.Platform
 import javafx.geometry.Insets
 import javafx.scene.layout._
-import uk.co.ridentbyte.model.{BulkRequest, Config, CardinalResponse, CardinalRequest}
+import uk.co.ridentbyte.model.{BulkRequest, CardinalRequest, CardinalResponse, Config}
+
+import scala.runtime.BoxedUnit
 
 class ResponsePane(getConfigCallback: () => Config,
                    sendRequestCallback: CardinalRequest => CardinalResponse,
                    exportToCsv: List[(CardinalRequest, Option[CardinalResponse])] => Unit,
                    exportToBash: (List[CardinalRequest], Option[Long]) => Unit,
-                   showErrorDialogCallback: String => Unit) extends BorderPane {
+                   showErrorDialogCallback: String => BoxedUnit) extends BorderPane {
 
   setPadding(new Insets(20, 20, 20, 20))
   clearContents()

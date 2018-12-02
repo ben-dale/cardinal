@@ -287,15 +287,16 @@ class Cardinal extends Application {
     }
   }
 
-  def showErrorDialog(errorMessage: String): Unit = {
+  def showErrorDialog(errorMessage: String): BoxedUnit = {
     Platform.runLater(() => {
       val alert = new Alert(AlertType.ERROR)
       alert.setContentText(errorMessage)
       alert.showAndWait
     })
+    scala.runtime.BoxedUnit.UNIT
   }
 
-  def showAsCurl(): Unit = {
+  def showAsCurl(): BoxedUnit = {
     val currentTab = getCurrentTab
     if (currentTab != null) {
       val request = currentTab.content.getRequest
@@ -305,6 +306,7 @@ class Cardinal extends Application {
         currentTab.content.loadCurlCommand(request.toCurl(currentConfig))
       }
     }
+    scala.runtime.BoxedUnit.UNIT
   }
 
   private def getCurrentTab: CardinalTab = {
