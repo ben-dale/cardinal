@@ -1,0 +1,110 @@
+package uk.co.ridentbyte.view.request;
+
+import javafx.geometry.Insets;
+import javafx.scene.control.Label;
+import javafx.scene.control.TextArea;
+import javafx.scene.layout.GridPane;
+import javafx.scene.layout.Priority;
+import scala.runtime.BoxedUnit;
+import uk.co.ridentbyte.model.CardinalRequest;
+import uk.co.ridentbyte.view.util.RowConstraintsBuilder;
+
+public class RequestInputPane extends GridPane {
+
+    private RequestUriVerbInputPane uriVerbInputPane;
+    private TextArea textHeaders, textAreaBody;
+
+    public RequestInputPane(scala.Function0<BoxedUnit> triggerUnsavedChangesMade) {
+        this.setHgap(10);
+        this.setVgap(10);
+        this.setPadding(new Insets(20));
+        this.getRowConstraints().addAll(
+            new RowConstraintsBuilder().build(),
+            new RowConstraintsBuilder().build(),
+            new RowConstraintsBuilder().withMaxHeight(200).build(),
+            new RowConstraintsBuilder().build(),
+            new RowConstraintsBuilder().build()
+        );
+
+        this.uriVerbInputPane = new RequestUriVerbInputPane(triggerUnsavedChangesMade);
+        GridPane.setVgrow(uriVerbInputPane, Priority.NEVER);
+        GridPane.setHgrow(uriVerbInputPane, Priority.ALWAYS);
+        this.add(uriVerbInputPane, 0, 0);
+
+        Label labelHeaders = new Label("Headers");
+        labelHeaders.getStyleClass().add("cardinal-font");
+        GridPane.setVgrow(labelHeaders, Priority.NEVER);
+        GridPane.setHgrow(labelHeaders, Priority.ALWAYS);
+        this.add(labelHeaders, 0, 1);
+
+        this.textHeaders = new TextArea();
+        this.textHeaders.textProperty().addListener ( (arg, oldVal, newVal) -> triggerUnsavedChangesMade.apply());
+        this.textHeaders.getStyleClass().add("cardinal-font");
+        GridPane.setVgrow(this.textHeaders, Priority.ALWAYS);
+        GridPane.setHgrow(this.textHeaders, Priority.ALWAYS);
+        this.add(textHeaders, 0, 2);
+
+        Label labelBody = new Label("Body");
+        labelBody.getStyleClass().add("cardinal-font");
+        GridPane.setVgrow(labelBody, Priority.NEVER);
+        GridPane.setHgrow(labelBody, Priority.ALWAYS);
+        this.add(labelBody, 0, 3);
+
+        this.textAreaBody = new TextArea();
+        this.textAreaBody.textProperty().addListener ( (arg, oldVal, newVal) -> triggerUnsavedChangesMade.apply());
+        this.textAreaBody.getStyleClass().add("cardinal-font");
+        GridPane.setVgrow(this.textAreaBody, Priority.ALWAYS);
+        GridPane.setHgrow(this.textAreaBody, Priority.ALWAYS);
+        this.add(textAreaBody, 0, 4);
+    }
+
+    private String[] getHeaders() {
+        if (this.textHeaders.getText().trim().isEmpty()) {
+            return new String[]{};
+        } else {
+            return this.textHeaders.getText().split("\n");
+        }
+    }
+
+    private String getBody() {
+        return this.textAreaBody.getText().trim();
+    }
+
+    public void setBody(String body) {
+        if (body != null) {
+            this.textAreaBody.setText(body);
+        }
+    }
+
+    public CardinalRequest getRequest() {
+        String body = this.getBody();
+        String[] headers = this.getHeaders();
+        String verb = this.uriVerbInputPane.getVerb();
+        String uri = this.uriVerbInputPane.getUri();
+        return CardinalRequest.apply(uri, verb, headers, body);
+    }
+
+    public void clear() {
+        this.uriVerbInputPane.clear();
+        this.textHeaders.clear();
+        this.textAreaBody.clear();
+    }
+
+    public void loadRequest(CardinalRequest request) {
+        if (request.body().isDefined()) {
+            this.setBody(request.body().get());
+        }
+        this.textHeaders.setText(request.headers().mkString("\n"));
+        this.uriVerbInputPane.setVerb(request.verb());
+        this.uriVerbInputPane.setUri(request.uri());
+    }
+
+    public void addHeader(String header) {
+        if (this.textHeaders.getText().trim().isEmpty()) {
+            this.textHeaders.setText(header);
+        } else {
+            this.textHeaders.setText(this.textHeaders.getText() + "\n" + header);
+        }
+    }
+
+}

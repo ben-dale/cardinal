@@ -6,7 +6,7 @@ import javafx.scene.layout.{GridPane, Priority}
 
 import scala.collection.JavaConverters._
 
-class RequestUriVerbInputPane(triggerUnsavedChangesMade: () => Unit) extends GridPane {
+class RequestUriVerbInputPaneOld(triggerUnsavedChangesMade: () => Unit) extends GridPane {
 
   setHgap(10)
   setVgap(10)

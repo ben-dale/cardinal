@@ -11,13 +11,15 @@ import uk.co.ridentbyte.view.request.{RequestControlPane, RequestInputPane}
 import uk.co.ridentbyte.view.response.ResponsePane
 import uk.co.ridentbyte.view.util.{ColumnConstraintsBuilder, RowConstraintsBuilder}
 
+import scala.runtime.BoxedUnit
+
 class CardinalView(showAsCurl: () => Unit,
                    showErrorDialogCallback: String => Unit,
                    getConfigCallback: () => Config,
                    exportToCsv: List[(CardinalRequest, Option[CardinalResponse])] => Unit,
                    exportToBash: (List[CardinalRequest], Option[Long]) => Unit,
                    sendRequestCallback: CardinalRequest => CardinalResponse,
-                   triggerUnsavedChangesMade: () => Unit) extends BorderPane {
+                   triggerUnsavedChangesMade: () => BoxedUnit) extends BorderPane {
 
   private val requestResponseSplitPane = new SplitPane()
   requestResponseSplitPane.setDividerPositions(0.4)
@@ -89,7 +91,7 @@ class CardinalView(showAsCurl: () => Unit,
 
   def getRequest: CardinalRequest = requestInputPane.getRequest
 
-  def setBody(body: String): Unit = requestInputPane.setBody(Some(body))
+  def setBody(body: String): Unit = requestInputPane.setBody(body)
 
   def addHeader(header: String): Unit = requestInputPane.addHeader(header)
 

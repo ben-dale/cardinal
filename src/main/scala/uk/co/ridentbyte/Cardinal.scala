@@ -18,6 +18,7 @@ import uk.co.ridentbyte.view.dialog.{BasicAuthInputDialog, EnvironmentVariablesE
 
 import scala.collection.JavaConverters._
 import scala.io.Source
+import scala.runtime.BoxedUnit
 import scala.util.Random
 
 object Cardinal {
@@ -147,8 +148,9 @@ class Cardinal extends Application {
     saveChangesToConfig(currentConfig)
   }
 
-  private def triggerUnsavedChangesMade(): Unit = {
+  private def triggerUnsavedChangesMade(): BoxedUnit = {
     getCurrentTab.handleUnsavedChangesMade()
+    scala.runtime.BoxedUnit.UNIT
   }
 
   private def sendRequest(request: CardinalRequest): CardinalResponse = {

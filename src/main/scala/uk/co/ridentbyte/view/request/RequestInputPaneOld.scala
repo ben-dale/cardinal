@@ -6,9 +6,7 @@ import javafx.scene.layout._
 import uk.co.ridentbyte.model.CardinalRequest
 import uk.co.ridentbyte.view.util.RowConstraintsBuilder
 
-class RequestInputPane(triggerUnsavedChangesMade: () => Unit) extends GridPane {
-
-  private var currentRequest: Option[CardinalRequest] = None
+class RequestInputPaneOld(triggerUnsavedChangesMade: () => Unit) extends GridPane {
 
   setHgap(10)
   setVgap(10)
@@ -22,7 +20,7 @@ class RequestInputPane(triggerUnsavedChangesMade: () => Unit) extends GridPane {
     RowConstraintsBuilder().build
   )
 
-  private val uriVerbInputPane = new RequestUriVerbInputPane(triggerUnsavedChangesMade)
+  private val uriVerbInputPane = new RequestUriVerbInputPaneOld(triggerUnsavedChangesMade)
   GridPane.setVgrow(uriVerbInputPane, Priority.NEVER)
   GridPane.setHgrow(uriVerbInputPane, Priority.ALWAYS)
   add(uriVerbInputPane, 0, 0)
@@ -71,12 +69,10 @@ class RequestInputPane(triggerUnsavedChangesMade: () => Unit) extends GridPane {
   }
 
   def clear(): Unit = {
-    currentRequest = None
     uriVerbInputPane.clear()
   }
 
   def loadRequest(request: CardinalRequest): Unit = {
-    currentRequest = Some(request)
     setBody(request.body)
     textHeaders.setText(request.headers.mkString("\n"))
     uriVerbInputPane.setVerb(request.verb)

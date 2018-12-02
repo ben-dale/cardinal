@@ -4,12 +4,16 @@ import org.json4s.DefaultFormats
 import org.json4s.jackson.JsonMethods.parse
 import org.json4s.jackson.Serialization.writePretty
 import uk.co.ridentbyte.Cardinal
+import scala.collection.JavaConverters._
 
 object CardinalRequest {
   private implicit val formats: DefaultFormats = DefaultFormats
   def apply(json: String): CardinalRequest = parse(json).extract[CardinalRequest]
   def csvHeaders: String = {
     "request URI,request verb,request headers,request body"
+  }
+  def apply(uri: String, verb: String, headers: Array[String], body: String): CardinalRequest = {
+    CardinalRequest(uri, verb, headers.toList, Some(body))
   }
 }
 
@@ -39,7 +43,7 @@ case class CardinalRequest(uri: String, verb: String, headers: List[String], bod
   }
 
   def toCurl(config: Config): String = {
-    Curl(uri, verb, body, headers, config.getEnvironmentVariables).toCommand
+    new Curl(uri, verb, body.getOrElse(""), headers.asJava, config.getEnvironmentVariables).toCommand
   }
 
   def toCSV: String = {
