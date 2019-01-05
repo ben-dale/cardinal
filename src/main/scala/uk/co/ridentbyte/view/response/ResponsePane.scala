@@ -17,7 +17,7 @@ class ResponsePane(getConfigCallback: () => Config,
   clearContents()
 
   def clearContents(): Unit = {
-    setCenter(ClearResponsePane())
+    setCenter(new ClearResponsePane())
   }
 
   def setResponse(response: Option[CardinalResponse]): Unit = {
