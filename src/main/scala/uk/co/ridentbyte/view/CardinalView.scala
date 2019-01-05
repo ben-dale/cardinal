@@ -7,7 +7,7 @@ import javafx.scene.control.SplitPane
 import javafx.scene.layout.{BorderPane, GridPane, Priority}
 import javax.net.ssl.SSLHandshakeException
 import uk.co.ridentbyte.model.{CardinalRequest, CardinalResponse, Config}
-import uk.co.ridentbyte.view.request.{RequestControlPane, RequestControlPaneOld, RequestInputPane}
+import uk.co.ridentbyte.view.request.{RequestControlPane, RequestInputPane}
 import uk.co.ridentbyte.view.response.ResponsePane
 import uk.co.ridentbyte.view.util.{ColumnConstraintsBuilder, RowConstraintsBuilder}
 

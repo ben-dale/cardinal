@@ -27,7 +27,7 @@ class ResponsePane(getConfigCallback: () => Config,
   }
 
   def loadCurlCommand(command: String): Unit = {
-    Platform.runLater(() => setCenter(CurlOutputPane(command)))
+    Platform.runLater(() => setCenter(new CurlOutputPane(command)))
   }
 
   def showBulkRequestInput(request: CardinalRequest, bulkRequest: Option[BulkRequest] = None): Unit = {
