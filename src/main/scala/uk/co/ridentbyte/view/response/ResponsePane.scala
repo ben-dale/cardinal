@@ -22,7 +22,7 @@ class ResponsePane(getConfigCallback: () => Config,
 
   def setResponse(response: Option[CardinalResponse]): Unit = {
     if (response.isDefined) {
-      Platform.runLater(() => setCenter(ResponseOutputPane(response.get)))
+      Platform.runLater(() => setCenter(new ResponseOutputPane(response.get)))
     }
   }
 
