@@ -391,7 +391,11 @@ class Cardinal extends Application {
   }
 
   def exportToBash(requests: List[CardinalRequest], throttle: Option[Long]): Unit = {
-    val bashScript = BashScript(requests, throttle, currentConfig)
+    val bashScript = if (throttle.isDefined) {
+      new BashScript(requests.asJava, currentConfig, throttle.get)
+    } else {
+      new BashScript(requests.asJava, currentConfig)
+    }
     val fileChooser = new FileChooser
     val file = fileChooser.showSaveDialog(currentStage)
     if (file != null) {
