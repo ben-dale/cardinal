@@ -5,16 +5,17 @@ import javafx.scene.control.Label;
 import javafx.scene.control.TextArea;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.Priority;
-import scala.runtime.BoxedUnit;
 import uk.co.ridentbyte.model.CardinalRequest;
 import uk.co.ridentbyte.view.util.RowConstraintsBuilder;
+
+import java.util.function.Function;
 
 public class RequestInputPane extends GridPane {
 
     private RequestUriVerbInputPane uriVerbInputPane;
     private TextArea textHeaders, textAreaBody;
 
-    public RequestInputPane(scala.Function0<BoxedUnit> triggerUnsavedChangesMade) {
+    public RequestInputPane(Function<Void, Void> triggerUnsavedChangesMade) {
         this.setHgap(10);
         this.setVgap(10);
         this.setPadding(new Insets(20));
@@ -38,7 +39,7 @@ public class RequestInputPane extends GridPane {
         this.add(labelHeaders, 0, 1);
 
         this.textHeaders = new TextArea();
-        this.textHeaders.textProperty().addListener ( (arg, oldVal, newVal) -> triggerUnsavedChangesMade.apply());
+        this.textHeaders.textProperty().addListener ( (arg, oldVal, newVal) -> triggerUnsavedChangesMade.apply(null));
         this.textHeaders.getStyleClass().add("cardinal-font");
         GridPane.setVgrow(this.textHeaders, Priority.ALWAYS);
         GridPane.setHgrow(this.textHeaders, Priority.ALWAYS);
@@ -51,7 +52,7 @@ public class RequestInputPane extends GridPane {
         this.add(labelBody, 0, 3);
 
         this.textAreaBody = new TextArea();
-        this.textAreaBody.textProperty().addListener ( (arg, oldVal, newVal) -> triggerUnsavedChangesMade.apply());
+        this.textAreaBody.textProperty().addListener ( (arg, oldVal, newVal) -> triggerUnsavedChangesMade.apply(null));
         this.textAreaBody.getStyleClass().add("cardinal-font");
         GridPane.setVgrow(this.textAreaBody, Priority.ALWAYS);
         GridPane.setHgrow(this.textAreaBody, Priority.ALWAYS);

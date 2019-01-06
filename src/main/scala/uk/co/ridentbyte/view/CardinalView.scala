@@ -19,7 +19,7 @@ class CardinalView(showAsCurl: () => BoxedUnit,
                    exportToCsv: List[(CardinalRequest, Option[CardinalResponse])] => Unit,
                    exportToBash: (List[CardinalRequest], Option[Long]) => Unit,
                    sendRequestCallback: CardinalRequest => CardinalResponse,
-                   triggerUnsavedChangesMade: () => BoxedUnit) extends BorderPane {
+                   triggerUnsavedChangesMade: java.util.function.Function[Void, Void]) extends BorderPane {
 
   private val requestResponseSplitPane = new SplitPane()
   requestResponseSplitPane.setDividerPositions(0.4)

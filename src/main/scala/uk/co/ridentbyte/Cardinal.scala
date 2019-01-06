@@ -148,9 +148,13 @@ class Cardinal extends Application {
     saveChangesToConfig(currentConfig)
   }
 
-  private def triggerUnsavedChangesMade(): BoxedUnit = {
-    getCurrentTab.handleUnsavedChangesMade()
-    scala.runtime.BoxedUnit.UNIT
+  private def triggerUnsavedChangesMade: java.util.function.Function[Void, Void] = {
+    new java.util.function.Function[Void, Void] {
+      override def apply(t: Void): Void = {
+        getCurrentTab.handleUnsavedChangesMade()
+        null
+      }
+    }
   }
 
   private def sendRequest(request: CardinalRequest): CardinalResponse = {

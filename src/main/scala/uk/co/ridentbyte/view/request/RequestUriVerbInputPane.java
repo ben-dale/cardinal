@@ -7,18 +7,20 @@ import javafx.scene.layout.GridPane;
 import javafx.scene.layout.Priority;
 import scala.runtime.BoxedUnit;
 
+import java.util.function.Function;
+
 public class RequestUriVerbInputPane extends GridPane {
 
     private TextField textUri;
     private ChoiceBox<String> selectVerb;
 
-    public RequestUriVerbInputPane(scala.Function0<BoxedUnit> triggerUnsavedChangesMade) {
+    public RequestUriVerbInputPane(Function<Void, Void> triggerUnsavedChangesMade) {
         this.setHgap(10);
         this.setVgap(10);
 
         this.textUri = new TextField();
         this.textUri.getStyleClass().add("cardinal-font");
-        this.textUri.textProperty().addListener((arg, oldVal, newVal) -> triggerUnsavedChangesMade.apply());
+        this.textUri.textProperty().addListener((arg, oldVal, newVal) -> triggerUnsavedChangesMade.apply(null));
         this.textUri.setPromptText("http://localhost:8080");
         GridPane.setVgrow(this.textUri, Priority.NEVER);
         GridPane.setHgrow(this.textUri, Priority.ALWAYS);
@@ -27,7 +29,7 @@ public class RequestUriVerbInputPane extends GridPane {
         this.selectVerb = new ChoiceBox<>(FXCollections.observableArrayList("GET", "POST", "PUT", "DELETE", "HEAD", "CONNECT", "OPTIONS", "TRACE", "PATCH"));
         this.selectVerb.getStyleClass().add("cardinal-font");
         this.selectVerb.getSelectionModel().selectFirst();
-        this.selectVerb.getSelectionModel().selectedItemProperty().addListener((arg, oldVal, newVal) -> triggerUnsavedChangesMade.apply());
+        this.selectVerb.getSelectionModel().selectedItemProperty().addListener((arg, oldVal, newVal) -> triggerUnsavedChangesMade.apply(null));
         GridPane.setVgrow(this.selectVerb, Priority.NEVER);
         GridPane.setHgrow(this.selectVerb, Priority.NEVER);
         add(this.selectVerb, 1, 0);
