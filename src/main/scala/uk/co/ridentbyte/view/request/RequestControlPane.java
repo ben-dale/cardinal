@@ -9,9 +9,11 @@ import scala.Function0;
 import scala.Function2;
 import scala.runtime.BoxedUnit;
 
+import java.util.function.Function;
+
 public class RequestControlPane extends GridPane {
 
-    public RequestControlPane(Function0<BoxedUnit> exportToCurl,
+    public RequestControlPane(Function<Void, Void> exportToCurl,
                               Function0<BoxedUnit> showBulkRequest,
                               Function2<Function0<BoxedUnit>, Function0<BoxedUnit>, BoxedUnit> sendRequest) {
         this.setHgap(10);
@@ -23,7 +25,7 @@ public class RequestControlPane extends GridPane {
         GridPane.setVgrow(buttonExportToCurl, Priority.NEVER);
         GridPane.setHgrow(buttonExportToCurl, Priority.ALWAYS);
         GridPane.setHalignment(buttonExportToCurl, HPos.RIGHT);
-        buttonExportToCurl.setOnAction((actionEvent) -> exportToCurl.apply());
+        buttonExportToCurl.setOnAction((actionEvent) -> exportToCurl.apply(null));
         this.add(buttonExportToCurl, 0, 0);
 
         Button buttonSendBulkRequest = new Button("Send Bulk Request...");

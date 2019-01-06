@@ -13,7 +13,7 @@ import uk.co.ridentbyte.view.util.{ColumnConstraintsBuilder, RowConstraintsBuild
 
 import scala.runtime.BoxedUnit
 
-class CardinalView(showAsCurl: () => BoxedUnit,
+class CardinalView(showAsCurl: java.util.function.Function[Void, Void],
                    showErrorDialogCallback: String => BoxedUnit,
                    getConfigCallback: () => Config,
                    exportToCsv: List[(CardinalRequest, Option[CardinalResponse])] => Unit,

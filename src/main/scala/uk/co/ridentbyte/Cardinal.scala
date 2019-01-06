@@ -3,6 +3,7 @@ package uk.co.ridentbyte
 import java.io.{File, FileWriter}
 import java.nio.file.Files
 import java.nio.file.attribute.PosixFilePermission
+import java.util.function
 
 import javafx.application.{Application, Platform}
 import javafx.scene.Scene
@@ -300,17 +301,21 @@ class Cardinal extends Application {
     scala.runtime.BoxedUnit.UNIT
   }
 
-  def showAsCurl(): BoxedUnit = {
-    val currentTab = getCurrentTab
-    if (currentTab != null) {
-      val request = currentTab.content.getRequest
-      if (request.uri.trim.length == 0) {
-        showErrorDialog("Please enter a URL.")
-      } else {
-        currentTab.content.loadCurlCommand(request.toCurl(currentConfig))
+  def showAsCurl(): java.util.function.Function[Void, Void] = {
+    new function.Function[Void, Void] {
+      override def apply(t: Void): Void = {
+        val currentTab = getCurrentTab
+        if (currentTab != null) {
+          val request = currentTab.content.getRequest
+          if (request.uri.trim.length == 0) {
+            showErrorDialog("Please enter a URL.")
+          } else {
+            currentTab.content.loadCurlCommand(request.toCurl(currentConfig))
+          }
+        }
+        null
       }
     }
-    scala.runtime.BoxedUnit.UNIT
   }
 
   private def getCurrentTab: CardinalTab = {
