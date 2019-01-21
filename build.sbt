@@ -1,7 +1,7 @@
 scalaVersion := "2.12.4"
 organization := "uk.co.ridentbyte"
 name := "cardinal"
-version := "0.1.2"
+version := "0.1.3"
 
 libraryDependencies += "org.scalatest" %% "scalatest" % "3.0.4" % "test"
 libraryDependencies += "org.scalaj" %% "scalaj-http" % "2.4.1"
