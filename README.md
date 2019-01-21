@@ -1,6 +1,6 @@
 # Cardinal
 
-Cardinal is a simple REST client designed for developers interested in testing their API's with realistic and varied data.
+Cardinal is a simple REST client designed for developers interested in testing their APIs with realistic and varied data.
 
 ![Cardinal Curl View](docs/images/cardinal_bulk_request_processed.png)
 
