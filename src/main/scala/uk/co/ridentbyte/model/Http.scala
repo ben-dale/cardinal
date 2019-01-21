@@ -28,19 +28,19 @@ case class Http(request: CardinalRequest) {
         (splitHeader(0), "")
       }
     }
-
+    
     request.verb match {
       case "POST" if request.body.isDefined => {
         scalaj.http.Http(parsedUri)
           .option(scalaj.http.HttpOptions.followRedirects(true))
-          .headers(splitHeaders)
+          .copy(headers = splitHeaders)
           .postData(request.body.get)
           .asString
       }
       case "PUT" if request.body.isDefined => {
         scalaj.http.Http(parsedUri)
           .option(scalaj.http.HttpOptions.followRedirects(true))
-          .headers(splitHeaders)
+          .copy(headers = splitHeaders)
           .put(request.body.get)
           .asString
       }
@@ -48,7 +48,7 @@ case class Http(request: CardinalRequest) {
         scalaj.http.Http(parsedUri)
           .option(scalaj.http.HttpOptions.followRedirects(true))
           .method(request.verb)
-          .headers(splitHeaders)
+          .copy(headers = splitHeaders)
           .asString
       }
     }
