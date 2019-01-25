@@ -19,10 +19,10 @@ class EnvironmentVariablesEditDialog(existingParameters: List[EnvironmentVariabl
   grid.setVgap(10)
   grid.setPrefWidth(450)
   grid.getColumnConstraints.addAll(
-    ColumnConstraintsBuilder().withHgrow(Priority.ALWAYS).build,
-    ColumnConstraintsBuilder().withHgrow(Priority.ALWAYS).build,
-    ColumnConstraintsBuilder().withHgrow(Priority.ALWAYS).build,
-    ColumnConstraintsBuilder().withHgrow(Priority.NEVER).build
+    new ColumnConstraintsBuilder().withHgrow(Priority.ALWAYS).build,
+    new ColumnConstraintsBuilder().withHgrow(Priority.ALWAYS).build,
+    new ColumnConstraintsBuilder().withHgrow(Priority.ALWAYS).build,
+    new ColumnConstraintsBuilder().withHgrow(Priority.NEVER).build
   )
 
   private val scrollPane = new ScrollPane()

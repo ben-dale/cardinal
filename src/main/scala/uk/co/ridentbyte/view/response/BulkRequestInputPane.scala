@@ -16,9 +16,9 @@ case class BulkRequestInputPane(getConfig: () => Config,
   setPadding(new Insets(20))
   getStyleClass.addAll("plain-border", "round-border")
 
-  getColumnConstraints.add(ColumnConstraintsBuilder().withPercentageWidth(40).withHgrow(Priority.ALWAYS).build)
-  getColumnConstraints.add(ColumnConstraintsBuilder().withHgrow(Priority.ALWAYS).build)
-  getColumnConstraints.add(ColumnConstraintsBuilder().withHgrow(Priority.NEVER).build)
+  getColumnConstraints.add(new ColumnConstraintsBuilder().withPercentageWidth(40).withHgrow(Priority.ALWAYS).build)
+  getColumnConstraints.add(new ColumnConstraintsBuilder().withHgrow(Priority.ALWAYS).build)
+  getColumnConstraints.add(new ColumnConstraintsBuilder().withHgrow(Priority.NEVER).build)
 
   private val labelHeader = new Label("Bulk Request")
   labelHeader.getStyleClass.addAll("header")

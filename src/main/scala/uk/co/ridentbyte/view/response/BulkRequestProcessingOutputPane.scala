@@ -84,7 +84,7 @@ case class BulkRequestProcessingOutputPane(getConfigCallback: () => Config,
     RowConstraintsBuilder().withVgrow(Priority.NEVER).build
   )
   getColumnConstraints.addAll(
-    ColumnConstraintsBuilder().withPercentageWidth(100).build
+    new ColumnConstraintsBuilder().withPercentageWidth(100).build
   )
 
   private val labelHeader = new Label("Processing Requests")
