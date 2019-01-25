@@ -20,9 +20,9 @@ case class BulkRequestOutputPane(requestAndResponses: List[(CardinalRequest, Opt
   getStyleClass.addAll("plain-border", "round-border")
 
   getRowConstraints.addAll(
-    RowConstraintsBuilder().withPercentageHeight(55).withVgrow(Priority.ALWAYS).build,
-    RowConstraintsBuilder().withVgrow(Priority.ALWAYS).build,
-    RowConstraintsBuilder().withVgrow(Priority.NEVER).build
+    new RowConstraintsBuilder().withPercentageHeight(55).withVgrow(Priority.ALWAYS).build,
+    new RowConstraintsBuilder().withVgrow(Priority.ALWAYS).build,
+    new RowConstraintsBuilder().withVgrow(Priority.NEVER).build
   )
 
   val xAxis = new NumberAxis

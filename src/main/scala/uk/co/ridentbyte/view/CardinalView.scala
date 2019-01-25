@@ -32,8 +32,8 @@ class CardinalView(showAsCurl: java.util.function.Function[Void, Void],
 
   val grid = new GridPane
   grid.getColumnConstraints.add(new ColumnConstraintsBuilder().withHgrow(Priority.ALWAYS).build)
-  grid.getRowConstraints.add(RowConstraintsBuilder().withVgrow(Priority.ALWAYS).build)
-  grid.getRowConstraints.add(RowConstraintsBuilder().withVgrow(Priority.NEVER).build)
+  grid.getRowConstraints.add(new RowConstraintsBuilder().withVgrow(Priority.ALWAYS).build)
+  grid.getRowConstraints.add(new RowConstraintsBuilder().withVgrow(Priority.NEVER).build)
 
   requestResponseSplitPane.getItems.add(requestInputPane)
   requestResponseSplitPane.getItems.add(responsePane)

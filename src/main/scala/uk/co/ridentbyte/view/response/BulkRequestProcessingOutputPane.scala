@@ -78,10 +78,10 @@ case class BulkRequestProcessingOutputPane(getConfigCallback: () => Config,
   setPadding(new Insets(20, 60, 20, 60))
   getStyleClass.addAll("plain-border", "round-border")
   getRowConstraints.addAll(
-    RowConstraintsBuilder().withVgrow(Priority.NEVER).build,
-    RowConstraintsBuilder().withVgrow(Priority.NEVER).build,
-    RowConstraintsBuilder().withVgrow(Priority.NEVER).build,
-    RowConstraintsBuilder().withVgrow(Priority.NEVER).build
+    new RowConstraintsBuilder().withVgrow(Priority.NEVER).build,
+    new RowConstraintsBuilder().withVgrow(Priority.NEVER).build,
+    new RowConstraintsBuilder().withVgrow(Priority.NEVER).build,
+    new RowConstraintsBuilder().withVgrow(Priority.NEVER).build
   )
   getColumnConstraints.addAll(
     new ColumnConstraintsBuilder().withPercentageWidth(100).build

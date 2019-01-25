@@ -12,16 +12,16 @@ public class ColumnConstraintsBuilder {
     }
 
     public ColumnConstraintsBuilder withHgrow(Priority priority) {
-        columnConstraints.setHgrow(priority);
+        this.columnConstraints.setHgrow(priority);
         return this;
     }
 
     public ColumnConstraintsBuilder withPercentageWidth(int percentage) {
-        columnConstraints.setPercentWidth(percentage);
+        this.columnConstraints.setPercentWidth(percentage);
         return this;
     }
 
     public ColumnConstraints build() {
-        return columnConstraints;
+        return this.columnConstraints;
     }
 }
