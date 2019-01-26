@@ -3,21 +3,21 @@ package uk.co.ridentbyte.model
 import org.scalatest.FlatSpec
 import org.scalatest.Matchers._
 
-import scala.util.Random
+import scala.collection.JavaConverters._
 
 class CommandUnitSpec extends FlatSpec {
 
   val vocab = Vocabulary(
-    Words(List(), Random),
-    Words(List(), Random),
-    Words(List(), Random),
-    Words(List(), Random),
-    Words(List(), Random),
-    Words(List(), Random),
-    Words(List(), Random),
-    Words(List(), Random),
-    Words(List("Lorem", "ipsum"), Random),
-    Words(List(), Random)
+    new Words(List().asJava, new java.util.Random()),
+    new Words(List().asJava, new java.util.Random()),
+    new Words(List().asJava, new java.util.Random()),
+    new Words(List().asJava, new java.util.Random()),
+    new Words(List().asJava, new java.util.Random()),
+    new Words(List().asJava, new java.util.Random()),
+    new Words(List().asJava, new java.util.Random()),
+    new Words(List().asJava, new java.util.Random()),
+    new Words(List("Lorem", "ipsum").asJava, new java.util.Random()),
+    new Words(List().asJava, new java.util.Random())
   )
 
   "Command" should "return contents of command" in {

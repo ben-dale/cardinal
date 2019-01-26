@@ -3,6 +3,7 @@ package uk.co.ridentbyte.model
 import java.util.Random
 
 import scala.util.matching.Regex
+import scala.collection.JavaConverters._
 
 /**
   * Handles commands in the format: #{(.*)}
@@ -59,12 +60,12 @@ case class Command(private val command: String) {
         case loremFunction(n) =>
           val argumentType = getArgumentTypes(List(n), constants, functions).head
           if (argumentType.isInstanceOf[IntLiteral]) {
-            vocabulary.loremIpsum.first(n.toInt).mkString(" ")
+            vocabulary.loremIpsum.first(n.toInt).asScala.mkString(" ")
           } else if (argumentType.isInstanceOf[Function]) {
             val processedValue = processWith(constants, vocabulary, Some(n))
             val processedValueArgumentType = getArgumentTypes(List(processedValue), constants, functions)
             if (processedValueArgumentType.head.isInstanceOf[IntLiteral]) {
-              vocabulary.loremIpsum.first(processedValue.toInt).mkString(" ")
+              vocabulary.loremIpsum.first(processedValue.toInt).asScala.mkString(" ")
             } else {
               rawContents
             }

@@ -20,19 +20,18 @@ import uk.co.ridentbyte.view.dialog.{BasicAuthInputDialog, EnvironmentVariablesE
 import scala.collection.JavaConverters._
 import scala.io.Source
 import scala.runtime.BoxedUnit
-import scala.util.Random
 
 object Cardinal {
-  val firstNames: Words = Words(Source.fromResource("firstNames.txt").getLines().toList, Random)
-  val lastNames: Words = Words(Source.fromResource("firstNames.txt").getLines().toList, Random)
-  val countries: Words = Words(Source.fromResource("countries.txt").getLines().toList, Random)
-  val objects: Words = Words(Source.fromResource("objects.txt").getLines().toList, Random)
-  val actions: Words = Words(Source.fromResource("actions.txt").getLines().toList, Random)
-  val businessEntities: Words = Words(Source.fromResource("businessEntities.txt").getLines().toList, Random)
-  val communications: Words = Words(Source.fromResource("communications.txt").getLines().toList, Random)
-  val places: Words = Words(Source.fromResource("places.txt").getLines().toList, Random)
-  val loremIpsum: Words = Words(Source.fromResource("loremipsum.txt").getLines().toList, Random)
-  val emoji: Words = Words(Source.fromResource("emoji.txt").getLines().toList, Random)
+  val firstNames: Words = new Words(Source.fromResource("firstNames.txt").getLines().toList.asJava, new java.util.Random())
+  val lastNames: Words = new Words(Source.fromResource("firstNames.txt").getLines().toList.asJava, new java.util.Random())
+  val countries: Words = new Words(Source.fromResource("countries.txt").getLines().toList.asJava, new java.util.Random())
+  val objects: Words = new Words(Source.fromResource("objects.txt").getLines().toList.asJava, new java.util.Random())
+  val actions: Words = new Words(Source.fromResource("actions.txt").getLines().toList.asJava, new java.util.Random())
+  val businessEntities: Words = new Words(Source.fromResource("businessEntities.txt").getLines().toList.asJava, new java.util.Random())
+  val communications: Words = new Words(Source.fromResource("communications.txt").getLines().toList.asJava, new java.util.Random())
+  val places: Words = new Words(Source.fromResource("places.txt").getLines().toList.asJava, new java.util.Random())
+  val loremIpsum: Words = new Words(Source.fromResource("loremipsum.txt").getLines().toList.asJava, new java.util.Random())
+  val emoji: Words = new Words(Source.fromResource("emoji.txt").getLines().toList.asJava, new java.util.Random())
 
   val vocabulary = Vocabulary(firstNames, lastNames, places, objects, actions, countries, communications, businessEntities, loremIpsum, emoji)
 
