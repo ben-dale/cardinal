@@ -33,7 +33,7 @@ object Cardinal {
   val loremIpsum: Words = new Words(Source.fromResource("loremipsum.txt").getLines().toList.asJava, new java.util.Random())
   val emoji: Words = new Words(Source.fromResource("emoji.txt").getLines().toList.asJava, new java.util.Random())
 
-  val vocabulary = Vocabulary(firstNames, lastNames, places, objects, actions, countries, communications, businessEntities, loremIpsum, emoji)
+  val vocabulary = new Vocabulary(firstNames, lastNames, places, objects, actions, countries, communications, businessEntities, loremIpsum, emoji)
 
   def main(args: Array[String]): Unit = {
     Application.launch(classOf[Cardinal], args: _*)

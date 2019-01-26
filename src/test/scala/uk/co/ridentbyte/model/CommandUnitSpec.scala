@@ -7,7 +7,7 @@ import scala.collection.JavaConverters._
 
 class CommandUnitSpec extends FlatSpec {
 
-  val vocab = Vocabulary(
+  val vocab = new Vocabulary(
     new Words(List().asJava, new java.util.Random()),
     new Words(List().asJava, new java.util.Random()),
     new Words(List().asJava, new java.util.Random()),
