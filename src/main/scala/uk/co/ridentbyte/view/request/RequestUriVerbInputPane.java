@@ -5,7 +5,6 @@ import javafx.scene.control.ChoiceBox;
 import javafx.scene.control.TextField;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.Priority;
-import scala.runtime.BoxedUnit;
 
 import java.util.function.Function;
 
@@ -26,7 +25,7 @@ public class RequestUriVerbInputPane extends GridPane {
         GridPane.setHgrow(this.textUri, Priority.ALWAYS);
         this.add(this.textUri, 0, 0);
 
-        this.selectVerb = new ChoiceBox<>(FXCollections.observableArrayList("GET", "POST", "PUT", "DELETE", "HEAD", "CONNECT", "OPTIONS", "TRACE", "PATCH"));
+        this.selectVerb = new ChoiceBox<>(FXCollections.observableArrayList("GET", "POST", "PUT", "DELETE", "HEAD", "OPTIONS", "TRACE", "PATCH"));
         this.selectVerb.getStyleClass().add("cardinal-font");
         this.selectVerb.getSelectionModel().selectFirst();
         this.selectVerb.getSelectionModel().selectedItemProperty().addListener((arg, oldVal, newVal) -> triggerUnsavedChangesMade.apply(null));

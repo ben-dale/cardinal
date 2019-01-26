@@ -54,7 +54,7 @@ case class BulkRequestOutputPane(requestAndResponses: List[(CardinalRequest, Opt
   val allTimesSorted = allTimes.sorted
   val averageResponseTime = if (responses.isEmpty) 0 else allTimes.sum / responses.size
 
-  val responseCodesWithCounts = responses.filter(_.isDefined).groupBy(_.get.raw.code)
+  val responseCodesWithCounts = responses.filter(_.isDefined).groupBy(_.get.raw.getStatusCode)
 
   val requestCountsOutput = if (responseCodesWithCounts.isEmpty) {
     List("No responses")

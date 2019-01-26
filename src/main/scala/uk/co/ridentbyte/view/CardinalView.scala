@@ -66,7 +66,9 @@ class CardinalView(showAsCurl: java.util.function.Function[Void, Void],
             case _: URISyntaxException => showErrorDialogCallback("Invalid URL."); None
             case _: UnknownHostException => showErrorDialogCallback("Unknown Host."); None
             case _: SSLHandshakeException => showErrorDialogCallback("SSL Handshake failed. Remote host closed connection during handshake."); None
-            case _: Exception => showErrorDialogCallback("Unknown error occurred."); None
+            case e: Exception =>
+              e.printStackTrace()
+              showErrorDialogCallback("Unknown error occurred."); None
           } finally {
             Platform.runLater(() => { onFinish() })
           }

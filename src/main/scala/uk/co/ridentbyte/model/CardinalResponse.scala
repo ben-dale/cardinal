@@ -3,29 +3,29 @@ package uk.co.ridentbyte.model
 import org.json4s.DefaultFormats
 import org.json4s.jackson.JsonMethods.parse
 import org.json4s.jackson.Serialization.writePretty
-import scalaj.http.HttpResponse
+import scala.collection.JavaConverters._
 
-class CardinalResponse(val raw: HttpResponse[String], val time: Long) {
+class CardinalResponse(val raw: CardinalHttpResponse, val time: Long) {
   private implicit val formats: DefaultFormats = DefaultFormats
 
   def formattedBody: String = {
-    val contentType = raw.header("Content-Type")
+    val contentType = raw.getHeaders.asScala.get("Content-Type")
     contentType match {
       case Some(ct) => ct match {
         case _: String if ct.contains("application/json") =>
-          try { writePretty(parse(raw.body)) } catch { case _: Exception => raw.body }
-        case _ => raw.body
+          try { writePretty(parse(raw.getBody)) } catch { case _: Exception => raw.getBody }
+        case _ => raw.getBody
       }
-      case _ => raw.body
+      case _ => raw.getBody
     }
   }
 
   def toCSV: String = {
-    s""""${raw.code}","${raw.headers.map(h => h._1 + ":" + h._2.head).mkString("\n").replace("\"", "\"\"")}","${raw.body.replace("\"", "\"\"")}","$time""""
+    s""""${raw.getStatusCode}","${raw.getHeaders.asScala.map(h => h._1 + ":" + h._2.head).mkString("\n").replace("\"", "\"\"")}","${raw.getBody.replace("\"", "\"\"")}","$time""""
   }
 }
 
-case class BlankCardinalResponse() extends CardinalResponse(HttpResponse.apply("", 0, Map.empty), 0L) {
+case class BlankCardinalResponse() extends CardinalResponse(new CardinalHttpResponse("", Map.empty[String, String].asJava, 0), 0L) {
   override def toCSV: String = ",,,"
   override def formattedBody: String = ""
 }
