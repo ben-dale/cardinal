@@ -79,7 +79,7 @@ class Cardinal extends Application {
       if (saveCombo.`match`(keyEvent)) {
         save(() => Unit)
       } else if (saveAsCombo.`match`(keyEvent)) {
-        saveAs(() => Unit)
+        saveAs.apply(null)
       } else if (closeTabCombo.`match`(keyEvent) && getCurrentTab != null) {
         val currentTab = getCurrentTab
         val remove: () => Unit = () => {
@@ -173,7 +173,7 @@ class Cardinal extends Application {
       writeToFile(currentTab.currentFile.get, currentTab.content.getRequest.toJson)
       currentTab.setUnsavedChanges(false)
     } else {
-      saveAs(onCancel)
+      saveAs.apply(null)
     }
   }
 
@@ -187,7 +187,7 @@ class Cardinal extends Application {
     }
   }
 
-  private def clearAll(): java.util.function.Function[Void, Void] = {
+  private def clearAll: java.util.function.Function[Void, Void] = {
     new function.Function[Void, Void] {
       override def apply(t: Void): Void = {
         val currentTab = getCurrentTab
@@ -231,34 +231,37 @@ class Cardinal extends Application {
     }
   }
 
-  private def saveAs(onCancel: () => Unit): Unit = {
-    val currentTab = getCurrentTab
-    if (currentTab != null) {
-      val fileChooser = new FileChooser
-      val file = fileChooser.showSaveDialog(currentStage)
-      if (file != null) {
-        val fileWithExtension = if (!file.getAbsolutePath.endsWith(".json")) {
-          new File(file.getAbsolutePath + ".json")
-        } else {
-          file
-        }
+  private def saveAs: java.util.function.Function[Void, Void] = {
+    new java.util.function.Function[Void, Void] {
+      override def apply(t: Void): Void = {
+        val currentTab = getCurrentTab
+        if (currentTab != null) {
+          val fileChooser = new FileChooser
+          val file = fileChooser.showSaveDialog(currentStage)
+          if (file != null) {
+            val fileWithExtension = if (!file.getAbsolutePath.endsWith(".json")) {
+              new File(file.getAbsolutePath + ".json")
+            } else {
+              file
+            }
 
-        if (currentTab.currentFile.isEmpty) {
-          // New file so just save file
-          writeToFile(fileWithExtension, currentTab.content.getRequest.toJson)
-          currentTab.setCurrentFile(fileWithExtension)
-          currentTab.setUnsavedChanges(false)
-        } else {
-          // Existing file so save and open in new tab
-          val request = currentTab.content.getRequest
-          writeToFile(fileWithExtension, request.toJson)
-          val cardinalView = new CardinalView(showAsCurl, showErrorDialog, () => currentConfig, exportToCsv, exportToBash, sendRequest, triggerUnsavedChangesMade)
-          addTab(CardinalTab(Some(fileWithExtension), cardinalView))
-          cardinalView.loadRequest(request)
-          getCurrentTab.setUnsavedChanges(false)
+            if (currentTab.currentFile.isEmpty) {
+              // New file so just save file
+              writeToFile(fileWithExtension, currentTab.content.getRequest.toJson)
+              currentTab.setCurrentFile(fileWithExtension)
+              currentTab.setUnsavedChanges(false)
+            } else {
+              // Existing file so save and open in new tab
+              val request = currentTab.content.getRequest
+              writeToFile(fileWithExtension, request.toJson)
+              val cardinalView = new CardinalView(showAsCurl, showErrorDialog, () => currentConfig, exportToCsv, exportToBash, sendRequest, triggerUnsavedChangesMade)
+              addTab(CardinalTab(Some(fileWithExtension), cardinalView))
+              cardinalView.loadRequest(request)
+              getCurrentTab.setUnsavedChanges(false)
+            }
+          }
         }
-      } else {
-        onCancel()
+        null
       }
     }
   }
