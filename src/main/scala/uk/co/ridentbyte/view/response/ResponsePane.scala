@@ -3,7 +3,7 @@ package uk.co.ridentbyte.view.response
 import javafx.application.Platform
 import javafx.geometry.Insets
 import javafx.scene.layout._
-import uk.co.ridentbyte.model.{BulkRequest, CardinalRequest, CardinalResponse, Config}
+import uk.co.ridentbyte.model._
 
 import scala.runtime.BoxedUnit
 

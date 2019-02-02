@@ -37,7 +37,7 @@ case class BulkRequestOutputPane(requestAndResponses: List[(CardinalRequest, Opt
   val timeSeries = new XYChart.Series[Number, Number]
   responses.zipWithIndex.foreach { case(r, i) =>
     if (r.isDefined) {
-      timeSeries.getData.add(new XYChart.Data(i, r.get.time))
+      timeSeries.getData.add(new XYChart.Data(i, r.get.getTime))
     }
   }
 
@@ -50,11 +50,11 @@ case class BulkRequestOutputPane(requestAndResponses: List[(CardinalRequest, Opt
   GridPane.setColumnSpan(lineChart, 2)
   add(lineChart, 0, 0)
 
-  val allTimes = responses.filter(_.isDefined).map(_.get.time)
+  val allTimes = responses.filter(_.isDefined).map(_.get.getTime)
   val allTimesSorted = allTimes.sorted
   val averageResponseTime = if (responses.isEmpty) 0 else allTimes.sum / responses.size
 
-  val responseCodesWithCounts = responses.filter(_.isDefined).groupBy(_.get.raw.getStatusCode)
+  val responseCodesWithCounts = responses.filter(_.isDefined).groupBy(_.get.getStatusCode)
 
   val requestCountsOutput = if (responseCodesWithCounts.isEmpty) {
     List("No responses")

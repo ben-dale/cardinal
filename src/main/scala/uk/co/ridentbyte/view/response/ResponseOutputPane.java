@@ -9,7 +9,6 @@ import uk.co.ridentbyte.model.CardinalResponse;
 import uk.co.ridentbyte.view.util.ColumnConstraintsBuilder;
 import uk.co.ridentbyte.view.util.RowConstraintsBuilder;
 
-import java.util.Comparator;
 import java.util.Map;
 
 public class ResponseOutputPane extends GridPane {
@@ -25,13 +24,13 @@ public class ResponseOutputPane extends GridPane {
 
         ListView<String> listHeaders = new ListView<>();
         listHeaders.getStyleClass().add("cardinal-font");
-        Map<String, String> headers = response.raw().getHeaders();
+        Map<String, String> headers = response.getHeaders();
         for (Map.Entry<String, String> header : headers.entrySet()) {
             listHeaders.getItems().add(header.getKey() + ": " + header.getValue());
         }
 
         // TODO - Currently manually adding Status header. Should this be somewhere else in the UI?
-        listHeaders.getItems().add("Status: " + response.raw().getStatusCode());
+        listHeaders.getItems().add("Status: " + response.getStatusCode());
         listHeaders.getItems().sort((String::compareToIgnoreCase));
 
         this.add(listHeaders, 0, 0);

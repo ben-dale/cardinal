@@ -9,12 +9,12 @@ import uk.co.ridentbyte.model.{CardinalRequest, CardinalResponse, Config}
 import uk.co.ridentbyte.view.util.{ColumnConstraintsBuilder, RowConstraintsBuilder}
 
 case class BulkRequestProcessingOutputPane(getConfigCallback: () => Config,
-                                      sendRequestCallback: CardinalRequest => CardinalResponse,
-                                      finishedBulkRequestCallback: (List[(CardinalRequest, Option[CardinalResponse])], Option[Long]) => Unit,
-                                      request: CardinalRequest,
-                                      throttle: Option[Long],
-                                      requestCount: Option[Int],
-                                      ids: Option[List[String]]) extends GridPane {
+                                           sendRequestCallback: CardinalRequest => CardinalResponse,
+                                           finishedBulkRequestCallback: (List[(CardinalRequest, Option[CardinalResponse])], Option[Long]) => Unit,
+                                           request: CardinalRequest,
+                                           throttle: Option[Long],
+                                           requestCount: Option[Int],
+                                           ids: Option[List[String]]) extends GridPane {
 
   var requestsAndResponses = collection.mutable.ListBuffer.empty[(CardinalRequest, Option[CardinalResponse])]
   val labelDelta = new Label()
