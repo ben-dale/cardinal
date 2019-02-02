@@ -6,7 +6,7 @@ import javafx.scene.layout.{GridPane, Priority}
 import uk.co.ridentbyte.model.{CardinalRequest, Config}
 import uk.co.ridentbyte.view.util.ColumnConstraintsBuilder
 
-case class BulkRequestInputPane(getConfig: () => Config,
+case class BulkRequestInputPane(getConfig: java.util.function.Function[Void, Config],
                                 exportToBash: (List[CardinalRequest], Option[Long]) => Unit,
                                 startBulkRequest: (CardinalRequest, Option[Long], Option[Int], Option[List[String]]) => Unit,
                                 request: CardinalRequest) extends GridPane {
@@ -109,12 +109,12 @@ case class BulkRequestInputPane(getConfig: () => Config,
     val ids = getForEach
     if (requestCount.isDefined) {
       val requests = 0 until requestCount.get map { i =>
-        request.withId(i.toString).processConstants(getConfig())
+        request.withId(i.toString).processConstants(getConfig.apply(null))
       }
       exportToBash(requests.toList, getThrottle)
     } else if (ids.isDefined) {
-      val requests = ids.get.zipWithIndex.map { case (id, i) =>
-        request.withId(id).processConstants(getConfig())
+      val requests = ids.get.zipWithIndex.map { case (id, _) =>
+        request.withId(id).processConstants(getConfig.apply(null))
       }
       exportToBash(requests, getThrottle)
     }

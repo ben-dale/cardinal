@@ -16,7 +16,7 @@ import scala.runtime.BoxedUnit
 
 class CardinalView(showAsCurl: java.util.function.Function[Void, Void],
                    showErrorDialogCallback: java.util.function.Function[String, Void],
-                   getConfigCallback: () => Config,
+                   getConfigCallback: java.util.function.Function[Void, Config],
                    exportToCsv: List[(CardinalRequest, Option[CardinalResponse])] => Unit,
                    exportToBash: (List[CardinalRequest], Option[Long]) => Unit,
                    sendRequestCallback: java.util.function.Function[CardinalRequest, CardinalResponse],
@@ -62,7 +62,7 @@ class CardinalView(showAsCurl: java.util.function.Function[Void, Void],
         override def run(): Unit = {
           Platform.runLater(() => onStart())
           val httpResponse = try {
-            Some(sendRequestCallback(requestInputPane.getRequest.processConstants(getConfigCallback())))
+            Some(sendRequestCallback(requestInputPane.getRequest.processConstants(getConfigCallback.apply(null))))
           } catch {
             case _: ConnectException => showErrorDialogCallback.apply("Connection refused."); None
             case _: URISyntaxException => showErrorDialogCallback.apply("Invalid URL."); None
@@ -90,7 +90,6 @@ class CardinalView(showAsCurl: java.util.function.Function[Void, Void],
           null
         } else {
           responsePane.showBulkRequestInput(requestInputPane.getRequest)
-          scala.runtime.BoxedUnit.UNIT
           null
         }
       }

@@ -8,7 +8,7 @@ import javafx.scene.layout.{GridPane, Priority}
 import uk.co.ridentbyte.model.{CardinalRequest, CardinalResponse, Config}
 import uk.co.ridentbyte.view.util.{ColumnConstraintsBuilder, RowConstraintsBuilder}
 
-case class BulkRequestProcessingOutputPane(getConfigCallback: () => Config,
+case class BulkRequestProcessingOutputPane(getConfigCallback: java.util.function.Function[Void, Config],
                                            sendRequestCallback: java.util.function.Function[CardinalRequest, CardinalResponse],
                                            finishedBulkRequestCallback: (List[(CardinalRequest, Option[CardinalResponse])], Option[Long]) => Unit,
                                            request: CardinalRequest,
@@ -24,7 +24,7 @@ case class BulkRequestProcessingOutputPane(getConfigCallback: () => Config,
       if (throttle.isDefined && requestCount.isDefined) {
         0 until requestCount.get foreach { i =>
           Thread.sleep(throttle.get)
-          val r = request.withId(i.toString).processConstants(getConfigCallback())
+          val r = request.withId(i.toString).processConstants(getConfigCallback.apply(null))
           try {
             val response = sendRequestCallback(r)
             requestsAndResponses += ((r, Some(response)))
@@ -47,7 +47,7 @@ case class BulkRequestProcessingOutputPane(getConfigCallback: () => Config,
       } else if (throttle.isDefined && ids.isDefined) {
         ids.get.zipWithIndex.foreach { case (id, i) =>
           Thread.sleep(throttle.get)
-          val r = request.withId(id).processConstants(getConfigCallback())
+          val r = request.withId(id).processConstants(getConfigCallback.apply(null))
           try {
             val response = sendRequestCallback(r)
             requestsAndResponses += ((r, Some(response)))

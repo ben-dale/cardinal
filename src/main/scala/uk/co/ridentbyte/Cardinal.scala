@@ -209,7 +209,7 @@ class Cardinal extends Application {
         if (selectedFiles != null) {
           selectedFiles.asScala.foreach { selectedFile =>
             val lines = scala.io.Source.fromFile(selectedFile).getLines().mkString
-            val cardinalView = new CardinalView(showAsCurl, showErrorDialog, () => currentConfig, exportToCsv, exportToBash, sendRequest, triggerUnsavedChangesMade)
+            val cardinalView = new CardinalView(showAsCurl, showErrorDialog, getCurrentConfig, exportToCsv, exportToBash, sendRequest, triggerUnsavedChangesMade)
             addTab(CardinalTab(Some(selectedFile), cardinalView))
             cardinalView.loadRequest(CardinalRequest(lines))
             getCurrentTab.setUnsavedChanges(false)
@@ -225,7 +225,7 @@ class Cardinal extends Application {
       override def apply(t: Void): Void = {
         cardinalTabs.getTabs.add(
           cardinalTabs.getTabs.size - 1,
-          CardinalTab(None, new CardinalView(showAsCurl, showErrorDialog, () => currentConfig, exportToCsv, exportToBash, sendRequest, triggerUnsavedChangesMade))
+          CardinalTab(None, new CardinalView(showAsCurl, showErrorDialog, getCurrentConfig, exportToCsv, exportToBash, sendRequest, triggerUnsavedChangesMade))
         )
         cardinalTabs.getSelectionModel.select(cardinalTabs.getTabs.size() - 2)
         null
@@ -256,7 +256,7 @@ class Cardinal extends Application {
               // Existing file so save and open in new tab
               val request = currentTab.content.getRequest
               writeToFile(fileWithExtension, request.toJson)
-              val cardinalView = new CardinalView(showAsCurl, showErrorDialog, () => currentConfig, exportToCsv, exportToBash, sendRequest, triggerUnsavedChangesMade)
+              val cardinalView = new CardinalView(showAsCurl, showErrorDialog, getCurrentConfig, exportToCsv, exportToBash, sendRequest, triggerUnsavedChangesMade)
               addTab(CardinalTab(Some(fileWithExtension), cardinalView))
               cardinalView.loadRequest(request)
               getCurrentTab.setUnsavedChanges(false)
@@ -343,6 +343,14 @@ class Cardinal extends Application {
           alert.showAndWait
         })
         null
+      }
+    }
+  }
+
+  def getCurrentConfig: java.util.function.Function[Void, Config] = {
+    new java.util.function.Function[Void, Config] {
+      override def apply(t: Void): Config = {
+        currentConfig
       }
     }
   }
