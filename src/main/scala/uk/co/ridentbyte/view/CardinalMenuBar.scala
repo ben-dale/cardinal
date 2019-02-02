@@ -2,14 +2,14 @@ package uk.co.ridentbyte.view
 
 import javafx.scene.control.{Menu, MenuBar, MenuItem}
 
-class CardinalMenuBar(newTab: () => Unit,
-                      open:() => Unit,
+class CardinalMenuBar(newTab: java.util.function.Function[Void, Void],
+                      open: java.util.function.Function[Void, Void],
                       save: (() => Unit) => Unit,
                       saveAs: (() => Unit) => Unit,
-                      clearAll: () => Unit,
-                      editEnvironmentVars: () => Unit,
-                      showFormUrlEncodedInput: () => Unit,
-                      showBasicAuthInput: () => Unit) extends MenuBar {
+                      clearAll: java.util.function.Function[Void, Void],
+                      editEnvironmentVars: java.util.function.Function[Void, Void],
+                      showFormUrlEncodedInput: java.util.function.Function[Void, Void],
+                      showBasicAuthInput: java.util.function.Function[Void, Void]) extends MenuBar {
 
   if (System.getProperty("os.name").toLowerCase.contains("mac")) {
     setUseSystemMenuBar(true)
@@ -19,11 +19,11 @@ class CardinalMenuBar(newTab: () => Unit,
   private val menuFile = new Menu("File")
 
   val menuItemNew = new MenuItem("New")
-  menuItemNew.setOnAction(_ => newTab())
+  menuItemNew.setOnAction(_ => newTab.apply(null))
   menuFile.getItems.add(menuItemNew)
 
   val menuItemOpen = new MenuItem("Open...")
-  menuItemOpen.setOnAction(_ => open())
+  menuItemOpen.setOnAction(_ => open.apply(null))
   menuFile.getItems.add(menuItemOpen)
 
   private val menuItemSave = new MenuItem("Save")
@@ -35,7 +35,7 @@ class CardinalMenuBar(newTab: () => Unit,
   menuFile.getItems.add(menuItemSaveAs)
 
   private val menuItemClearAll = new MenuItem("Clear All")
-  menuItemClearAll.setOnAction(_ => clearAll())
+  menuItemClearAll.setOnAction(_ => clearAll.apply(null))
   menuFile.getItems.add(menuItemClearAll)
 
   getMenus.add(menuFile)
@@ -44,7 +44,7 @@ class CardinalMenuBar(newTab: () => Unit,
   private val menuAuthorisation = new Menu("Auth")
 
   private val menuItemBasicAuth = new MenuItem("Basic Auth...")
-  menuItemBasicAuth.setOnAction(_ => showBasicAuthInput())
+  menuItemBasicAuth.setOnAction(_ => showBasicAuthInput.apply(null))
   menuAuthorisation.getItems.add(menuItemBasicAuth)
 
   getMenus.add(menuAuthorisation)
@@ -53,7 +53,7 @@ class CardinalMenuBar(newTab: () => Unit,
   private val menuForm = new Menu("Form")
 
   private val menuItemUrlEncoded = new MenuItem("URL Encoded...")
-  menuItemUrlEncoded.setOnAction(_ => showFormUrlEncodedInput())
+  menuItemUrlEncoded.setOnAction(_ => showFormUrlEncodedInput.apply(null))
   menuForm.getItems.add(menuItemUrlEncoded)
 
   getMenus.add(menuForm)
@@ -61,7 +61,7 @@ class CardinalMenuBar(newTab: () => Unit,
   // *** CONFIG ***
   private val menuConfig = new Menu("Config")
   private val menuItemEnvVars = new MenuItem("Edit Environment Variables...")
-  menuItemEnvVars.setOnAction(_ => editEnvironmentVars())
+  menuItemEnvVars.setOnAction(_ => editEnvironmentVars.apply(null))
   menuConfig.getItems.add(menuItemEnvVars)
   getMenus.add(menuConfig)
 

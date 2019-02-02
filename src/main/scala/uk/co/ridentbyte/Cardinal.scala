@@ -19,7 +19,6 @@ import uk.co.ridentbyte.view.dialog.{BasicAuthInputDialog, EnvironmentVariablesE
 
 import scala.collection.JavaConverters._
 import scala.io.Source
-import scala.runtime.BoxedUnit
 
 object Cardinal {
   val firstNames: Words = new Words(Source.fromResource("firstNames.txt").getLines().toList.asJava, new java.util.Random())
@@ -52,7 +51,7 @@ class Cardinal extends Application {
   newRequestTab.setClosable(false)
   newRequestTab.setOnSelectionChanged(e => {
     if (e.getSource.asInstanceOf[Tab] == newRequestTab) {
-      newTab()
+      newTab.apply(null)
     }
   })
   cardinalTabs.getTabs.add(newRequestTab)
@@ -100,9 +99,9 @@ class Cardinal extends Application {
           remove()
         }
       } else if (openCombo.`match`(keyEvent)) {
-        open()
+        open.apply(null)
       } else if (newCombo.`match`(keyEvent)) {
-        newTab()
+        newTab.apply(null)
       }
     })
 
@@ -115,7 +114,7 @@ class Cardinal extends Application {
     } else {
       // Create new empty config file if not present
       val conf = Config(List.empty[EnvironmentVariable])
-      saveChangesToConfig(conf)
+      saveChangesToConfig.apply(conf)
       currentConfig = conf
     }
 
@@ -145,7 +144,7 @@ class Cardinal extends Application {
 
   private def setEnvironmentVariables(vars: List[EnvironmentVariable]): Unit = {
     currentConfig = currentConfig.withEnvironmentVariables(vars)
-    saveChangesToConfig(currentConfig)
+    saveChangesToConfig.apply(currentConfig)
   }
 
   private def triggerUnsavedChangesMade: java.util.function.Function[Void, Void] = {
@@ -157,11 +156,15 @@ class Cardinal extends Application {
     }
   }
 
-  private def sendRequest(request: CardinalRequest): CardinalResponse = {
-    val startTime = System.currentTimeMillis()
-    val response = Http(request).send
-    val totalTime = System.currentTimeMillis() - startTime
-    new CardinalResponse(response, totalTime)
+  private def sendRequest: java.util.function.Function[CardinalRequest, CardinalResponse] = {
+    new function.Function[CardinalRequest, CardinalResponse] {
+      override def apply(request: CardinalRequest): CardinalResponse = {
+        val startTime = System.currentTimeMillis()
+        val response = Http(request).send
+        val totalTime = System.currentTimeMillis() - startTime
+        new CardinalResponse(response, totalTime)
+      }
+    }
   }
 
   private def save(onCancel: () => Unit): Unit = {
@@ -174,38 +177,58 @@ class Cardinal extends Application {
     }
   }
 
-  private def saveChangesToConfig(config: Config): Unit = {
-    val configFile = new File(configLocation)
-    writeToFile(configFile, config.toJson)
-  }
-
-  private def clearAll(): Unit = {
-    val currentTab = getCurrentTab
-    if (currentTab != null) {
-      currentTab.content.clearAll()
-    }
-  }
-
-  private def open(): Unit = {
-    val fileChooser = new FileChooser
-    val selectedFiles = fileChooser.showOpenMultipleDialog(currentStage)
-    if (selectedFiles != null) {
-      selectedFiles.asScala.foreach { selectedFile =>
-        val lines = scala.io.Source.fromFile(selectedFile).getLines().mkString
-        val cardinalView = new CardinalView(showAsCurl, showErrorDialog, () => currentConfig, exportToCsv, exportToBash, sendRequest, triggerUnsavedChangesMade)
-        addTab(CardinalTab(Some(selectedFile), cardinalView))
-        cardinalView.loadRequest(CardinalRequest(lines))
-        getCurrentTab.setUnsavedChanges(false)
+  private def saveChangesToConfig: java.util.function.Function[Config, Void] = {
+    new function.Function[Config, Void] {
+      override def apply(config: Config): Void = {
+        val configFile = new File(configLocation)
+        writeToFile(configFile, config.toJson)
+        null
       }
     }
   }
 
-  private def newTab(): Unit = {
-    cardinalTabs.getTabs.add(
-      cardinalTabs.getTabs.size - 1,
-      CardinalTab(None, new CardinalView(showAsCurl, showErrorDialog, () => currentConfig, exportToCsv, exportToBash, sendRequest, triggerUnsavedChangesMade))
-    )
-    cardinalTabs.getSelectionModel.select(cardinalTabs.getTabs.size() - 2)
+  private def clearAll(): java.util.function.Function[Void, Void] = {
+    new function.Function[Void, Void] {
+      override def apply(t: Void): Void = {
+        val currentTab = getCurrentTab
+        if (currentTab != null) {
+          currentTab.content.clearAll()
+        }
+        null
+      }
+    }
+  }
+
+  private def open: java.util.function.Function[Void, Void] = {
+    new function.Function[Void, Void] {
+      override def apply(t: Void): Void = {
+        val fileChooser = new FileChooser
+        val selectedFiles = fileChooser.showOpenMultipleDialog(currentStage)
+        if (selectedFiles != null) {
+          selectedFiles.asScala.foreach { selectedFile =>
+            val lines = scala.io.Source.fromFile(selectedFile).getLines().mkString
+            val cardinalView = new CardinalView(showAsCurl, showErrorDialog, () => currentConfig, exportToCsv, exportToBash, sendRequest, triggerUnsavedChangesMade)
+            addTab(CardinalTab(Some(selectedFile), cardinalView))
+            cardinalView.loadRequest(CardinalRequest(lines))
+            getCurrentTab.setUnsavedChanges(false)
+          }
+        }
+        null
+      }
+    }
+  }
+
+  private def newTab: java.util.function.Function[Void, Void] = {
+    new java.util.function.Function[Void, Void] {
+      override def apply(t: Void): Void = {
+        cardinalTabs.getTabs.add(
+          cardinalTabs.getTabs.size - 1,
+          CardinalTab(None, new CardinalView(showAsCurl, showErrorDialog, () => currentConfig, exportToCsv, exportToBash, sendRequest, triggerUnsavedChangesMade))
+        )
+        cardinalTabs.getSelectionModel.select(cardinalTabs.getTabs.size() - 2)
+        null
+      }
+    }
   }
 
   private def saveAs(onCancel: () => Unit): Unit = {
@@ -260,34 +283,49 @@ class Cardinal extends Application {
     }
   }
 
-  def showBasicAuthInput(): Unit = {
-    val currentTab = getCurrentTab
-    if (currentTab != null) {
-      val dialog = new BasicAuthInputDialog
-      val result = dialog.showAndWait()
-      if (result.isPresent) {
-        currentTab.content.addHeader(result.get.asAuthHeader)
+  def showBasicAuthInput: java.util.function.Function[Void, Void] = {
+    new java.util.function.Function[Void, Void] {
+      override def apply(t: Void): Void = {
+        val currentTab = getCurrentTab
+        if (currentTab != null) {
+          val dialog = new BasicAuthInputDialog
+          val result = dialog.showAndWait()
+          if (result.isPresent) {
+            currentTab.content.addHeader(result.get.asAuthHeader)
+          }
+        }
+        null
       }
     }
   }
 
-  def showFormUrlEncodedInput(): Unit = {
-    val currentTab = getCurrentTab
-    if (currentTab != null) {
-      val dialog = new FormUrlEncodedInputDialog(currentTab.content.getRequest.body.getOrElse(""))
-      val result = dialog.showAndWait()
-      if (result.isPresent) {
-        currentTab.content.setBody(result.get.toString)
-        currentTab.content.addHeader(result.get.header)
+  def showFormUrlEncodedInput: java.util.function.Function[Void, Void] = {
+    new java.util.function.Function[Void, Void] {
+      override def apply(t: Void): Void = {
+        val currentTab = getCurrentTab
+        if (currentTab != null) {
+          val dialog = new FormUrlEncodedInputDialog(currentTab.content.getRequest.body.getOrElse(""))
+          val result = dialog.showAndWait()
+          if (result.isPresent) {
+            currentTab.content.setBody(result.get.toString)
+            currentTab.content.addHeader(result.get.header)
+          }
+        }
+        null
       }
     }
   }
 
-  def showEnvironmentVariablesInput(): Unit = {
-    val dialog = new EnvironmentVariablesEditDialog(currentConfig.getEnvironmentVariables.asJava)
-    val results = dialog.showAndWait()
-    if (results.isPresent) {
-      setEnvironmentVariables(results.get.asScala.toList)
+  def showEnvironmentVariablesInput: java.util.function.Function[Void, Void] = {
+    new java.util.function.Function[Void, Void] {
+      override def apply(t: Void): Void = {
+        val dialog = new EnvironmentVariablesEditDialog(currentConfig.getEnvironmentVariables.asJava)
+        val results = dialog.showAndWait()
+        if (results.isPresent) {
+          setEnvironmentVariables(results.get.asScala.toList)
+        }
+        null
+      }
     }
   }
 
@@ -381,7 +419,7 @@ class Cardinal extends Application {
 
   def openNewFileIfNoneOpen(): Unit = {
     if (cardinalTabs.getTabs.size() == 0) {
-      newTab()
+      newTab.apply(null)
     }
   }
 

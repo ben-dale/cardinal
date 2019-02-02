@@ -9,7 +9,7 @@ import uk.co.ridentbyte.model.{CardinalRequest, CardinalResponse, Config}
 import uk.co.ridentbyte.view.util.{ColumnConstraintsBuilder, RowConstraintsBuilder}
 
 case class BulkRequestProcessingOutputPane(getConfigCallback: () => Config,
-                                           sendRequestCallback: CardinalRequest => CardinalResponse,
+                                           sendRequestCallback: java.util.function.Function[CardinalRequest, CardinalResponse],
                                            finishedBulkRequestCallback: (List[(CardinalRequest, Option[CardinalResponse])], Option[Long]) => Unit,
                                            request: CardinalRequest,
                                            throttle: Option[Long],

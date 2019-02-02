@@ -6,7 +6,7 @@ import javafx.scene.layout._
 import uk.co.ridentbyte.model._
 
 class ResponsePane(getConfigCallback: () => Config,
-                   sendRequestCallback: CardinalRequest => CardinalResponse,
+                   sendRequestCallback: java.util.function.Function[CardinalRequest, CardinalResponse],
                    exportToCsv: List[(CardinalRequest, Option[CardinalResponse])] => Unit,
                    exportToBash: (List[CardinalRequest], Option[Long]) => Unit,
                    showErrorDialogCallback: java.util.function.Function[String, Void]) extends BorderPane {
