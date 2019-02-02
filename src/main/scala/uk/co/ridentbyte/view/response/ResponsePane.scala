@@ -5,13 +5,11 @@ import javafx.geometry.Insets
 import javafx.scene.layout._
 import uk.co.ridentbyte.model._
 
-import scala.runtime.BoxedUnit
-
 class ResponsePane(getConfigCallback: () => Config,
                    sendRequestCallback: CardinalRequest => CardinalResponse,
                    exportToCsv: List[(CardinalRequest, Option[CardinalResponse])] => Unit,
                    exportToBash: (List[CardinalRequest], Option[Long]) => Unit,
-                   showErrorDialogCallback: String => BoxedUnit) extends BorderPane {
+                   showErrorDialogCallback: java.util.function.Function[String, Void]) extends BorderPane {
 
   setPadding(new Insets(20, 20, 20, 20))
   clearContents()
@@ -36,7 +34,7 @@ class ResponsePane(getConfigCallback: () => Config,
 
   def startBulkRequest(request: CardinalRequest, throttle: Option[Long], requestCount: Option[Int], ids: Option[List[String]]): Unit = {
     if (throttle.isEmpty || (requestCount.isEmpty && ids.isEmpty)) {
-      showErrorDialogCallback("Invalid input. \nPlease provide a throttle and either a request count or a range value.")
+      showErrorDialogCallback.apply("Invalid input. \nPlease provide a throttle and either a request count or a range value.")
     } else {
       val outputPane = BulkRequestProcessingOutputPane(getConfigCallback, sendRequestCallback, finishedBulkRequestCallback, request, throttle, requestCount, ids)
       Platform.runLater(() => setCenter(outputPane))

@@ -291,13 +291,17 @@ class Cardinal extends Application {
     }
   }
 
-  def showErrorDialog(errorMessage: String): BoxedUnit = {
-    Platform.runLater(() => {
-      val alert = new Alert(AlertType.ERROR)
-      alert.setContentText(errorMessage)
-      alert.showAndWait
-    })
-    scala.runtime.BoxedUnit.UNIT
+  def showErrorDialog: java.util.function.Function[String, Void] = {
+    new function.Function[String, Void] {
+      override def apply(errorMessage: String): Void = {
+        Platform.runLater(() => {
+          val alert = new Alert(AlertType.ERROR)
+          alert.setContentText(errorMessage)
+          alert.showAndWait
+        })
+        null
+      }
+    }
   }
 
   def showAsCurl: java.util.function.Function[Void, Void] = {
@@ -307,7 +311,7 @@ class Cardinal extends Application {
         if (currentTab != null) {
           val request = currentTab.content.getRequest
           if (request.uri.trim.length == 0) {
-            showErrorDialog("Please enter a URL.")
+            showErrorDialog.apply("Please enter a URL.")
           } else {
             currentTab.content.loadCurlCommand(request.toCurl(currentConfig))
           }

@@ -15,7 +15,7 @@ import uk.co.ridentbyte.view.util.{ColumnConstraintsBuilder, RowConstraintsBuild
 import scala.runtime.BoxedUnit
 
 class CardinalView(showAsCurl: java.util.function.Function[Void, Void],
-                   showErrorDialogCallback: String => BoxedUnit,
+                   showErrorDialogCallback: java.util.function.Function[String, Void],
                    getConfigCallback: () => Config,
                    exportToCsv: List[(CardinalRequest, Option[CardinalResponse])] => Unit,
                    exportToBash: (List[CardinalRequest], Option[Long]) => Unit,
@@ -55,7 +55,8 @@ class CardinalView(showAsCurl: java.util.function.Function[Void, Void],
     Platform.runLater(() => responsePane.clearContents())
     val request = requestInputPane.getRequest
     if (request.uri.trim.length == 0) {
-      showErrorDialogCallback("Please enter a URL.")
+      showErrorDialogCallback.apply("Please enter a URL.")
+      scala.runtime.BoxedUnit.UNIT
     } else {
       new Thread() {
         override def run(): Unit = {
@@ -63,13 +64,13 @@ class CardinalView(showAsCurl: java.util.function.Function[Void, Void],
           val httpResponse = try {
             Some(sendRequestCallback(requestInputPane.getRequest.processConstants(getConfigCallback())))
           } catch {
-            case _: ConnectException => showErrorDialogCallback("Connection refused."); None
-            case _: URISyntaxException => showErrorDialogCallback("Invalid URL."); None
-            case _: UnknownHostException => showErrorDialogCallback("Unknown Host."); None
-            case _: SSLHandshakeException => showErrorDialogCallback("SSL Handshake failed. Remote host closed connection during handshake."); None
+            case _: ConnectException => showErrorDialogCallback.apply("Connection refused."); None
+            case _: URISyntaxException => showErrorDialogCallback.apply("Invalid URL."); None
+            case _: UnknownHostException => showErrorDialogCallback.apply("Unknown Host."); None
+            case _: SSLHandshakeException => showErrorDialogCallback.apply("SSL Handshake failed. Remote host closed connection during handshake."); None
             case e: Exception =>
               e.printStackTrace()
-              showErrorDialogCallback("Unknown error occurred."); None
+              showErrorDialogCallback.apply("Unknown error occurred."); None
           } finally {
             Platform.runLater(() => { onFinish() })
           }
@@ -85,7 +86,7 @@ class CardinalView(showAsCurl: java.util.function.Function[Void, Void],
       override def apply(t: Void): Void = {
         val request = requestInputPane.getRequest
         if (request.uri.trim.length == 0) {
-          showErrorDialogCallback("Please enter a URL.")
+          showErrorDialogCallback.apply("Please enter a URL.")
           null
         } else {
           responsePane.showBulkRequestInput(requestInputPane.getRequest)
