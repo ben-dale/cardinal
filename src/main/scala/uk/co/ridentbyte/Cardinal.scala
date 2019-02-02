@@ -284,10 +284,10 @@ class Cardinal extends Application {
   }
 
   def showEnvironmentVariablesInput(): Unit = {
-    val dialog = new EnvironmentVariablesEditDialog(currentConfig.getEnvironmentVariables)
+    val dialog = new EnvironmentVariablesEditDialog(currentConfig.getEnvironmentVariables.asJava)
     val results = dialog.showAndWait()
     if (results.isPresent) {
-      setEnvironmentVariables(results.get)
+      setEnvironmentVariables(results.get.asScala.toList)
     }
   }
 
