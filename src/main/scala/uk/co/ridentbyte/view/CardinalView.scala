@@ -1,6 +1,7 @@
 package uk.co.ridentbyte.view
 
 import java.net.{ConnectException, URISyntaxException, UnknownHostException}
+import java.util.function
 
 import javafx.application.Platform
 import javafx.scene.control.SplitPane
@@ -79,13 +80,19 @@ class CardinalView(showAsCurl: java.util.function.Function[Void, Void],
     }
   }
 
-  private def showBulkRequestInput(): BoxedUnit = {
-    val request = requestInputPane.getRequest
-    if (request.uri.trim.length == 0) {
-      showErrorDialogCallback("Please enter a URL.")
-    } else {
-      responsePane.showBulkRequestInput(requestInputPane.getRequest)
-      scala.runtime.BoxedUnit.UNIT
+  private def showBulkRequestInput: java.util.function.Function[Void, Void] = {
+    new function.Function[Void, Void] {
+      override def apply(t: Void): Void = {
+        val request = requestInputPane.getRequest
+        if (request.uri.trim.length == 0) {
+          showErrorDialogCallback("Please enter a URL.")
+          null
+        } else {
+          responsePane.showBulkRequestInput(requestInputPane.getRequest)
+          scala.runtime.BoxedUnit.UNIT
+          null
+        }
+      }
     }
   }
 

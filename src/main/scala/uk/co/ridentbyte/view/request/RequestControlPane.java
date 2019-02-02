@@ -14,7 +14,7 @@ import java.util.function.Function;
 public class RequestControlPane extends GridPane {
 
     public RequestControlPane(Function<Void, Void> exportToCurl,
-                              Function0<BoxedUnit> showBulkRequest,
+                              Function<Void, Void> showBulkRequest,
                               Function2<Function0<BoxedUnit>, Function0<BoxedUnit>, BoxedUnit> sendRequest) {
         this.setHgap(10);
         this.setVgap(10);
@@ -32,7 +32,7 @@ public class RequestControlPane extends GridPane {
         buttonSendBulkRequest.getStyleClass().add("cardinal-font");
         GridPane.setVgrow(buttonSendBulkRequest, Priority.NEVER);
         GridPane.setHgrow(buttonSendBulkRequest, Priority.NEVER);
-        buttonSendBulkRequest.setOnAction((actionEvent) -> showBulkRequest.apply());
+        buttonSendBulkRequest.setOnAction((actionEvent) -> showBulkRequest.apply(null));
         this.add(buttonSendBulkRequest, 1, 0);
 
         Button buttonSendRequest = new Button("Send Request");

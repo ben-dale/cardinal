@@ -300,7 +300,7 @@ class Cardinal extends Application {
     scala.runtime.BoxedUnit.UNIT
   }
 
-  def showAsCurl(): java.util.function.Function[Void, Void] = {
+  def showAsCurl: java.util.function.Function[Void, Void] = {
     new function.Function[Void, Void] {
       override def apply(t: Void): Void = {
         val currentTab = getCurrentTab
