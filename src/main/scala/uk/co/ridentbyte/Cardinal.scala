@@ -77,7 +77,7 @@ class Cardinal extends Application {
       val newCombo = new KeyCodeCombination(KeyCode.N, KeyCombination.SHORTCUT_DOWN)
 
       if (saveCombo.`match`(keyEvent)) {
-        save(() => Unit)
+        save.apply(null)
       } else if (saveAsCombo.`match`(keyEvent)) {
         saveAs.apply(null)
       } else if (closeTabCombo.`match`(keyEvent) && getCurrentTab != null) {
@@ -88,11 +88,8 @@ class Cardinal extends Application {
         }
         if (currentTab.hasUnsavedChanges) {
           val saveCallback: () => Unit = () => {
-            var shouldRemove = true
-            save(() => shouldRemove = false)
-            if (shouldRemove) {
-              remove()
-            }
+            save.apply(null)
+            remove()
           }
           showConfirmDialog("Save unsaved changes?", saveCallback, remove, () => Unit)
         } else {
@@ -167,13 +164,18 @@ class Cardinal extends Application {
     }
   }
 
-  private def save(onCancel: () => Unit): Unit = {
-    val currentTab = getCurrentTab
-    if (currentTab != null && currentTab.currentFile.isDefined) {
-      writeToFile(currentTab.currentFile.get, currentTab.content.getRequest.toJson)
-      currentTab.setUnsavedChanges(false)
-    } else {
-      saveAs.apply(null)
+  private def save: java.util.function.Function[Void, Void] = {
+    new function.Function[Void, Void] {
+      override def apply(t: Void): Void = {
+        val currentTab = getCurrentTab
+        if (currentTab != null && currentTab.currentFile.isDefined) {
+          writeToFile(currentTab.currentFile.get, currentTab.content.getRequest.toJson)
+          currentTab.setUnsavedChanges(false)
+          null
+        } else {
+          saveAs.apply(null)
+        }
+      }
     }
   }
 
@@ -385,7 +387,7 @@ class Cardinal extends Application {
 
     setOnCloseRequest(r => {
       if (unsavedChanges) {
-        showConfirmDialog("Save unsaved changes?", () => save(r.consume), () => Unit, () => r.consume())
+        showConfirmDialog("Save unsaved changes?", () => save.apply(null), () => Unit, () => r.consume())
       }
       Platform.runLater(() => openNewFileIfNoneOpen())
     })
