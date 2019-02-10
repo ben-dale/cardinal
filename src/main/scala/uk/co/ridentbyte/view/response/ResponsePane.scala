@@ -28,7 +28,7 @@ class ResponsePane(getConfigCallback: java.util.function.Function[Void, Config],
     Platform.runLater(() => setCenter(new CurlOutputPane(command)))
   }
 
-  def showBulkRequestInput(request: CardinalRequest, bulkRequest: Option[BulkRequest] = None): Unit = {
+  def showBulkRequestInput(request: CardinalRequest): Unit = {
     Platform.runLater(() => setCenter(BulkRequestInputPane(getConfigCallback, exportToBash, startBulkRequest, showErrorDialogCallback, request)))
   }
 
