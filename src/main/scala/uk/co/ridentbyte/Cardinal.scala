@@ -436,10 +436,10 @@ class Cardinal extends Application {
     }
   }
 
-  def exportToCsv(requestAndResponses: List[(CardinalRequest, Option[CardinalResponse])]): Unit = {
+  def exportToCsv(requestAndResponses: List[CardinalRequestAndResponse]): Unit = {
     val header = CardinalRequest.csvHeaders + "," + CardinalResponse.csvHeaders()
-    val content = requestAndResponses.map { case (req, res) =>
-      req.toCSV + "," + res.getOrElse(CardinalResponse.blank()).toCSV
+    val content = requestAndResponses.map { reqAndRes =>
+      reqAndRes.getRequest.toCSV + "," + (if (reqAndRes.getResponse != null) reqAndRes.getResponse.toCSV else CardinalResponse.blank().toCSV)
     }.mkString("\n")
     val fileChooser = new FileChooser
     val file = fileChooser.showSaveDialog(currentStage)

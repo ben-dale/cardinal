@@ -7,7 +7,7 @@ import javafx.application.Platform
 import javafx.scene.control.SplitPane
 import javafx.scene.layout.{BorderPane, GridPane, Priority}
 import javax.net.ssl.SSLHandshakeException
-import uk.co.ridentbyte.model.{CardinalRequest, CardinalResponse, Config}
+import uk.co.ridentbyte.model.{CardinalRequest, CardinalRequestAndResponse, CardinalResponse, Config}
 import uk.co.ridentbyte.view.request.{RequestControlPane, RequestInputPane}
 import uk.co.ridentbyte.view.response.ResponsePane
 import uk.co.ridentbyte.view.util.{ColumnConstraintsBuilder, RowConstraintsBuilder}
@@ -17,7 +17,7 @@ import scala.runtime.BoxedUnit
 class CardinalView(showAsCurl: java.util.function.Function[Void, Void],
                    showErrorDialogCallback: java.util.function.Function[String, Void],
                    getConfigCallback: java.util.function.Function[Void, Config],
-                   exportToCsv: List[(CardinalRequest, Option[CardinalResponse])] => Unit,
+                   exportToCsv: List[CardinalRequestAndResponse] => Unit,
                    exportToBash: (List[CardinalRequest], Option[Long]) => Unit,
                    sendRequestCallback: java.util.function.Function[CardinalRequest, CardinalResponse],
                    triggerUnsavedChangesMade: java.util.function.Function[Void, Void]) extends BorderPane {

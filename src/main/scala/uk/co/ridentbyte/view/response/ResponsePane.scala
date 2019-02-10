@@ -7,7 +7,7 @@ import uk.co.ridentbyte.model._
 
 class ResponsePane(getConfigCallback: java.util.function.Function[Void, Config],
                    sendRequestCallback: java.util.function.Function[CardinalRequest, CardinalResponse],
-                   exportToCsv: List[(CardinalRequest, Option[CardinalResponse])] => Unit,
+                   exportToCsv: List[CardinalRequestAndResponse] => Unit,
                    exportToBash: (List[CardinalRequest], Option[Long]) => Unit,
                    showErrorDialogCallback: java.util.function.Function[String, Void]) extends BorderPane {
 
@@ -42,7 +42,7 @@ class ResponsePane(getConfigCallback: java.util.function.Function[Void, Config],
     }
   }
 
-  def finishedBulkRequestCallback(requestAndResponses: List[(CardinalRequest, Option[CardinalResponse])], throttle: Option[Long]): Unit = {
+  def finishedBulkRequestCallback(requestAndResponses: List[CardinalRequestAndResponse], throttle: Option[Long]): Unit = {
     Platform.runLater(() =>
       setCenter(BulkRequestOutputPane(requestAndResponses, exportToCsv, exportToBash, throttle))
     )

@@ -5,18 +5,18 @@ import javafx.concurrent.Task
 import javafx.geometry.{HPos, Insets}
 import javafx.scene.control.{Button, Label, ProgressBar}
 import javafx.scene.layout.{GridPane, Priority}
-import uk.co.ridentbyte.model.{CardinalRequest, CardinalResponse, Config}
+import uk.co.ridentbyte.model.{CardinalRequest, CardinalRequestAndResponse, CardinalResponse, Config}
 import uk.co.ridentbyte.view.util.{ColumnConstraintsBuilder, RowConstraintsBuilder}
 
 case class BulkRequestProcessingOutputPane(getConfigCallback: java.util.function.Function[Void, Config],
                                            sendRequestCallback: java.util.function.Function[CardinalRequest, CardinalResponse],
-                                           finishedBulkRequestCallback: (List[(CardinalRequest, Option[CardinalResponse])], Option[Long]) => Unit,
+                                           finishedBulkRequestCallback: (List[CardinalRequestAndResponse], Option[Long]) => Unit,
                                            request: CardinalRequest,
                                            throttle: Option[Long],
                                            requestCount: Option[Int],
                                            ids: Option[List[String]]) extends GridPane {
 
-  var requestsAndResponses = collection.mutable.ListBuffer.empty[(CardinalRequest, Option[CardinalResponse])]
+  var requestsAndResponses = collection.mutable.ListBuffer.empty[CardinalRequestAndResponse]
   val labelDelta = new Label()
 
   val task = new Task[Boolean]() {
@@ -27,7 +27,7 @@ case class BulkRequestProcessingOutputPane(getConfigCallback: java.util.function
           val r = request.withId(i.toString).processConstants(getConfigCallback.apply(null))
           try {
             val response = sendRequestCallback(r)
-            requestsAndResponses += ((r, Some(response)))
+            requestsAndResponses += new CardinalRequestAndResponse(r, response)
             updateProgress(i + 1, requestCount.get)
             Platform.runLater(() => {
               labelDelta.setText((i + 1).toString)
@@ -35,7 +35,7 @@ case class BulkRequestProcessingOutputPane(getConfigCallback: java.util.function
           } catch {
             case _: Exception =>
               // Todo - update exception log to show on screen?
-              requestsAndResponses += ((r, None))
+              requestsAndResponses += new CardinalRequestAndResponse(r, null)
               updateProgress(i + 1, requestCount.get)
               Platform.runLater(() => {
                 labelDelta.setText((i + 1).toString)
@@ -50,7 +50,7 @@ case class BulkRequestProcessingOutputPane(getConfigCallback: java.util.function
           val r = request.withId(id).processConstants(getConfigCallback.apply(null))
           try {
             val response = sendRequestCallback(r)
-            requestsAndResponses += ((r, Some(response)))
+            requestsAndResponses += new CardinalRequestAndResponse(r, response)
             updateProgress(i + 1, ids.get.length.toDouble)
             Platform.runLater(() => {
               labelDelta.setText((i + 1).toString)
@@ -58,7 +58,7 @@ case class BulkRequestProcessingOutputPane(getConfigCallback: java.util.function
           } catch {
             case _: Exception =>
               // Todo - update exception log to show on screen?
-              requestsAndResponses += ((r, None))
+              requestsAndResponses += new CardinalRequestAndResponse(r, null)
               updateProgress(i + 1, ids.get.length.toDouble)
               Platform.runLater(() => {
                 labelDelta.setText((i + 1).toString)

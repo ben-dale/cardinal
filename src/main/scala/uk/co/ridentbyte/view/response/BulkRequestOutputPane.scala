@@ -4,15 +4,15 @@ import javafx.geometry.Insets
 import javafx.scene.chart.{AreaChart, NumberAxis, XYChart}
 import javafx.scene.control.{Button, TextArea}
 import javafx.scene.layout.{GridPane, Priority}
-import uk.co.ridentbyte.model.{CardinalRequest, CardinalResponse}
+import uk.co.ridentbyte.model.{CardinalRequest, CardinalRequestAndResponse}
 import uk.co.ridentbyte.view.util.RowConstraintsBuilder
 
-case class BulkRequestOutputPane(requestAndResponses: List[(CardinalRequest, Option[CardinalResponse])],
-                                 exportToCsv: List[(CardinalRequest, Option[CardinalResponse])] => Unit,
+case class BulkRequestOutputPane(requestAndResponses: List[CardinalRequestAndResponse],
+                                 exportToCsv: List[CardinalRequestAndResponse] => Unit,
                                  exportToBash: (List[CardinalRequest], Option[Long]) => Unit,
                                  throttle: Option[Long]) extends GridPane {
 
-  val responses = requestAndResponses.map(_._2)
+  val responses = requestAndResponses.map(_.getResponse).filter(_ != null)
 
   setHgap(10)
   setVgap(10)
@@ -36,9 +36,7 @@ case class BulkRequestOutputPane(requestAndResponses: List[(CardinalRequest, Opt
 
   val timeSeries = new XYChart.Series[Number, Number]
   responses.zipWithIndex.foreach { case(r, i) =>
-    if (r.isDefined) {
-      timeSeries.getData.add(new XYChart.Data(i, r.get.getTime))
-    }
+    timeSeries.getData.add(new XYChart.Data(i, r.getTime))
   }
 
   val lineChart = new AreaChart[Number, Number](xAxis, yAxis)
@@ -50,11 +48,11 @@ case class BulkRequestOutputPane(requestAndResponses: List[(CardinalRequest, Opt
   GridPane.setColumnSpan(lineChart, 2)
   add(lineChart, 0, 0)
 
-  val allTimes = responses.filter(_.isDefined).map(_.get.getTime)
+  val allTimes = responses.map(_.getTime)
   val allTimesSorted = allTimes.sorted
   val averageResponseTime = if (responses.isEmpty) 0 else allTimes.sum / responses.size
 
-  val responseCodesWithCounts = responses.filter(_.isDefined).groupBy(_.get.getStatusCode)
+  val responseCodesWithCounts = responses.groupBy(_.getStatusCode)
 
   val requestCountsOutput = if (responseCodesWithCounts.isEmpty) {
     List("No responses")
@@ -88,7 +86,7 @@ case class BulkRequestOutputPane(requestAndResponses: List[(CardinalRequest, Opt
   add(exportToCsvButton, 0, 2)
 
   val exportToBashButton = new Button("Export as script...")
-  exportToBashButton.setOnAction(_ => exportToBash(requestAndResponses.map(_._1), throttle))
+  exportToBashButton.setOnAction(_ => exportToBash(requestAndResponses.map(_.getRequest), throttle))
   GridPane.setColumnSpan(exportToBashButton, 1)
   GridPane.setHgrow(exportToBashButton, Priority.ALWAYS)
   add(exportToBashButton, 1, 2)
