@@ -3,12 +3,13 @@ package uk.co.ridentbyte.view.response
 import javafx.geometry.{HPos, Insets}
 import javafx.scene.control.{Button, Label, TextField}
 import javafx.scene.layout.{GridPane, Priority}
-import uk.co.ridentbyte.model.{CardinalRequest, Config}
+import uk.co.ridentbyte.model.{CardinalBulkRequest, CardinalRequest, Config}
 import uk.co.ridentbyte.view.util.ColumnConstraintsBuilder
+import scala.collection.JavaConverters._
 
 case class BulkRequestInputPane(getConfig: java.util.function.Function[Void, Config],
-                                exportToBash: java.util.function.BiFunction[List[CardinalRequest], Option[Long], Void],
-                                startBulkRequest: (CardinalRequest, Option[Long], Option[Int], Option[List[String]]) => Unit,
+                                exportToBash: java.util.function.BiFunction[List[CardinalRequest], Int, Void],
+                                startBulkRequest: CardinalBulkRequest => Unit,
                                 showErrorDialogCallback: java.util.function.Function[String, Void],
                                 request: CardinalRequest) extends GridPane {
 
@@ -60,7 +61,7 @@ case class BulkRequestInputPane(getConfig: java.util.function.Function[Void, Con
   private val buttonStart = new Button("Start")
   GridPane.setHalignment(buttonStart, HPos.RIGHT)
   buttonStart.setOnAction(_ => {
-    startBulkRequest(request, getThrottle, getNumberOfRequests, getForEach)
+    startBulkRequest(new CardinalBulkRequest(request, getThrottle, getNumberOfRequests, getForEach))
   })
   add(buttonStart, 2, 5)
 
@@ -69,55 +70,43 @@ case class BulkRequestInputPane(getConfig: java.util.function.Function[Void, Con
   buttonExportAsScript.setOnAction(_ => asScript())
   add(buttonExportAsScript,1, 5)
 
-  def getThrottle: Option[Long] = {
-    if (textDelay.getText.trim.length == 0) {
-      None
-    } else {
-      try {
-        Some(textDelay.getText.trim.toLong)
-      } catch {
-        case _: Exception => None
-      }
+  def getThrottle: Int = {
+    try {
+      textDelay.getText.trim.toInt
+    } catch {
+      case _: Exception => 0
     }
   }
 
-  def getNumberOfRequests: Option[Int] = {
-    if (textNumOfRequests.getText.trim.length == 0) {
-      None
-    } else {
-      try {
-        Some(textNumOfRequests.getText.trim.toInt)
-      } catch {
-        case _: Exception => None
-      }
+  def getNumberOfRequests: Int = {
+    try {
+      textNumOfRequests.getText.trim.toInt
+    } catch {
+      case _: Exception => 0
     }
   }
 
-  def getForEach: Option[List[String]] = {
-    if (textForEach.getText.trim.length == 0) {
-      None
-    } else {
-      val matcher = "([0-9]+)..([0-9]+)".r
-      textForEach.getText.trim match {
-        case matcher(a, b) => Some(a.toInt.to(b.toInt).map(_.toString).toList)
-        case v => Some(v.split(",").toList)
-      }
+  def getForEach: java.util.List[String] = {
+    val matcher = "([0-9]+)..([0-9]+)".r
+    textForEach.getText.trim match {
+      case matcher(a, b) => a.toInt.to(b.toInt).map(_.toString).toList.asJava
+      case v => v.split(",").toList.asJava
     }
   }
 
   def asScript(): Unit = {
     val requestCount = getNumberOfRequests
     val ids = getForEach
-    if (requestCount.isDefined) {
-      val requests = 0 until requestCount.get map { i =>
+    if (requestCount != 0) {
+      val requests = 0 until requestCount map { i =>
         request.withId(i.toString).processConstants(getConfig.apply(null))
       }
-      exportToBash(requests.toList, getThrottle)
-    } else if (ids.isDefined) {
-      val requests = ids.get.zipWithIndex.map { case (id, _) =>
+      exportToBash.apply(requests.toList, getThrottle)
+    } else if (!ids.isEmpty) {
+      val requests = ids.asScala.zipWithIndex.map { case (id, _) =>
         request.withId(id).processConstants(getConfig.apply(null))
       }
-      exportToBash(requests, getThrottle)
+      exportToBash.apply(requests.toList, getThrottle)
     } else {
       showErrorDialogCallback.apply("Invalid input. \nPlease provide a throttle and either a request count or a range value.")
     }

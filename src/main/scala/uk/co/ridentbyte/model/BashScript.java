@@ -10,13 +10,9 @@ public class BashScript {
     private Config config;
     private long throttle;
 
-    public BashScript(List<CardinalRequest> requests, Config config) {
+    public BashScript(List<CardinalRequest> requests, Config config, long throttle) {
         this.requests = requests;
         this.config = config;
-    }
-
-    public BashScript(List<CardinalRequest> requests, Config config, long throttle) {
-        this(requests, config);
         this.throttle = throttle;
     }
 

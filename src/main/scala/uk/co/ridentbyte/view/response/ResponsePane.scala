@@ -8,7 +8,7 @@ import uk.co.ridentbyte.model._
 class ResponsePane(getConfigCallback: java.util.function.Function[Void, Config],
                    sendRequestCallback: java.util.function.Function[CardinalRequest, CardinalResponse],
                    exportToCsv: List[CardinalRequestAndResponse] => Unit,
-                   exportToBash: java.util.function.BiFunction[List[CardinalRequest], Option[Long], Void],
+                   exportToBash: java.util.function.BiFunction[List[CardinalRequest], Int, Void],
                    showErrorDialogCallback: java.util.function.Function[String, Void]) extends BorderPane {
 
   setPadding(new Insets(20, 20, 20, 20))
@@ -32,17 +32,17 @@ class ResponsePane(getConfigCallback: java.util.function.Function[Void, Config],
     Platform.runLater(() => setCenter(BulkRequestInputPane(getConfigCallback, exportToBash, startBulkRequest, showErrorDialogCallback, request)))
   }
 
-  def startBulkRequest(request: CardinalRequest, throttle: Option[Long], requestCount: Option[Int], ids: Option[List[String]]): Unit = {
-    if (throttle.isEmpty || (requestCount.isEmpty && ids.isEmpty)) {
+  def startBulkRequest(bulkRequest: CardinalBulkRequest): Unit = {
+    if (bulkRequest.getRequestCount == 0 || bulkRequest.getIds.isEmpty) {
       showErrorDialogCallback.apply("Invalid input. \nPlease provide a throttle and either a request count or a range value.")
     } else {
-      val outputPane = BulkRequestProcessingOutputPane(getConfigCallback, sendRequestCallback, finishedBulkRequestCallback, request, throttle, requestCount, ids)
+      val outputPane = BulkRequestProcessingOutputPane(getConfigCallback, sendRequestCallback, finishedBulkRequestCallback, bulkRequest)
       Platform.runLater(() => setCenter(outputPane))
       new Thread(outputPane.task).start()
     }
   }
 
-  def finishedBulkRequestCallback(requestAndResponses: List[CardinalRequestAndResponse], throttle: Option[Long]): Unit = {
+  def finishedBulkRequestCallback(requestAndResponses: List[CardinalRequestAndResponse], throttle: Int): Unit = {
     Platform.runLater(() =>
       setCenter(BulkRequestOutputPane(requestAndResponses, exportToCsv, exportToBash, throttle))
     )

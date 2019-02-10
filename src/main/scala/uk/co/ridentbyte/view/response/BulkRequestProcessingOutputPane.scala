@@ -5,30 +5,33 @@ import javafx.concurrent.Task
 import javafx.geometry.{HPos, Insets}
 import javafx.scene.control.{Button, Label, ProgressBar}
 import javafx.scene.layout.{GridPane, Priority}
-import uk.co.ridentbyte.model.{CardinalRequest, CardinalRequestAndResponse, CardinalResponse, Config}
+import uk.co.ridentbyte.model._
 import uk.co.ridentbyte.view.util.{ColumnConstraintsBuilder, RowConstraintsBuilder}
+import scala.collection.JavaConverters._
 
 case class BulkRequestProcessingOutputPane(getConfigCallback: java.util.function.Function[Void, Config],
                                            sendRequestCallback: java.util.function.Function[CardinalRequest, CardinalResponse],
-                                           finishedBulkRequestCallback: (List[CardinalRequestAndResponse], Option[Long]) => Unit,
-                                           request: CardinalRequest,
-                                           throttle: Option[Long],
-                                           requestCount: Option[Int],
-                                           ids: Option[List[String]]) extends GridPane {
+                                           finishedBulkRequestCallback: (List[CardinalRequestAndResponse], Int) => Unit,
+                                           bulkRequest: CardinalBulkRequest) extends GridPane {
 
   var requestsAndResponses = collection.mutable.ListBuffer.empty[CardinalRequestAndResponse]
   val labelDelta = new Label()
+  val throttle = bulkRequest.getThrottle
+  val requestCount = bulkRequest.getRequestCount
+  val request = bulkRequest.getRequest
+  val ids = bulkRequest.getIds
 
   val task = new Task[Boolean]() {
     override def call(): Boolean = {
-      if (throttle.isDefined && requestCount.isDefined) {
-        0 until requestCount.get foreach { i =>
-          Thread.sleep(throttle.get)
+      println("HERE WITH " + requestCount)
+      if (requestCount > 0) {
+        0 until requestCount foreach { i =>
+          Thread.sleep(throttle)
           val r = request.withId(i.toString).processConstants(getConfigCallback.apply(null))
           try {
             val response = sendRequestCallback(r)
             requestsAndResponses += new CardinalRequestAndResponse(r, response)
-            updateProgress(i + 1, requestCount.get)
+            updateProgress(i + 1, requestCount)
             Platform.runLater(() => {
               labelDelta.setText((i + 1).toString)
             })
@@ -36,30 +39,7 @@ case class BulkRequestProcessingOutputPane(getConfigCallback: java.util.function
             case _: Exception =>
               // Todo - update exception log to show on screen?
               requestsAndResponses += new CardinalRequestAndResponse(r, null)
-              updateProgress(i + 1, requestCount.get)
-              Platform.runLater(() => {
-                labelDelta.setText((i + 1).toString)
-              })
-          }
-        }
-        finishedBulkRequestCallback(requestsAndResponses.toList, throttle)
-        true
-      } else if (throttle.isDefined && ids.isDefined) {
-        ids.get.zipWithIndex.foreach { case (id, i) =>
-          Thread.sleep(throttle.get)
-          val r = request.withId(id).processConstants(getConfigCallback.apply(null))
-          try {
-            val response = sendRequestCallback(r)
-            requestsAndResponses += new CardinalRequestAndResponse(r, response)
-            updateProgress(i + 1, ids.get.length.toDouble)
-            Platform.runLater(() => {
-              labelDelta.setText((i + 1).toString)
-            })
-          } catch {
-            case _: Exception =>
-              // Todo - update exception log to show on screen?
-              requestsAndResponses += new CardinalRequestAndResponse(r, null)
-              updateProgress(i + 1, ids.get.length.toDouble)
+              updateProgress(i + 1, requestCount)
               Platform.runLater(() => {
                 labelDelta.setText((i + 1).toString)
               })
@@ -68,7 +48,28 @@ case class BulkRequestProcessingOutputPane(getConfigCallback: java.util.function
         finishedBulkRequestCallback(requestsAndResponses.toList, throttle)
         true
       } else {
-        false
+        ids.asScala.zipWithIndex.foreach { case (id, i) =>
+          Thread.sleep(throttle)
+          val r = request.withId(id).processConstants(getConfigCallback.apply(null))
+          try {
+            val response = sendRequestCallback(r)
+            requestsAndResponses += new CardinalRequestAndResponse(r, response)
+            updateProgress(i + 1, ids.size)
+            Platform.runLater(() => {
+              labelDelta.setText((i + 1).toString)
+            })
+          } catch {
+            case _: Exception =>
+              // Todo - update exception log to show on screen?
+              requestsAndResponses += new CardinalRequestAndResponse(r, null)
+              updateProgress(i + 1, ids.size())
+              Platform.runLater(() => {
+                labelDelta.setText((i + 1).toString)
+              })
+          }
+        }
+        finishedBulkRequestCallback(requestsAndResponses.toList, throttle)
+        true
       }
     }
   }

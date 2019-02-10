@@ -453,14 +453,10 @@ class Cardinal extends Application {
     }
   }
 
-  def exportToBash: java.util.function.BiFunction[List[CardinalRequest], Option[Long], Void] = {
-    new java.util.function.BiFunction[List[CardinalRequest], Option[Long], Void] {
-      override def apply(requests: List[CardinalRequest], throttle: Option[Long]): Void = {
-        val bashScript = if (throttle.isDefined) {
-          new BashScript(requests.asJava, currentConfig, throttle.get)
-        } else {
-          new BashScript(requests.asJava, currentConfig)
-        }
+  def exportToBash: java.util.function.BiFunction[List[CardinalRequest], Int, Void] = {
+    new java.util.function.BiFunction[List[CardinalRequest], Int, Void] {
+      override def apply(requests: List[CardinalRequest], throttle: Int): Void = {
+        val bashScript = new BashScript(requests.asJava, currentConfig, throttle)
         val fileChooser = new FileChooser
         val file = fileChooser.showSaveDialog(currentStage)
         if (file != null) {
