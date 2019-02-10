@@ -29,7 +29,7 @@ class ResponsePane(getConfigCallback: java.util.function.Function[Void, Config],
   }
 
   def showBulkRequestInput(request: CardinalRequest, bulkRequest: Option[BulkRequest] = None): Unit = {
-    Platform.runLater(() => setCenter(BulkRequestInputPane(getConfigCallback, exportToBash, startBulkRequest, request)))
+    Platform.runLater(() => setCenter(BulkRequestInputPane(getConfigCallback, exportToBash, startBulkRequest, showErrorDialogCallback, request)))
   }
 
   def startBulkRequest(request: CardinalRequest, throttle: Option[Long], requestCount: Option[Int], ids: Option[List[String]]): Unit = {

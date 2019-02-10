@@ -9,6 +9,7 @@ import uk.co.ridentbyte.view.util.ColumnConstraintsBuilder
 case class BulkRequestInputPane(getConfig: java.util.function.Function[Void, Config],
                                 exportToBash: (List[CardinalRequest], Option[Long]) => Unit,
                                 startBulkRequest: (CardinalRequest, Option[Long], Option[Int], Option[List[String]]) => Unit,
+                                showErrorDialogCallback: java.util.function.Function[String, Void],
                                 request: CardinalRequest) extends GridPane {
 
   setHgap(10)
@@ -117,6 +118,8 @@ case class BulkRequestInputPane(getConfig: java.util.function.Function[Void, Con
         request.withId(id).processConstants(getConfig.apply(null))
       }
       exportToBash(requests, getThrottle)
+    } else {
+      showErrorDialogCallback.apply("Invalid input. \nPlease provide a throttle and either a request count or a range value.")
     }
   }
 
