@@ -5,17 +5,15 @@ import javafx.geometry.HPos;
 import javafx.scene.control.Button;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.Priority;
-import scala.Function0;
-import scala.Function2;
-import scala.runtime.BoxedUnit;
 
+import java.util.function.BiFunction;
 import java.util.function.Function;
 
 public class RequestControlPane extends GridPane {
 
     public RequestControlPane(Function<Void, Void> exportToCurl,
                               Function<Void, Void> showBulkRequest,
-                              Function2<Function0<BoxedUnit>, Function0<BoxedUnit>, BoxedUnit> sendRequest) {
+                              BiFunction<Function<Void, Void>, Function<Void, Void>, Void> sendRequest) {
         this.setHgap(10);
         this.setVgap(10);
         this.getStyleClass().add("control-pane");
@@ -43,18 +41,18 @@ public class RequestControlPane extends GridPane {
         GridPane.setVgrow(buttonSendRequest, Priority.NEVER);
         GridPane.setHgrow(buttonSendRequest, Priority.NEVER);
         buttonSendRequest.setOnAction((actionEvent) -> {
-            sendRequest.apply(() -> {
+            sendRequest.apply((a) -> {
                 Platform.runLater(() -> {
                     buttonSendRequest.setText("Sending...");
                     buttonSendRequest.setDisable(true);
                 });
-                return BoxedUnit.UNIT;
-            }, () -> {
+                return null;
+            }, (a) -> {
                 Platform.runLater(() -> {
                     buttonSendRequest.setText("Send Request");
                     buttonSendRequest.setDisable(false);
                 });
-                return BoxedUnit.UNIT;
+                return null;
             });
         });
         this.add(buttonSendRequest, 2, 0);

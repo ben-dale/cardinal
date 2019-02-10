@@ -7,8 +7,8 @@ import uk.co.ridentbyte.model._
 
 class ResponsePane(getConfigCallback: java.util.function.Function[Void, Config],
                    sendRequestCallback: java.util.function.Function[CardinalRequest, CardinalResponse],
-                   exportToCsv: List[CardinalRequestAndResponse] => Unit,
-                   exportToBash: java.util.function.BiFunction[List[CardinalRequest], Int, Void],
+                   exportToCsv: java.util.function.Function[java.util.List[CardinalRequestAndResponse], Void],
+                   exportToBash: java.util.function.BiFunction[java.util.List[CardinalRequest], java.lang.Integer, Void],
                    showErrorDialogCallback: java.util.function.Function[String, Void]) extends BorderPane {
 
   setPadding(new Insets(20, 20, 20, 20))
@@ -18,10 +18,8 @@ class ResponsePane(getConfigCallback: java.util.function.Function[Void, Config],
     setCenter(new ClearResponsePane())
   }
 
-  def setResponse(response: Option[CardinalResponse]): Unit = {
-    if (response.isDefined) {
-      Platform.runLater(() => setCenter(new ResponseOutputPane(response.get)))
-    }
+  def setResponse(response: CardinalResponse): Unit = {
+    Platform.runLater(() => setCenter(new ResponseOutputPane(response)))
   }
 
   def loadCurlCommand(command: String): Unit = {

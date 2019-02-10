@@ -8,7 +8,7 @@ import uk.co.ridentbyte.view.util.ColumnConstraintsBuilder
 import scala.collection.JavaConverters._
 
 case class BulkRequestInputPane(getConfig: java.util.function.Function[Void, Config],
-                                exportToBash: java.util.function.BiFunction[List[CardinalRequest], Int, Void],
+                                exportToBash: java.util.function.BiFunction[java.util.List[CardinalRequest], java.lang.Integer, Void],
                                 startBulkRequest: CardinalBulkRequest => Unit,
                                 showErrorDialogCallback: java.util.function.Function[String, Void],
                                 request: CardinalRequest) extends GridPane {
@@ -101,12 +101,12 @@ case class BulkRequestInputPane(getConfig: java.util.function.Function[Void, Con
       val requests = 0 until requestCount map { i =>
         request.withId(i.toString).processConstants(getConfig.apply(null))
       }
-      exportToBash.apply(requests.toList, getThrottle)
+      exportToBash.apply(requests.toList.asJava, getThrottle)
     } else if (!ids.isEmpty) {
       val requests = ids.asScala.zipWithIndex.map { case (id, _) =>
         request.withId(id).processConstants(getConfig.apply(null))
       }
-      exportToBash.apply(requests.toList, getThrottle)
+      exportToBash.apply(requests.toList.asJava, getThrottle)
     } else {
       showErrorDialogCallback.apply("Invalid input. \nPlease provide a throttle and either a request count or a range value.")
     }

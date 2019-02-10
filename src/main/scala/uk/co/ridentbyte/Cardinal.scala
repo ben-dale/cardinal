@@ -3,6 +3,7 @@ package uk.co.ridentbyte
 import java.io.{File, FileWriter}
 import java.nio.file.Files
 import java.nio.file.attribute.PosixFilePermission
+import java.util
 import java.util.function
 
 import javafx.application.{Application, Platform}
@@ -436,27 +437,32 @@ class Cardinal extends Application {
     }
   }
 
-  def exportToCsv(requestAndResponses: List[CardinalRequestAndResponse]): Unit = {
-    val header = CardinalRequest.csvHeaders + "," + CardinalResponse.csvHeaders()
-    val content = requestAndResponses.map { reqAndRes =>
-      reqAndRes.getRequest.toCSV + "," + (if (reqAndRes.getResponse != null) reqAndRes.getResponse.toCSV else CardinalResponse.blank().toCSV)
-    }.mkString("\n")
-    val fileChooser = new FileChooser
-    val file = fileChooser.showSaveDialog(currentStage)
-    if (file != null) {
-      val fileWithExtension = if (!file.getAbsolutePath.endsWith(".csv")) {
-        new File(file.getAbsolutePath + ".csv")
-      } else {
-        file
+  def exportToCsv(): java.util.function.Function[java.util.List[CardinalRequestAndResponse], Void] = {
+    new java.util.function.Function[java.util.List[CardinalRequestAndResponse], Void] {
+      override def apply(requestAndResponses: util.List[CardinalRequestAndResponse]): Void = {
+        val header = CardinalRequest.csvHeaders + "," + CardinalResponse.csvHeaders()
+        val content = requestAndResponses.asScala.map { reqAndRes =>
+          reqAndRes.getRequest.toCSV + "," + (if (reqAndRes.getResponse != null) reqAndRes.getResponse.toCSV else CardinalResponse.blank().toCSV)
+        }.mkString("\n")
+        val fileChooser = new FileChooser
+        val file = fileChooser.showSaveDialog(currentStage)
+        if (file != null) {
+          val fileWithExtension = if (!file.getAbsolutePath.endsWith(".csv")) {
+            new File(file.getAbsolutePath + ".csv")
+          } else {
+            file
+          }
+          writeToFile(fileWithExtension, header + "\n" + content)
+        }
+        null
       }
-      writeToFile(fileWithExtension, header + "\n" + content)
     }
   }
 
-  def exportToBash: java.util.function.BiFunction[List[CardinalRequest], Int, Void] = {
-    new java.util.function.BiFunction[List[CardinalRequest], Int, Void] {
-      override def apply(requests: List[CardinalRequest], throttle: Int): Void = {
-        val bashScript = new BashScript(requests.asJava, currentConfig, throttle)
+  def exportToBash: java.util.function.BiFunction[java.util.List[CardinalRequest], java.lang.Integer, Void] = {
+    new java.util.function.BiFunction[java.util.List[CardinalRequest], java.lang.Integer, Void] {
+      override def apply(requests: java.util.List[CardinalRequest], throttle: java.lang.Integer): Void = {
+        val bashScript = new BashScript(requests, currentConfig, throttle)
         val fileChooser = new FileChooser
         val file = fileChooser.showSaveDialog(currentStage)
         if (file != null) {
