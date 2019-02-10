@@ -37,7 +37,7 @@ public class CardinalResponse {
 
     public String formattedBody() {
         String contentType = raw.getHeaders().get("Content-Type");
-        if (contentType.contains("application/json")) {
+        if (contentType != null && contentType.contains("application/json")) {
             try {
                 JsonParser parser = new JsonParser();
                 Gson gson = new GsonBuilder().setPrettyPrinting().create();
@@ -46,7 +46,7 @@ public class CardinalResponse {
             } catch (JsonSyntaxException jse) {
                 return this.raw.getBody();
             }
-        } else if (contentType.contains("application/xml")) {
+        } else if (contentType != null && contentType.contains("application/xml")) {
             String body = this.raw.getBody();
             if (body.startsWith("\u00EF\u00BB\u00BF")) {
                 body = body.replaceFirst("\u00EF\u00BB\u00BF", "");
