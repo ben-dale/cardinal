@@ -453,26 +453,31 @@ class Cardinal extends Application {
     }
   }
 
-  def exportToBash(requests: List[CardinalRequest], throttle: Option[Long]): Unit = {
-    val bashScript = if (throttle.isDefined) {
-      new BashScript(requests.asJava, currentConfig, throttle.get)
-    } else {
-      new BashScript(requests.asJava, currentConfig)
-    }
-    val fileChooser = new FileChooser
-    val file = fileChooser.showSaveDialog(currentStage)
-    if (file != null) {
-      writeToFile(file, bashScript.toString)
-      val posix = Set(
-        PosixFilePermission.OWNER_WRITE,
-        PosixFilePermission.OWNER_READ,
-        PosixFilePermission.OWNER_EXECUTE,
-        PosixFilePermission.GROUP_READ,
-        PosixFilePermission.GROUP_EXECUTE,
-        PosixFilePermission.OTHERS_READ,
-        PosixFilePermission.OTHERS_EXECUTE
-      ).asJava
-      Files.setPosixFilePermissions(file.toPath, posix)
+  def exportToBash: java.util.function.BiFunction[List[CardinalRequest], Option[Long], Void] = {
+    new java.util.function.BiFunction[List[CardinalRequest], Option[Long], Void] {
+      override def apply(requests: List[CardinalRequest], throttle: Option[Long]): Void = {
+        val bashScript = if (throttle.isDefined) {
+          new BashScript(requests.asJava, currentConfig, throttle.get)
+        } else {
+          new BashScript(requests.asJava, currentConfig)
+        }
+        val fileChooser = new FileChooser
+        val file = fileChooser.showSaveDialog(currentStage)
+        if (file != null) {
+          writeToFile(file, bashScript.toString)
+          val posix = Set(
+            PosixFilePermission.OWNER_WRITE,
+            PosixFilePermission.OWNER_READ,
+            PosixFilePermission.OWNER_EXECUTE,
+            PosixFilePermission.GROUP_READ,
+            PosixFilePermission.GROUP_EXECUTE,
+            PosixFilePermission.OTHERS_READ,
+            PosixFilePermission.OTHERS_EXECUTE
+          ).asJava
+          Files.setPosixFilePermissions(file.toPath, posix)
+        }
+        null
+      }
     }
   }
 

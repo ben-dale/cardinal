@@ -8,7 +8,7 @@ import uk.co.ridentbyte.model._
 class ResponsePane(getConfigCallback: java.util.function.Function[Void, Config],
                    sendRequestCallback: java.util.function.Function[CardinalRequest, CardinalResponse],
                    exportToCsv: List[CardinalRequestAndResponse] => Unit,
-                   exportToBash: (List[CardinalRequest], Option[Long]) => Unit,
+                   exportToBash: java.util.function.BiFunction[List[CardinalRequest], Option[Long], Void],
                    showErrorDialogCallback: java.util.function.Function[String, Void]) extends BorderPane {
 
   setPadding(new Insets(20, 20, 20, 20))

@@ -18,7 +18,7 @@ class CardinalView(showAsCurl: java.util.function.Function[Void, Void],
                    showErrorDialogCallback: java.util.function.Function[String, Void],
                    getConfigCallback: java.util.function.Function[Void, Config],
                    exportToCsv: List[CardinalRequestAndResponse] => Unit,
-                   exportToBash: (List[CardinalRequest], Option[Long]) => Unit,
+                   exportToBash: java.util.function.BiFunction[List[CardinalRequest], Option[Long], Void],
                    sendRequestCallback: java.util.function.Function[CardinalRequest, CardinalResponse],
                    triggerUnsavedChangesMade: java.util.function.Function[Void, Void]) extends BorderPane {
 

@@ -7,7 +7,7 @@ import uk.co.ridentbyte.model.{CardinalRequest, Config}
 import uk.co.ridentbyte.view.util.ColumnConstraintsBuilder
 
 case class BulkRequestInputPane(getConfig: java.util.function.Function[Void, Config],
-                                exportToBash: (List[CardinalRequest], Option[Long]) => Unit,
+                                exportToBash: java.util.function.BiFunction[List[CardinalRequest], Option[Long], Void],
                                 startBulkRequest: (CardinalRequest, Option[Long], Option[Int], Option[List[String]]) => Unit,
                                 showErrorDialogCallback: java.util.function.Function[String, Void],
                                 request: CardinalRequest) extends GridPane {

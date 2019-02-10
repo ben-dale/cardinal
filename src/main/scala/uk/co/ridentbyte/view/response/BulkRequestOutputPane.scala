@@ -9,7 +9,7 @@ import uk.co.ridentbyte.view.util.RowConstraintsBuilder
 
 case class BulkRequestOutputPane(requestAndResponses: List[CardinalRequestAndResponse],
                                  exportToCsv: List[CardinalRequestAndResponse] => Unit,
-                                 exportToBash: (List[CardinalRequest], Option[Long]) => Unit,
+                                 exportToBash: java.util.function.BiFunction[List[CardinalRequest], Option[Long], Void],
                                  throttle: Option[Long]) extends GridPane {
 
   val responses = requestAndResponses.map(_.getResponse).filter(_ != null)
