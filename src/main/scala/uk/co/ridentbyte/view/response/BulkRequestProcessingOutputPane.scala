@@ -23,7 +23,6 @@ case class BulkRequestProcessingOutputPane(getConfigCallback: java.util.function
 
   val task = new Task[Boolean]() {
     override def call(): Boolean = {
-      println("HERE WITH " + requestCount)
       if (requestCount > 0) {
         0 until requestCount foreach { i =>
           Thread.sleep(throttle)

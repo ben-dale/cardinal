@@ -31,7 +31,7 @@ class ResponsePane(getConfigCallback: java.util.function.Function[Void, Config],
   }
 
   def startBulkRequest(bulkRequest: CardinalBulkRequest): Unit = {
-    if (bulkRequest.getRequestCount == 0 || bulkRequest.getIds.isEmpty) {
+    if (bulkRequest.getRequestCount == 0 && bulkRequest.getIds.isEmpty) {
       showErrorDialogCallback.apply("Invalid input. \nPlease provide a throttle and either a request count or a range value.")
     } else {
       val outputPane = BulkRequestProcessingOutputPane(getConfigCallback, sendRequestCallback, finishedBulkRequestCallback, bulkRequest)
