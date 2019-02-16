@@ -8,12 +8,12 @@ import uk.co.ridentbyte.model.{CardinalRequest, CardinalRequestAndResponse}
 import uk.co.ridentbyte.view.util.RowConstraintsBuilder
 import scala.collection.JavaConverters._
 
-case class BulkRequestOutputPane(requestAndResponses: List[CardinalRequestAndResponse],
+case class BulkRequestOutputPane(requestAndResponses: java.util.List[CardinalRequestAndResponse],
                                  exportToCsv: java.util.function.Function[java.util.List[CardinalRequestAndResponse], Void],
                                  exportToBash: java.util.function.BiFunction[java.util.List[CardinalRequest], java.lang.Integer, Void],
                                  throttle: Int) extends GridPane {
 
-  val responses = requestAndResponses.map(_.getResponse).filter(_ != null)
+  val responses = requestAndResponses.asScala.map(_.getResponse).filter(_ != null)
 
   setHgap(10)
   setVgap(10)
@@ -81,13 +81,13 @@ case class BulkRequestOutputPane(requestAndResponses: List[CardinalRequestAndRes
   add(textAreaTimings, 0, 1)
 
   val exportToCsvButton = new Button("Export to CSV...")
-  exportToCsvButton.setOnAction(_ => exportToCsv.apply(requestAndResponses.asJava))
+  exportToCsvButton.setOnAction(_ => exportToCsv.apply(requestAndResponses))
   GridPane.setColumnSpan(exportToCsvButton, 1)
   GridPane.setHgrow(exportToCsvButton, Priority.NEVER)
   add(exportToCsvButton, 0, 2)
 
   val exportToBashButton = new Button("Export as script...")
-  exportToBashButton.setOnAction(_ => exportToBash.apply(requestAndResponses.map(_.getRequest).asJava, throttle))
+  exportToBashButton.setOnAction(_ => exportToBash.apply(requestAndResponses.asScala.map(_.getRequest).asJava, throttle))
   GridPane.setColumnSpan(exportToBashButton, 1)
   GridPane.setHgrow(exportToBashButton, Priority.ALWAYS)
   add(exportToBashButton, 1, 2)

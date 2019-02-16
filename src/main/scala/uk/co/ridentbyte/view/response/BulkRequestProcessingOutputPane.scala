@@ -11,7 +11,7 @@ import scala.collection.JavaConverters._
 
 case class BulkRequestProcessingOutputPane(getConfigCallback: java.util.function.Function[Void, Config],
                                            sendRequestCallback: java.util.function.Function[CardinalRequest, CardinalResponse],
-                                           finishedBulkRequestCallback: (List[CardinalRequestAndResponse], Int) => Unit,
+                                           finishedBulkRequestCallback: java.util.function.BiFunction[java.util.List[CardinalRequestAndResponse], Integer, Void],
                                            bulkRequest: CardinalBulkRequest) extends GridPane {
 
   var requestsAndResponses = collection.mutable.ListBuffer.empty[CardinalRequestAndResponse]
@@ -44,7 +44,7 @@ case class BulkRequestProcessingOutputPane(getConfigCallback: java.util.function
               })
           }
         }
-        finishedBulkRequestCallback(requestsAndResponses.toList, throttle)
+        finishedBulkRequestCallback(requestsAndResponses.toList.asJava, throttle)
         true
       } else {
         ids.asScala.zipWithIndex.foreach { case (id, i) =>
@@ -67,7 +67,7 @@ case class BulkRequestProcessingOutputPane(getConfigCallback: java.util.function
               })
           }
         }
-        finishedBulkRequestCallback(requestsAndResponses.toList, throttle)
+        finishedBulkRequestCallback(requestsAndResponses.toList.asJava, throttle)
         true
       }
     }
@@ -107,7 +107,7 @@ case class BulkRequestProcessingOutputPane(getConfigCallback: java.util.function
   val buttonAbort = new Button("Abort")
   buttonAbort.setOnAction(_ => {
     task.cancel()
-    finishedBulkRequestCallback(requestsAndResponses.toList, throttle)
+    finishedBulkRequestCallback(requestsAndResponses.toList.asJava, throttle)
   })
   GridPane.setHalignment(buttonAbort, HPos.CENTER)
   add(buttonAbort, 0, 3)

@@ -9,7 +9,7 @@ import scala.collection.JavaConverters._
 
 case class BulkRequestInputPane(getConfig: java.util.function.Function[Void, Config],
                                 exportToBash: java.util.function.BiFunction[java.util.List[CardinalRequest], java.lang.Integer, Void],
-                                startBulkRequest: CardinalBulkRequest => Unit,
+                                startBulkRequest: java.util.function.Function[CardinalBulkRequest, Void],
                                 showErrorDialogCallback: java.util.function.Function[String, Void],
                                 request: CardinalRequest) extends GridPane {
 
@@ -61,7 +61,7 @@ case class BulkRequestInputPane(getConfig: java.util.function.Function[Void, Con
   private val buttonStart = new Button("Start")
   GridPane.setHalignment(buttonStart, HPos.RIGHT)
   buttonStart.setOnAction(_ => {
-    startBulkRequest(new CardinalBulkRequest(request, getThrottle, getNumberOfRequests, getForEach))
+    startBulkRequest.apply(new CardinalBulkRequest(request, getThrottle, getNumberOfRequests, getForEach))
   })
   add(buttonStart, 2, 5)
 
