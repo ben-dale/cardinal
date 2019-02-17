@@ -62,7 +62,7 @@ public class ResponsePane extends BorderPane {
                 } else {
                     BulkRequestProcessingOutputPane outputPane = new BulkRequestProcessingOutputPane(getConfig, sendRequest, finishedBulkRequestCallback(), bulkRequest);
                     Platform.runLater(() -> setCenter(outputPane));
-                    new Thread(outputPane.task()).start();
+                    new Thread(outputPane.getTask()).start();
                 }
                 return null;
             }
