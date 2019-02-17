@@ -65,7 +65,7 @@ public class RequestString {
         variables.put("randomEmoji()", () -> vocabulary.emoji.random());
 
         for (EnvironmentVariable envVar : environmentVars) {
-            variables.put(envVar.key(), envVar::value);
+            variables.put(envVar.getKey(), envVar::getValue);
         }
 
         for (Command command : extractedCommands) {

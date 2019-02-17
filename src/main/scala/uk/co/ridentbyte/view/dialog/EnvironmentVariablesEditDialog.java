@@ -55,7 +55,7 @@ public class EnvironmentVariablesEditDialog extends Dialog<List<EnvironmentVaria
             keyValueInputs.add(new KeyValueInput("", ""));
         } else {
             for (EnvironmentVariable existingParameter : existingParameters) {
-                keyValueInputs.add(new KeyValueInput(existingParameter.key(), existingParameter.value()));
+                keyValueInputs.add(new KeyValueInput(existingParameter.getKey(), existingParameter.getValue()));
             }
 
             if (existingParameters.size() < 5) {
