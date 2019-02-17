@@ -2,7 +2,7 @@ package uk.co.ridentbyte.model
 
 import org.scalatest.FlatSpec
 import org.scalatest.Matchers._
-
+import scala.collection.JavaConverters._
 
 class ExtractedCommandsUnitSpec extends FlatSpec {
 
@@ -11,7 +11,7 @@ class ExtractedCommandsUnitSpec extends FlatSpec {
     val testSubject = ExtractedCommands("hello #{world}")
 
     // When
-    val result = testSubject.all
+    val result = testSubject.all.asScala
 
     // Then
     result shouldBe List(Command("#{world}"))
@@ -33,7 +33,7 @@ class ExtractedCommandsUnitSpec extends FlatSpec {
     val testSubject = ExtractedCommands("#{hello} world #{sailor}")
 
     // When
-    val result = testSubject.all
+    val result = testSubject.all.asScala
 
     // Then
     result shouldBe List(Command("#{hello}"), Command("#{sailor}"))

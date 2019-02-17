@@ -1,6 +1,7 @@
 package uk.co.ridentbyte.model
 
 import java.util.Random
+import java.util.function.Supplier
 
 import scala.util.matching.Regex
 import scala.collection.JavaConverters._
@@ -24,11 +25,11 @@ case class Command(private val command: String) {
 
   def rawCommand: String = command
 
-  def processWith(constants: Map[String, () => String], vocabulary: Vocabulary, prev: Option[String] = None, r: Random = new Random()): String = {
+  def processWith(constants: java.util.Map[String, Supplier[String]], vocabulary: Vocabulary, prev: Option[String] = None, r: Random = new Random()): String = {
     val rawContents = prev.getOrElse(contents)
-    val optDirectlyMatchedVar = constants.find(_._1 == rawContents)
+    val optDirectlyMatchedVar = constants.asScala.find(_._1 == rawContents)
     if (optDirectlyMatchedVar.isDefined) {
-      optDirectlyMatchedVar.get._2()
+      optDirectlyMatchedVar.get._2.get()
     } else {
       // Not a variable, process functions
 
@@ -108,11 +109,11 @@ case class Command(private val command: String) {
     }
   }
 
-  def getArgumentTypes(args: List[String], constants: Map[String, () => String], functions: List[Regex]): List[ArgumentType] = {
+  def getArgumentTypes(args: List[String], constants: java.util.Map[String, Supplier[String]], functions: List[Regex]): List[ArgumentType] = {
     args.map {
       case a if a.matches("\"[^\"]*\"") => StringLiteral(a)
       case i if i.matches("[\\-]?[0-9]+") => IntLiteral(i)
-      case c if constants.contains(c) => Constant(c)
+      case c if constants.asScala.contains(c) => Constant(c)
       case f if functions.exists(f2 => f.matches(f2.regex)) => Function(f)
       case n => InvalidLiteral(n)
     }

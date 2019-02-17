@@ -8,9 +8,9 @@ public class Curl {
 
     private String uri, verb, body;
     private List<String> headers;
-    private scala.collection.immutable.List<EnvironmentVariable> envVars;
+    private List<EnvironmentVariable> envVars;
 
-    public Curl(String uri, String verb, String body, List<String> headers, scala.collection.immutable.List<EnvironmentVariable> envVars) {
+    public Curl(String uri, String verb, String body, List<String> headers, List<EnvironmentVariable> envVars) {
         this.uri = uri;
         this.verb = verb;
         this.body = body;

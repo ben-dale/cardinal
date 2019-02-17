@@ -1,5 +1,7 @@
 package uk.co.ridentbyte.model
 
+import java.util.function.Supplier
+
 import org.scalatest.FlatSpec
 import org.scalatest.Matchers._
 
@@ -58,7 +60,7 @@ class CommandUnitSpec extends FlatSpec {
     val testSubject = Command("#{hello}")
 
     // When
-    val result = testSubject.processWith(Map("hello" -> (() => "123")), vocab)
+    val result = testSubject.processWith(Map("hello" -> asSupplier("123")).asJava, vocab)
 
     // Then
     result shouldBe "123"
@@ -69,7 +71,7 @@ class CommandUnitSpec extends FlatSpec {
     val testSubject = Command("#{lower(\"HELLO\")}")
 
     // When
-    val result = testSubject.processWith(Map.empty[String, () => String], vocab)
+    val result = testSubject.processWith(Map.empty[String, Supplier[String]].asJava, vocab)
 
     // Then
     result shouldBe "hello"
@@ -80,7 +82,7 @@ class CommandUnitSpec extends FlatSpec {
     val testSubject = Command("#{upper(\"hello\")}")
 
     // When
-    val result = testSubject.processWith(Map.empty[String, () => String], vocab)
+    val result = testSubject.processWith(Map.empty[String, Supplier[String]].asJava, vocab)
 
     // Then
     result shouldBe "HELLO"
@@ -91,7 +93,7 @@ class CommandUnitSpec extends FlatSpec {
     val testSubject = Command("#{capitalise(\"hello\")}")
 
     // When
-    val result = testSubject.processWith(Map.empty[String, () => String], vocab)
+    val result = testSubject.processWith(Map.empty[String, Supplier[String]].asJava, vocab)
 
     // Then
     result shouldBe "Hello"
@@ -102,7 +104,7 @@ class CommandUnitSpec extends FlatSpec {
     val testSubject = Command("#{upper(firstName)}")
 
     // When
-    val result = testSubject.processWith(Map("firstName" -> (() => "Jon")), vocab)
+    val result = testSubject.processWith(Map("firstName" -> asSupplier("Jon")).asJava, vocab)
 
     // Then
     result shouldBe "JON"
@@ -113,7 +115,7 @@ class CommandUnitSpec extends FlatSpec {
     val testSubject = Command("#{capitalise(lower(firstName))}")
 
     // When
-    val result = testSubject.processWith(Map("firstName" -> (() => "JON")), vocab)
+    val result = testSubject.processWith(Map("firstName" -> asSupplier("JON")).asJava, vocab)
 
     // Then
     result shouldBe "Jon"
@@ -124,7 +126,7 @@ class CommandUnitSpec extends FlatSpec {
     val testSubject = Command("#{random(firstName, lastName)}")
 
     // When
-    val result = testSubject.processWith(Map("firstName" -> (() => "Jon"), "lastName" -> (() => "Bob")), vocab)
+    val result = testSubject.processWith(Map("firstName" -> asSupplier("Jon"), "lastName" -> asSupplier("Bob")).asJava, vocab)
 
     // Then
     result should fullyMatch regex "Jon|Bob"
@@ -135,7 +137,7 @@ class CommandUnitSpec extends FlatSpec {
     val testSubject = Command("#{random(\"hello\", lastName)}")
 
     // When
-    val result = testSubject.processWith(Map("firstName" -> (() => "Jon"), "lastName" -> (() => "Bob")), vocab)
+    val result = testSubject.processWith(Map("firstName" -> asSupplier("Jon"), "lastName" -> asSupplier("Bob")).asJava, vocab)
 
     // Then
     result should fullyMatch regex "hello|Bob"
@@ -146,7 +148,7 @@ class CommandUnitSpec extends FlatSpec {
     val testSubject = Command("#{random(upper(\"hello\"))}")
 
     // When
-    val result = testSubject.processWith(Map.empty[String, () => String], vocab)
+    val result = testSubject.processWith(Map.empty[String, Supplier[String]].asJava, vocab)
 
     // Then
     result should fullyMatch regex "HELLO"
@@ -157,7 +159,7 @@ class CommandUnitSpec extends FlatSpec {
     val testSubject = Command("#{random(upper(firstName))}")
 
     // When
-    val result = testSubject.processWith(Map("firstName" -> (() => "Jon")), vocab)
+    val result = testSubject.processWith(Map("firstName" -> asSupplier("Jon")).asJava, vocab)
 
     // Then
     result shouldBe "JON"
@@ -168,7 +170,7 @@ class CommandUnitSpec extends FlatSpec {
     val testSubject = Command("#{random(ben, bob)}")
 
     // When
-    val result = testSubject.processWith(Map(), vocab)
+    val result = testSubject.processWith(Map.empty[String, Supplier[String]].asJava, vocab)
 
     // Then
     result shouldBe "random(ben, bob)"
@@ -179,7 +181,7 @@ class CommandUnitSpec extends FlatSpec {
     val testSubject = Command("#{random(ben, \"bob\")}")
 
     // When
-    val result = testSubject.processWith(Map(), vocab)
+    val result = testSubject.processWith(Map.empty[String, Supplier[String]].asJava, vocab)
 
     // Then
     result shouldBe "random(ben, \"bob\")"
@@ -190,7 +192,7 @@ class CommandUnitSpec extends FlatSpec {
     val testSubject = Command("#{lorem(\"20\")}")
 
     // When
-    val result = testSubject.processWith(Map(), vocab)
+    val result = testSubject.processWith(Map.empty[String, Supplier[String]].asJava, vocab)
 
     // Then
     result shouldBe "lorem(\"20\")"
@@ -201,7 +203,7 @@ class CommandUnitSpec extends FlatSpec {
     val testSubject = Command("#{lorem(1)}")
 
     // When
-    val result = testSubject.processWith(Map(), vocab)
+    val result = testSubject.processWith(Map.empty[String, Supplier[String]].asJava, vocab)
 
     // Then
     result shouldBe "Lorem"
@@ -212,7 +214,7 @@ class CommandUnitSpec extends FlatSpec {
     val testSubject = Command("#{random(1)}")
 
     // When
-    val result = testSubject.processWith(Map(), vocab)
+    val result = testSubject.processWith(Map.empty[String, Supplier[String]].asJava, vocab)
 
     // Then
     result shouldBe "1"
@@ -223,10 +225,16 @@ class CommandUnitSpec extends FlatSpec {
     val testSubject = Command("#{lorem(random(\"1\"))}")
 
     // When
-    val result = testSubject.processWith(Map(), vocab)
+    val result = testSubject.processWith(Map.empty[String, Supplier[String]].asJava, vocab)
 
     // Then
     result shouldBe "Lorem"
+  }
+
+  def asSupplier(returnValue: String): Supplier[String] = {
+    new Supplier[String] {
+      override def get(): String = returnValue
+    }
   }
 
 
