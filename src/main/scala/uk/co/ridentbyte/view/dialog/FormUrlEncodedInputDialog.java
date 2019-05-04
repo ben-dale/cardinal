@@ -21,7 +21,7 @@ public class FormUrlEncodedInputDialog extends Dialog<FormUrlEncoded> {
         grid.add(labelUsername, 0, 0);
 
         TextArea textParameters = new TextArea();
-        textParameters.setText(FormUrlEncoded.apply(existingParameters).lines());
+        textParameters.setText(new FormUrlEncoded(existingParameters).lines());
         textParameters.setPrefHeight(300);
         textParameters.setPrefWidth(500);
         textParameters.getStyleClass().add("cardinal-font");
@@ -31,7 +31,7 @@ public class FormUrlEncodedInputDialog extends Dialog<FormUrlEncoded> {
 
         setResultConverter((buttonType) -> {
             if (buttonType == ButtonType.OK) {
-                return FormUrlEncoded.apply(textParameters.getText().split("\n"));
+                return new FormUrlEncoded(textParameters.getText().split("\n"));
             } else {
                 return null;
             }
