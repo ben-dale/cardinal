@@ -33,17 +33,17 @@ case class CardinalRequest(uri: String, verb: String, headers: List[String], bod
 
   def processConstants(config: Config): CardinalRequest = {
     val vars = config.getEnvironmentVariables
-    val newUri = new RequestString(uri, vars.asJava, Cardinal.vocabulary).process
-    val newHeaders = headers.map(h => new RequestString(h, vars.asJava, Cardinal.vocabulary).process)
+    val newUri = new RequestString(uri, vars, Cardinal.vocabulary).process
+    val newHeaders = headers.map(h => new RequestString(h, vars, Cardinal.vocabulary).process)
     val newBody = body match {
-      case Some(b) => Some(new RequestString(b, vars.asJava, Cardinal.vocabulary).process)
+      case Some(b) => Some(new RequestString(b, vars, Cardinal.vocabulary).process)
       case _ => None
     }
     CardinalRequest(newUri, verb, newHeaders, newBody)
   }
 
   def toCurl(config: Config): String = {
-    new Curl(uri, verb, body.getOrElse(""), headers.asJava, config.getEnvironmentVariables.asJava).toCommand
+    new Curl(uri, verb, body.getOrElse(""), headers.asJava, config.getEnvironmentVariables).toCommand
   }
 
   def toCSV: String = {

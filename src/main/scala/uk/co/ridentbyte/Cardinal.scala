@@ -108,10 +108,10 @@ class Cardinal extends Application {
     val file = new File(configLocation)
     if (file.exists && !file.isDirectory) {
       val lines = scala.io.Source.fromFile(file).getLines().mkString
-      currentConfig = Config(lines)
+      currentConfig = new Config(lines)
     } else {
       // Create new empty config file if not present
-      val conf = Config(List.empty[EnvironmentVariable])
+      val conf = new Config(List.empty[EnvironmentVariable].asJava)
       saveChangesToConfig.apply(conf)
       currentConfig = conf
     }
@@ -141,7 +141,7 @@ class Cardinal extends Application {
   }
 
   private def setEnvironmentVariables(vars: List[EnvironmentVariable]): Unit = {
-    currentConfig = currentConfig.withEnvironmentVariables(vars)
+    currentConfig = currentConfig.withEnvironmentVariables(vars.asJava)
     saveChangesToConfig.apply(currentConfig)
   }
 
@@ -325,7 +325,7 @@ class Cardinal extends Application {
   def showEnvironmentVariablesInput: java.util.function.Function[Void, Void] = {
     new java.util.function.Function[Void, Void] {
       override def apply(t: Void): Void = {
-        val dialog = new EnvironmentVariablesEditDialog(currentConfig.getEnvironmentVariables.asJava)
+        val dialog = new EnvironmentVariablesEditDialog(currentConfig.getEnvironmentVariables)
         val results = dialog.showAndWait()
         if (results.isPresent) {
           setEnvironmentVariables(results.get.asScala.toList)
