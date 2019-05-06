@@ -11,7 +11,7 @@ import scala.collection.JavaConverters._
   *
   * @param command - Raw command
   */
-case class Command(private val command: String) {
+case class Command(val command: String) {
 
   /**
     * Extract contents from command
