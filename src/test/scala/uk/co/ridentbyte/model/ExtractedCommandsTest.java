@@ -18,7 +18,7 @@ public class ExtractedCommandsTest {
 
         // Then
         assertThat(result).hasSize(1);
-        assertThat(result.get(0).command()).isEqualTo("#{world}");
+        assertThat(result.get(0).rawCommand()).isEqualTo("#{world}");
     }
 
     @Test
@@ -31,8 +31,8 @@ public class ExtractedCommandsTest {
 
         // Then
         assertThat(result).hasSize(2);
-        assertThat(result.get(0).command()).isEqualTo("#{hello}");
-        assertThat(result.get(1).command()).isEqualTo("#{sailor}");
+        assertThat(result.get(0).rawCommand()).isEqualTo("#{hello}");
+        assertThat(result.get(1).rawCommand()).isEqualTo("#{sailor}");
     }
 
     @Test
