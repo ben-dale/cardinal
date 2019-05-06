@@ -158,7 +158,7 @@ class Cardinal extends Application {
     new function.Function[CardinalRequest, CardinalResponse] {
       override def apply(request: CardinalRequest): CardinalResponse = {
         val startTime = System.currentTimeMillis()
-        val response = Http(request).send
+        val response = new Http(request).send
         val totalTime = System.currentTimeMillis() - startTime
         new CardinalResponse(response, totalTime)
       }
