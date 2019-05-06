@@ -1,5 +1,6 @@
 package uk.co.ridentbyte.model;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.StringJoiner;
@@ -9,7 +10,11 @@ public class FormUrlEncoded {
     private List<String> parameters;
 
     public FormUrlEncoded(String value) {
-        this.parameters = Arrays.asList(value.split("&"));
+        if (value != null) {
+            this.parameters = Arrays.asList(value.split("&"));
+        } else {
+            this.parameters = new ArrayList<>();
+        }
     }
 
     public FormUrlEncoded(String[] parameters) {

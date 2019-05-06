@@ -5,8 +5,8 @@ import javafx.scene.control.SplitPane;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.Priority;
-import uk.co.ridentbyte.model.CardinalRequest;
 import uk.co.ridentbyte.model.CardinalRequestAndResponse;
+import uk.co.ridentbyte.model.CardinalRequest;
 import uk.co.ridentbyte.model.CardinalResponse;
 import uk.co.ridentbyte.model.Config;
 import uk.co.ridentbyte.view.request.RequestControlPane;
@@ -95,7 +95,7 @@ public class CardinalView extends BorderPane {
             @Override
             public Void apply(Void aVoid) {
                 CardinalRequest request = requestInputPane.getRequest();
-                if (request.uri().trim().length() == 0) {
+                if (request.getUri().trim().length() == 0) {
                     showErrorDialog.apply("Please enter a URL.");
                 } else {
                     responsePane.showBulkRequestInput(requestInputPane.getRequest());
@@ -111,7 +111,7 @@ public class CardinalView extends BorderPane {
             public Void apply(Function<Void, Void> onStart, Function<Void, Void> onFinish) {
                 Platform.runLater(() -> responsePane.clearContents());
                 CardinalRequest request = requestInputPane.getRequest();
-                if (request.uri().trim().length() == 0) {
+                if (request.getUri().trim().length() == 0) {
                     showErrorDialog.apply("Please enter a URL.");
                 } else {
                     new Thread(() -> {

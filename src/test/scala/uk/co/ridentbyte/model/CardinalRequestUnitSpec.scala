@@ -3,15 +3,17 @@ package uk.co.ridentbyte.model
 import org.scalatest.FlatSpec
 import org.scalatest.Matchers._
 
+import scala.collection.JavaConverters._
+
 class CardinalRequestUnitSpec extends FlatSpec {
 
   "Request" should "serialise to JSON" in {
     // Given
-    val request = CardinalRequest(
+    val request = new CardinalRequest(
       "https://google.com",
       "POST",
-      List("Content-Type: application/json"),
-      Some("""{"hello": "world"}""")
+      List("Content-Type: application/json").asJava,
+      """{"hello": "world"}"""
     )
 
     // When
@@ -20,10 +22,12 @@ class CardinalRequestUnitSpec extends FlatSpec {
     // Then
     result shouldBe
       """{
-        |  "uri" : "https://google.com",
-        |  "verb" : "POST",
-        |  "headers" : [ "Content-Type: application/json" ],
-        |  "body" : "{\"hello\": \"world\"}"
+        |  "uri": "https://google.com",
+        |  "verb": "POST",
+        |  "headers": [
+        |    "Content-Type: application/json"
+        |  ],
+        |  "body": "{\"hello\": \"world\"}"
         |}"""
         .stripMargin
   }
@@ -38,32 +42,32 @@ class CardinalRequestUnitSpec extends FlatSpec {
                  |}""".stripMargin
 
     // When
-    val result = CardinalRequest(json)
+    val result = CardinalRequest.apply(json)
 
     // Then
-    result.uri shouldBe "https://google.com"
-    result.verb shouldBe "POST"
-    result.headers shouldBe List("Content-Type: application/json")
-    result.body shouldBe Some("""{"hello": "world"}""")
+    result.getUri shouldBe "https://google.com"
+    result.getVerb shouldBe "POST"
+    result.getHeaders.asScala shouldBe List("Content-Type: application/json")
+    result.getBody shouldBe """{"hello": "world"}"""
   }
 
   it should "return Response with #{id} constants replaced" in {
     // Given
-    val request = CardinalRequest(
+    val request = new CardinalRequest(
       "https://google.com/#{id}",
       "POST",
-      List("X-Thing: #{id}"),
-      Some("""{"hello": "#{id}"}""")
+      List("X-Thing: #{id}").asJava,
+      """{"hello": "#{id}"}"""
     )
 
     // When
     val result = request.withId("4")
 
     // Then
-    result.uri shouldBe "https://google.com/4"
-    result.verb shouldBe "POST"
-    result.headers shouldBe List("X-Thing: 4")
-    result.body shouldBe Some("""{"hello": "4"}""")
+    result.getUri shouldBe "https://google.com/4"
+    result.getVerb shouldBe "POST"
+    result.getHeaders.asScala shouldBe List("X-Thing: 4")
+    result.getBody shouldBe """{"hello": "4"}"""
   }
 
 }

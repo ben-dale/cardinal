@@ -4,8 +4,8 @@ import javafx.application.Platform;
 import javafx.geometry.Insets;
 import javafx.scene.layout.BorderPane;
 import uk.co.ridentbyte.model.CardinalBulkRequest;
-import uk.co.ridentbyte.model.CardinalRequest;
 import uk.co.ridentbyte.model.CardinalRequestAndResponse;
+import uk.co.ridentbyte.model.CardinalRequest;
 import uk.co.ridentbyte.model.CardinalResponse;
 import uk.co.ridentbyte.model.Config;
 

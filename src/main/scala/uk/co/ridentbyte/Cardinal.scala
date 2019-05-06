@@ -212,7 +212,7 @@ class Cardinal extends Application {
             val lines = scala.io.Source.fromFile(selectedFile).getLines().mkString
             val cardinalView = new CardinalView(showAsCurl, showErrorDialog, getCurrentConfig, exportToCsv, exportToBash, sendRequest, triggerUnsavedChangesMade)
             addTab(CardinalTab(Some(selectedFile), cardinalView))
-            cardinalView.loadRequest(CardinalRequest(lines))
+            cardinalView.loadRequest(CardinalRequest.apply(lines))
             getCurrentTab.setUnsavedChanges(false)
           }
         }
@@ -310,7 +310,7 @@ class Cardinal extends Application {
       override def apply(t: Void): Void = {
         val currentTab = getCurrentTab
         if (currentTab != null) {
-          val dialog = new FormUrlEncodedInputDialog(currentTab.content.getRequest.body.getOrElse(""))
+          val dialog = new FormUrlEncodedInputDialog(currentTab.content.getRequest.getBody)
           val result = dialog.showAndWait()
           if (result.isPresent) {
             currentTab.content.setBody(result.get.toString)
@@ -362,7 +362,7 @@ class Cardinal extends Application {
         val currentTab = getCurrentTab
         if (currentTab != null) {
           val request = currentTab.content.getRequest
-          if (request.uri.trim.length == 0) {
+          if (request.getUri.trim.length == 0) {
             showErrorDialog.apply("Please enter a URL.")
           } else {
             currentTab.content.loadCurlCommand(request.toCurl(currentConfig))
@@ -442,7 +442,7 @@ class Cardinal extends Application {
       override def apply(requestAndResponses: util.List[CardinalRequestAndResponse]): Void = {
         val header = CardinalRequest.csvHeaders + "," + CardinalResponse.csvHeaders()
         val content = requestAndResponses.asScala.map { reqAndRes =>
-          reqAndRes.getRequest.toCSV + "," + (if (reqAndRes.getResponse != null) reqAndRes.getResponse.toCSV else CardinalResponse.blank().toCSV)
+          reqAndRes.getRequest.toCsv + "," + (if (reqAndRes.getResponse != null) reqAndRes.getResponse.toCSV else CardinalResponse.blank().toCSV)
         }.mkString("\n")
         val fileChooser = new FileChooser
         val file = fileChooser.showSaveDialog(currentStage)

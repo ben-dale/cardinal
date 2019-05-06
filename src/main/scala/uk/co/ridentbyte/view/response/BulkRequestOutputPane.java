@@ -8,8 +8,8 @@ import javafx.scene.control.Button;
 import javafx.scene.control.TextArea;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.Priority;
-import uk.co.ridentbyte.model.CardinalRequest;
 import uk.co.ridentbyte.model.CardinalRequestAndResponse;
+import uk.co.ridentbyte.model.CardinalRequest;
 import uk.co.ridentbyte.model.CardinalResponse;
 import uk.co.ridentbyte.view.util.RowConstraintsBuilder;
 

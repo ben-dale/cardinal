@@ -26,8 +26,8 @@ case class Http(request: CardinalRequest) {
   }
 
   def send: CardinalHttpResponse = {
-    val parsedUri = parseURI(request.uri)
-    val splitHeaders = request.headers.map { header =>
+    val parsedUri = parseURI(request.getUri)
+    val splitHeaders = request.getHeaders.asScala.map { header =>
       val splitHeader = header.split(":")
       if (splitHeader.length == 2) {
         (splitHeader(0), splitHeader(1))
@@ -36,7 +36,7 @@ case class Http(request: CardinalRequest) {
       }
     }
     
-    request.verb match {
+    request.getVerb match {
       case "POST" => {
 
         val httpClient = HttpClientBuilder.create().setRedirectStrategy(new LaxRedirectStrategy()).build()
@@ -45,8 +45,8 @@ case class Http(request: CardinalRequest) {
         splitHeaders.foreach { header =>
           httpPost.setHeader(header._1, header._2)
         }
-        if (request.body.isDefined) {
-          httpPost.setEntity(new StringEntity(request.body.get))
+        if (request.getBody != null) {
+          httpPost.setEntity(new StringEntity(request.getBody))
         }
 
         val res = httpClient.execute(httpPost)
@@ -65,8 +65,8 @@ case class Http(request: CardinalRequest) {
           httpPut.setHeader(header._1, header._2)
         }
 
-        if (request.body.isDefined) {
-          httpPut.setEntity(new StringEntity(request.body.get))
+        if (request.getBody != null) {
+          httpPut.setEntity(new StringEntity(request.getBody))
         }
 
         val res = httpClient.execute(httpPut)
@@ -165,8 +165,8 @@ case class Http(request: CardinalRequest) {
           httpPatch.setHeader(header._1, header._2)
         }
 
-        if (request.body.isDefined) {
-          httpPatch.setEntity(new StringEntity(request.body.get))
+        if (request.getBody != null) {
+          httpPatch.setEntity(new StringEntity(request.getBody))
         }
 
         val res = httpClient.execute(httpPatch)

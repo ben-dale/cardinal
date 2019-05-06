@@ -8,6 +8,7 @@ import javafx.scene.layout.Priority;
 import uk.co.ridentbyte.model.CardinalRequest;
 import uk.co.ridentbyte.view.util.RowConstraintsBuilder;
 
+import java.util.StringJoiner;
 import java.util.function.Function;
 
 public class RequestInputPane extends GridPane {
@@ -82,7 +83,7 @@ public class RequestInputPane extends GridPane {
         String[] headers = this.getHeaders();
         String verb = this.uriVerbInputPane.getVerb();
         String uri = this.uriVerbInputPane.getUri();
-        return CardinalRequest.apply(uri, verb, headers, body);
+        return new CardinalRequest(uri, verb, headers, body);
     }
 
     public void clear() {
@@ -92,12 +93,15 @@ public class RequestInputPane extends GridPane {
     }
 
     public void loadRequest(CardinalRequest request) {
-        if (request.body().isDefined()) {
-            this.setBody(request.body().get());
+        StringJoiner headers = new StringJoiner("\n");
+        for (String header : request.getHeaders()) {
+            headers.add(header);
         }
-        this.textHeaders.setText(request.headers().mkString("\n"));
-        this.uriVerbInputPane.setVerb(request.verb());
-        this.uriVerbInputPane.setUri(request.uri());
+
+        this.setBody(request.getBody());
+        this.textHeaders.setText(headers.toString());
+        this.uriVerbInputPane.setVerb(request.getVerb());
+        this.uriVerbInputPane.setUri(request.getUri());
     }
 
     public void addHeader(String header) {
