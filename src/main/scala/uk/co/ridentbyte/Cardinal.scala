@@ -83,18 +83,32 @@ class Cardinal extends Application {
         saveAs.apply(null)
       } else if (closeTabCombo.`match`(keyEvent) && getCurrentTab != null) {
         val currentTab = getCurrentTab
-        val remove: () => Unit = () => {
-          cardinalTabs.getTabs.remove(currentTab)
-          openNewFileIfNoneOpen()
+        val remove = new function.Function[Void, Void] {
+          override def apply(t: Void): Void = {
+            cardinalTabs.getTabs.remove(currentTab)
+            openNewFileIfNoneOpen()
+            null
+          }
         }
         if (currentTab.hasUnsavedChanges) {
-          val saveCallback: () => Unit = () => {
-            save.apply(null)
-            remove()
+          val saveCallback = new function.Function[Void, Void] {
+            override def apply(t: Void): Void = {
+              save.apply(null)
+              remove.apply(null)
+              null
+            }
           }
-          showConfirmDialog("Save unsaved changes?", saveCallback, remove, () => Unit)
+
+          val cancelCallback = new function.Function[Void, Void] {
+            override def apply(t: Void): Void = {
+              null
+            }
+          }
+
+
+          showConfirmDialog.apply("Save unsaved changes?", saveCallback, remove, cancelCallback)
         } else {
-          remove()
+          remove.apply(null)
         }
       } else if (openCombo.`match`(keyEvent)) {
         open.apply(null)
@@ -129,10 +143,21 @@ class Cardinal extends Application {
 //    })
 
     primaryStage.setOnCloseRequest(r => {
-      val allTabs = cardinalTabs.getTabs.asScala.filter(_.isInstanceOf[CardinalTab]).map(_.asInstanceOf[CardinalTab])
+      val allTabs = cardinalTabs.getTabs.asScala.filter(_.isInstanceOf[CardinalTabNew]).map(_.asInstanceOf[CardinalTabNew])
       val unsavedTabs = allTabs.count(_.hasUnsavedChanges)
       if (unsavedTabs > 0) {
-        showConfirmDialog("Save all unsaved changes?", saveAllUnsavedChanges, () => Unit, () => r.consume())
+        val noCallback = new function.Function[Void, Void] {
+          override def apply(t: Void): Void = {
+            null
+          }
+        }
+        val cancelCallback = new function.Function[Void, Void] {
+          override def apply(t: Void): Void = {
+            r.consume()
+            null
+          }
+        }
+        showConfirmDialog.apply("Save all unsaved changes?", saveAllUnsavedChanges, noCallback, cancelCallback)
       }
     })
 
@@ -169,8 +194,8 @@ class Cardinal extends Application {
     new function.Function[Void, Void] {
       override def apply(t: Void): Void = {
         val currentTab = getCurrentTab
-        if (currentTab != null && currentTab.currentFile.isDefined) {
-          writeToFile(currentTab.currentFile.get, currentTab.content.getRequest.toJson)
+        if (currentTab != null && currentTab.getCurrentFile != null) {
+          writeToFile(currentTab.getCurrentFile, currentTab.getContent.asInstanceOf[CardinalView].getRequest.toJson)
           currentTab.setUnsavedChanges(false)
           null
         } else {
@@ -195,7 +220,7 @@ class Cardinal extends Application {
       override def apply(t: Void): Void = {
         val currentTab = getCurrentTab
         if (currentTab != null) {
-          currentTab.content.clearAll()
+          currentTab.getContent.asInstanceOf[CardinalView].clearAll()
         }
         null
       }
@@ -211,7 +236,7 @@ class Cardinal extends Application {
           selectedFiles.asScala.foreach { selectedFile =>
             val lines = scala.io.Source.fromFile(selectedFile).getLines().mkString
             val cardinalView = new CardinalView(showAsCurl, showErrorDialog, getCurrentConfig, exportToCsv, exportToBash, sendRequest, triggerUnsavedChangesMade)
-            addTab(CardinalTab(Some(selectedFile), cardinalView))
+            addTab(new CardinalTabNew(selectedFile, cardinalView, openNewFileIfNoneOpen(), showConfirmDialog, save))
             cardinalView.loadRequest(CardinalRequest.apply(lines))
             getCurrentTab.setUnsavedChanges(false)
           }
@@ -226,7 +251,12 @@ class Cardinal extends Application {
       override def apply(t: Void): Void = {
         cardinalTabs.getTabs.add(
           cardinalTabs.getTabs.size - 1,
-          CardinalTab(None, new CardinalView(showAsCurl, showErrorDialog, getCurrentConfig, exportToCsv, exportToBash, sendRequest, triggerUnsavedChangesMade))
+          new CardinalTabNew(
+            null,
+            new CardinalView(showAsCurl, showErrorDialog, getCurrentConfig, exportToCsv, exportToBash, sendRequest, triggerUnsavedChangesMade), openNewFileIfNoneOpen(),
+            showConfirmDialog,
+            save
+          )
         )
         cardinalTabs.getSelectionModel.select(cardinalTabs.getTabs.size() - 2)
         null
@@ -248,17 +278,17 @@ class Cardinal extends Application {
               file
             }
 
-            if (currentTab.currentFile.isEmpty) {
+            if (currentTab.getCurrentFile == null) {
               // New file so just save file
-              writeToFile(fileWithExtension, currentTab.content.getRequest.toJson)
+              writeToFile(fileWithExtension, currentTab.getContent.asInstanceOf[CardinalView].getRequest.toJson)
               currentTab.setCurrentFile(fileWithExtension)
               currentTab.setUnsavedChanges(false)
             } else {
               // Existing file so save and open in new tab
-              val request = currentTab.content.getRequest
+              val request = currentTab.getContent.asInstanceOf[CardinalView].getRequest
               writeToFile(fileWithExtension, request.toJson)
               val cardinalView = new CardinalView(showAsCurl, showErrorDialog, getCurrentConfig, exportToCsv, exportToBash, sendRequest, triggerUnsavedChangesMade)
-              addTab(CardinalTab(Some(fileWithExtension), cardinalView))
+              addTab(new CardinalTabNew(fileWithExtension, cardinalView, openNewFileIfNoneOpen(), showConfirmDialog, save))
               cardinalView.loadRequest(request)
               getCurrentTab.setUnsavedChanges(false)
             }
@@ -269,23 +299,28 @@ class Cardinal extends Application {
     }
   }
 
-  private def showConfirmDialog(message: String, onYesCallback:() => Unit, onNoCallback:() => Unit, onCancelCallback: () => Unit): Unit = {
-    val alert = new Alert(AlertType.CONFIRMATION)
-    alert.setTitle("Save Changes")
-    alert.setContentText(message + "\n\n")
+  private def showConfirmDialog: QuadFunction[String, java.util.function.Function[Void, Void], java.util.function.Function[Void, Void], java.util.function.Function[Void, Void], Void] = {
+    new QuadFunction[String, java.util.function.Function[Void, Void], java.util.function.Function[Void, Void], java.util.function.Function[Void, Void], Void] {
+      override def apply(message: String, onYesCallback: java.util.function.Function[Void, Void], onNoCallback: java.util.function.Function[Void, Void], onCancelCallback: java.util.function.Function[Void, Void]): Void = {
+        val alert = new Alert(AlertType.CONFIRMATION)
+        alert.setTitle("Save Changes")
+        alert.setContentText(message + "\n\n")
 
-    val yesButton = new ButtonType("Yes", ButtonBar.ButtonData.RIGHT)
-    val noButton = new ButtonType("No", ButtonBar.ButtonData.RIGHT)
-    val cancelButton = new ButtonType("Cancel", ButtonBar.ButtonData.LEFT)
-    alert.getButtonTypes.setAll(cancelButton, noButton, yesButton)
+        val yesButton = new ButtonType("Yes", ButtonBar.ButtonData.RIGHT)
+        val noButton = new ButtonType("No", ButtonBar.ButtonData.RIGHT)
+        val cancelButton = new ButtonType("Cancel", ButtonBar.ButtonData.LEFT)
+        alert.getButtonTypes.setAll(cancelButton, noButton, yesButton)
 
-    val result = alert.showAndWait()
-    if (result.get.getText == "Yes") {
-      onYesCallback()
-    } else if (result.get.getText == "No") {
-      onNoCallback()
-    } else if (result.get.getText == "Cancel") {
-      onCancelCallback()
+        val result = alert.showAndWait()
+        if (result.get.getText == "Yes") {
+          onYesCallback.apply(null)
+        } else if (result.get.getText == "No") {
+          onNoCallback.apply(null)
+        } else if (result.get.getText == "Cancel") {
+          onCancelCallback.apply(null)
+        }
+        null
+      }
     }
   }
 
@@ -297,7 +332,7 @@ class Cardinal extends Application {
           val dialog = new BasicAuthInputDialog
           val result = dialog.showAndWait()
           if (result.isPresent) {
-            currentTab.content.addHeader(result.get.asAuthHeader)
+            currentTab.getContent.asInstanceOf[CardinalView].addHeader(result.get.asAuthHeader)
           }
         }
         null
@@ -310,11 +345,11 @@ class Cardinal extends Application {
       override def apply(t: Void): Void = {
         val currentTab = getCurrentTab
         if (currentTab != null) {
-          val dialog = new FormUrlEncodedInputDialog(currentTab.content.getRequest.getBody)
+          val dialog = new FormUrlEncodedInputDialog(currentTab.getContent.asInstanceOf[CardinalView].getRequest.getBody)
           val result = dialog.showAndWait()
           if (result.isPresent) {
-            currentTab.content.setBody(result.get.toString)
-            currentTab.content.addHeader(result.get.header)
+            currentTab.getContent.asInstanceOf[CardinalView].setBody(result.get.toString)
+            currentTab.getContent.asInstanceOf[CardinalView].addHeader(result.get.header)
           }
         }
         null
@@ -361,11 +396,11 @@ class Cardinal extends Application {
       override def apply(t: Void): Void = {
         val currentTab = getCurrentTab
         if (currentTab != null) {
-          val request = currentTab.content.getRequest
+          val request = currentTab.getContent.asInstanceOf[CardinalView].getRequest
           if (request.getUri.trim.length == 0) {
             showErrorDialog.apply("Please enter a URL.")
           } else {
-            currentTab.content.loadCurlCommand(request.toCurl(currentConfig))
+            currentTab.getContent.asInstanceOf[CardinalView].loadCurlCommand(request.toCurl(currentConfig))
           }
         }
         null
@@ -373,55 +408,23 @@ class Cardinal extends Application {
     }
   }
 
-  private def getCurrentTab: CardinalTab = {
-    cardinalTabs.getSelectionModel.getSelectedItem.asInstanceOf[CardinalTab]
+  private def getCurrentTab: CardinalTabNew = {
+    cardinalTabs.getSelectionModel.getSelectedItem.asInstanceOf[CardinalTabNew]
   }
 
-  def saveAllUnsavedChanges(): Unit = {
-    cardinalTabs.getTabs.asScala.foreach {
-      case t: CardinalTab =>
-        val currentFile = t.currentFile
-        if (currentFile.isDefined) {
-          writeToFile(currentFile.get, t.content.getRequest.toJson)
+  def saveAllUnsavedChanges(): java.util.function.Function[Void, Void] = {
+    new java.util.function.Function[Void, Void] {
+      override def apply(t: Void): Void = {
+        cardinalTabs.getTabs.asScala.foreach {
+          case t: CardinalTabNew =>
+            val currentFile = t.getCurrentFile
+            if (currentFile != null) {
+              writeToFile(currentFile, t.getContent.asInstanceOf[CardinalView].getRequest.toJson)
+            }
+          case _ => // Currently does not save unsaved changes to "Untitled" files
         }
-      case _ => // Currently does not save unsaved changes to "Untitled" files
-    }
-  }
-
-  case class CardinalTab(var currentFile: Option[File], content: CardinalView)
-    extends Tab(if (currentFile.isDefined) currentFile.get.getName else "Untitled", content) {
-    private var unsavedChanges = false
-
-    getStyleClass.add("cardinal-font")
-
-    setOnCloseRequest(r => {
-      if (unsavedChanges) {
-        showConfirmDialog("Save unsaved changes?", () => save.apply(null), () => Unit, () => r.consume())
+        null
       }
-      Platform.runLater(() => openNewFileIfNoneOpen())
-    })
-
-    def handleUnsavedChangesMade(): Unit = {
-      if (!getText.endsWith("*")) {
-        unsavedChanges = true
-        setText(getText + "*")
-      }
-    }
-
-    def setCurrentFile(currentFile: File): Unit = {
-      this.currentFile = Some(currentFile)
-      setText(currentFile.getName)
-    }
-
-    def hasUnsavedChanges: Boolean = unsavedChanges
-    def setUnsavedChanges(unsavedChanges: Boolean): Unit = {
-      if (!unsavedChanges) {
-        currentFile match {
-          case Some(f) => setText(f.getName)
-          case _ => setText("Untitled")
-        }
-      }
-      this.unsavedChanges = unsavedChanges
     }
   }
 
@@ -431,9 +434,14 @@ class Cardinal extends Application {
     fileWriter.close()
   }
 
-  def openNewFileIfNoneOpen(): Unit = {
-    if (cardinalTabs.getTabs.size() == 0) {
-      newTab.apply(null)
+  def openNewFileIfNoneOpen(): java.util.function.Function[Void, Void] = {
+    new java.util.function.Function[Void, Void] {
+      override def apply(t: Void): Void = {
+        if (cardinalTabs.getTabs.size() == 0) {
+          newTab.apply(null)
+        }
+        null
+      }
     }
   }
 
