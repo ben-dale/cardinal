@@ -16,9 +16,9 @@ public class ExtractedCommands {
     public List<Command> all() {
         List<Command> matchedCommandStrings = new ArrayList<>();
         if (data != null) {
-            Matcher matcher = Pattern.compile("(#\\{[^\\{|\\}]+\\})").matcher(data);
+            Matcher matcher = Pattern.compile("(?:#\\{([^\\{|\\}]+)\\})").matcher(data);
             while (matcher.find()) {
-                matchedCommandStrings.add(new Command(matcher.group()));
+                matchedCommandStrings.add(new Command(matcher.group(1)));
             }
         }
         return matchedCommandStrings;

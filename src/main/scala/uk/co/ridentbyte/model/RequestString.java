@@ -70,8 +70,7 @@ public class RequestString {
 
         for (Command command : extractedCommands) {
             contentCopy = contentCopy.replaceFirst(
-                    Pattern.quote(command.rawCommand()),
-                    command.processWith(variables, vocabulary, scala.Option.apply(null), new Random())
+                    Pattern.quote("#{" + command.getCommand() + "}"), command.process(variables, vocabulary)
             );
         }
 
