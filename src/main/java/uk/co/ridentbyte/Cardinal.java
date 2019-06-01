@@ -37,7 +37,7 @@ import uk.co.ridentbyte.view.dialog.FormUrlEncodedInputDialog;
 
 import java.io.File;
 import java.io.FileWriter;
-import java.nio.charset.Charset;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.nio.file.attribute.PosixFilePermission;
@@ -63,22 +63,24 @@ public class Cardinal extends Application  {
     private Stage currentStage = null;
     private TabPane cardinalTabs = null;
     private CardinalMenuBar menuBar = null;
-
-
     private Tab newRequestTab = new Tab("+");
+
+    public static void main(String[] args) {
+        launch();
+    }
     
     @Override
     public void start(Stage primaryStage) throws Exception {
-        firstNames = new Words(IOUtils.readLines(getClass().getClassLoader().getResourceAsStream("firstNames.txt"), Charset.forName("UTF-8")), new Random());
-        lastNames = new Words(IOUtils.readLines(getClass().getClassLoader().getResourceAsStream("lastNames.txt"), Charset.forName("UTF-8")), new Random());
-        countries = new Words(IOUtils.readLines(getClass().getClassLoader().getResourceAsStream("countries.txt"), Charset.forName("UTF-8")), new Random());
-        objects = new Words(IOUtils.readLines(getClass().getClassLoader().getResourceAsStream("objects.txt"), Charset.forName("UTF-8")), new Random());
-        actions = new Words(IOUtils.readLines(getClass().getClassLoader().getResourceAsStream("actions.txt"), Charset.forName("UTF-8")), new Random());
-        businessEntities = new Words(IOUtils.readLines(getClass().getClassLoader().getResourceAsStream("businessEntities.txt"), Charset.forName("UTF-8")), new Random());
-        communications = new Words(IOUtils.readLines(getClass().getClassLoader().getResourceAsStream("communications.txt"), Charset.forName("UTF-8")), new Random());
-        places = new Words(IOUtils.readLines(getClass().getClassLoader().getResourceAsStream("places.txt"), Charset.forName("UTF-8")), new Random());
-        loremipsum = new Words(IOUtils.readLines(getClass().getClassLoader().getResourceAsStream("loremipsum.txt"), Charset.forName("UTF-8")), new Random());
-        emoji = new Words(IOUtils.readLines(getClass().getClassLoader().getResourceAsStream("emoji.txt"), Charset.forName("UTF-8")), new Random());
+        firstNames = new Words(IOUtils.readLines(getClass().getClassLoader().getResourceAsStream("firstNames.txt"), StandardCharsets.UTF_8), new Random());
+        lastNames = new Words(IOUtils.readLines(getClass().getClassLoader().getResourceAsStream("lastNames.txt"), StandardCharsets.UTF_8), new Random());
+        countries = new Words(IOUtils.readLines(getClass().getClassLoader().getResourceAsStream("countries.txt"), StandardCharsets.UTF_8), new Random());
+        objects = new Words(IOUtils.readLines(getClass().getClassLoader().getResourceAsStream("objects.txt"), StandardCharsets.UTF_8), new Random());
+        actions = new Words(IOUtils.readLines(getClass().getClassLoader().getResourceAsStream("actions.txt"), StandardCharsets.UTF_8), new Random());
+        businessEntities = new Words(IOUtils.readLines(getClass().getClassLoader().getResourceAsStream("businessEntities.txt"), StandardCharsets.UTF_8), new Random());
+        communications = new Words(IOUtils.readLines(getClass().getClassLoader().getResourceAsStream("communications.txt"), StandardCharsets.UTF_8), new Random());
+        places = new Words(IOUtils.readLines(getClass().getClassLoader().getResourceAsStream("places.txt"), StandardCharsets.UTF_8), new Random());
+        loremipsum = new Words(IOUtils.readLines(getClass().getClassLoader().getResourceAsStream("loremipsum.txt"), StandardCharsets.UTF_8), new Random());
+        emoji = new Words(IOUtils.readLines(getClass().getClassLoader().getResourceAsStream("emoji.txt"), StandardCharsets.UTF_8), new Random());
         vocabulary = new Vocabulary(firstNames, lastNames, places, objects, actions, countries, communications, businessEntities, loremipsum, emoji);
 
         menuBar = new CardinalMenuBar(newTab(), open(), save(), saveAs(), clearAll(), showEnvironmentVariablesInput(), showFormUrlEncodedInput(), showBasicAuthInput());
@@ -113,7 +115,7 @@ public class Cardinal extends Application  {
         } else {
             // Create new empty config file if not present
             Config conf = new Config(new ArrayList<>());
-//            saveChangesToConfig.apply(conf);
+            saveChangesToConfig(conf);
             currentConfig = conf;
         }
 
