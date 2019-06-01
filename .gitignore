@@ -4,3 +4,10 @@ target
 project/target
 cardinal_files
 .java-version
+out
+
+# Ignore Gradle project-specific cache directory
+.gradle
+
+# Ignore Gradle build output directory
+build

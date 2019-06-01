@@ -7,16 +7,16 @@ import uk.co.ridentbyte.view.CardinalView;
 import java.io.File;
 import java.util.function.Function;
 
-public class CardinalTabNew extends Tab {
+public class CardinalTab extends Tab {
 
     private File currentFile;
     private boolean unsavedChanges;
 
-    public CardinalTabNew(File currentFile,
-                          CardinalView content,
-                          Function<Void, Void> openNewFileIfNoneOpen,
-                          QuadFunction<String, Function<Void, Void>, Function<Void, Void>, Function<Void, Void>, Void> showConfirmDialog,
-                          Function<Void, Void> save) {
+    public CardinalTab(File currentFile,
+                       CardinalView content,
+                       Function<Void, Void> openNewFileIfNoneOpen,
+                       QuadFunction<String, Function<Void, Void>, Function<Void, Void>, Function<Void, Void>, Void> showConfirmDialog,
+                       Function<Void, Void> save) {
         super(currentFile == null ? "Untitled" : currentFile.getName(), content);
         getStyleClass().add("cardinal-font");
         setOnCloseRequest((e) -> {

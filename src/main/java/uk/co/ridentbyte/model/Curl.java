@@ -1,6 +1,6 @@
 package uk.co.ridentbyte.model;
 
-import uk.co.ridentbyte.CardinalNew;
+import uk.co.ridentbyte.Cardinal;
 
 import java.util.List;
 
@@ -22,20 +22,20 @@ public class Curl {
         StringBuilder builder = new StringBuilder("curl -i \\\n");
 
         for (String header : this.headers) {
-            String processedString = new RequestString(header, this.envVars, CardinalNew.vocabulary).process();
+            String processedString = new RequestString(header, this.envVars, Cardinal.vocabulary).process();
             builder.append("-H '");
             builder.append(processedString);
             builder.append("' \\\n");
         }
 
         if (this.body != null && !this.body.isEmpty()) {
-            String processedString = new RequestString(this.body, this.envVars, CardinalNew.vocabulary).process();
+            String processedString = new RequestString(this.body, this.envVars, Cardinal.vocabulary).process();
             builder.append("-d '");
             builder.append(processedString);
             builder.append("' \\\n");
         }
 
-        String processedString = new RequestString(this.uri, this.envVars, CardinalNew.vocabulary).process();
+        String processedString = new RequestString(this.uri, this.envVars, Cardinal.vocabulary).process();
         builder.append("-X ");
         builder.append(this.verb);
         builder.append(" ");

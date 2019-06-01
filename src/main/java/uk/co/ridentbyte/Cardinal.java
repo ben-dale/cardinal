@@ -16,6 +16,7 @@ import javafx.scene.layout.BorderPane;
 import javafx.scene.text.Font;
 import javafx.stage.FileChooser;
 import javafx.stage.Stage;
+import org.apache.commons.io.IOUtils;
 import uk.co.ridentbyte.model.BashScript;
 import uk.co.ridentbyte.model.BasicAuth;
 import uk.co.ridentbyte.model.CardinalHttpResponse;
@@ -36,6 +37,7 @@ import uk.co.ridentbyte.view.dialog.FormUrlEncodedInputDialog;
 
 import java.io.File;
 import java.io.FileWriter;
+import java.nio.charset.Charset;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.nio.file.attribute.PosixFilePermission;
@@ -49,7 +51,7 @@ import java.util.function.BiFunction;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
-public class CardinalNew extends Application  {
+public class Cardinal extends Application  {
 
     private Words firstNames, lastNames, countries,
             objects, actions, businessEntities, communications, places, loremipsum, emoji;
@@ -67,16 +69,16 @@ public class CardinalNew extends Application  {
     
     @Override
     public void start(Stage primaryStage) throws Exception {
-        firstNames = new Words(Files.readAllLines(Paths.get(getClass().getClassLoader().getResource("firstNames.txt").getPath())), new Random());
-        lastNames = new Words(Files.readAllLines(Paths.get(getClass().getClassLoader().getResource("lastNames.txt").getPath())), new Random());
-        countries = new Words(Files.readAllLines(Paths.get(getClass().getClassLoader().getResource("countries.txt").getPath())), new Random());
-        objects = new Words(Files.readAllLines(Paths.get(getClass().getClassLoader().getResource("objects.txt").getPath())), new Random());
-        actions = new Words(Files.readAllLines(Paths.get(getClass().getClassLoader().getResource("actions.txt").getPath())), new Random());
-        businessEntities = new Words(Files.readAllLines(Paths.get(getClass().getClassLoader().getResource("businessEntities.txt").getPath())), new Random());
-        communications = new Words(Files.readAllLines(Paths.get(getClass().getClassLoader().getResource("communications.txt").getPath())), new Random());
-        places = new Words(Files.readAllLines(Paths.get(getClass().getClassLoader().getResource("places.txt").getPath())), new Random());
-        loremipsum = new Words(Files.readAllLines(Paths.get(getClass().getClassLoader().getResource("loremipsum.txt").getPath())), new Random());
-        emoji = new Words(Files.readAllLines(Paths.get(getClass().getClassLoader().getResource("emoji.txt").getPath())), new Random());
+        firstNames = new Words(IOUtils.readLines(getClass().getClassLoader().getResourceAsStream("firstNames.txt"), Charset.forName("UTF-8")), new Random());
+        lastNames = new Words(IOUtils.readLines(getClass().getClassLoader().getResourceAsStream("lastNames.txt"), Charset.forName("UTF-8")), new Random());
+        countries = new Words(IOUtils.readLines(getClass().getClassLoader().getResourceAsStream("countries.txt"), Charset.forName("UTF-8")), new Random());
+        objects = new Words(IOUtils.readLines(getClass().getClassLoader().getResourceAsStream("objects.txt"), Charset.forName("UTF-8")), new Random());
+        actions = new Words(IOUtils.readLines(getClass().getClassLoader().getResourceAsStream("actions.txt"), Charset.forName("UTF-8")), new Random());
+        businessEntities = new Words(IOUtils.readLines(getClass().getClassLoader().getResourceAsStream("businessEntities.txt"), Charset.forName("UTF-8")), new Random());
+        communications = new Words(IOUtils.readLines(getClass().getClassLoader().getResourceAsStream("communications.txt"), Charset.forName("UTF-8")), new Random());
+        places = new Words(IOUtils.readLines(getClass().getClassLoader().getResourceAsStream("places.txt"), Charset.forName("UTF-8")), new Random());
+        loremipsum = new Words(IOUtils.readLines(getClass().getClassLoader().getResourceAsStream("loremipsum.txt"), Charset.forName("UTF-8")), new Random());
+        emoji = new Words(IOUtils.readLines(getClass().getClassLoader().getResourceAsStream("emoji.txt"), Charset.forName("UTF-8")), new Random());
         vocabulary = new Vocabulary(firstNames, lastNames, places, objects, actions, countries, communications, businessEntities, loremipsum, emoji);
 
         menuBar = new CardinalMenuBar(newTab(), open(), save(), saveAs(), clearAll(), showEnvironmentVariablesInput(), showFormUrlEncodedInput(), showBasicAuthInput());
@@ -128,7 +130,7 @@ public class CardinalNew extends Application  {
             } else if (saveAsCombo.match(keyEvent)) {
                 saveAs().apply(null);
             } else if (closeTabCombo.match(keyEvent) && getCurrentTab() != null) {
-                CardinalTabNew currentTab = getCurrentTab();
+                CardinalTab currentTab = getCurrentTab();
                 Function<Void, Void> remove = (v) -> {
                     cardinalTabs.getTabs().remove(currentTab);
                     openNewFileIfNoneOpen().apply(null);
@@ -167,7 +169,7 @@ public class CardinalNew extends Application  {
         return (v) -> {
             cardinalTabs.getTabs().add(
                     cardinalTabs.getTabs().size() - 1,
-                    new CardinalTabNew(
+                    new CardinalTab(
                             null,
                             new CardinalView(showAsCurl(), showErrorDialog(), getCurrentConfig(), exportToCsv(), exportToBash(), sendRequest(), triggerUnsavedChangesMade()),
                             openNewFileIfNoneOpen(),
@@ -182,7 +184,7 @@ public class CardinalNew extends Application  {
 
     private Function<Void, Void> showAsCurl() {
         return (v) -> {
-            CardinalTabNew currentTab = getCurrentTab();
+            CardinalTab currentTab = getCurrentTab();
             if (currentTab != null) {
                 CardinalRequest request = ((CardinalView) currentTab.getContent()).getRequest();
                 if (request.getUri().trim().length() == 0) {
@@ -219,8 +221,8 @@ public class CardinalNew extends Application  {
         };
     }
 
-    private CardinalTabNew getCurrentTab() {
-        return ((CardinalTabNew) cardinalTabs.getSelectionModel().getSelectedItem());
+    private CardinalTab getCurrentTab() {
+        return ((CardinalTab) cardinalTabs.getSelectionModel().getSelectedItem());
     }
 
     private Function<Void, Config> getCurrentConfig() {
@@ -301,7 +303,7 @@ public class CardinalNew extends Application  {
 
     private Function<Void, Void> save() {
         return (v) -> {
-            CardinalTabNew currentTab = getCurrentTab();
+            CardinalTab currentTab = getCurrentTab();
             if (currentTab != null && currentTab.getCurrentFile() != null) {
                 writeToFile().apply(
                         currentTab.getCurrentFile(),
@@ -357,7 +359,7 @@ public class CardinalNew extends Application  {
                               sendRequest(),
                               triggerUnsavedChangesMade()
                       );
-                      addTab(new CardinalTabNew(file, cardinalView, openNewFileIfNoneOpen(), showConfirmDialog(), save()));
+                      addTab(new CardinalTab(file, cardinalView, openNewFileIfNoneOpen(), showConfirmDialog(), save()));
                       cardinalView.loadRequest(CardinalRequest.apply(lines));
                       getCurrentTab().setUnsavedChanges(false);
                   } catch (Exception e) {
@@ -371,7 +373,7 @@ public class CardinalNew extends Application  {
 
     private Function<Void, Void> clearAll() {
         return (v) -> {
-          CardinalTabNew currentTab = getCurrentTab();
+          CardinalTab currentTab = getCurrentTab();
           if (currentTab != null) {
               ((CardinalView) currentTab.getContent()).clearAll();
           }
@@ -381,7 +383,7 @@ public class CardinalNew extends Application  {
 
     private Function<Void, Void> showBasicAuthInput() {
         return (v) -> {
-            CardinalTabNew currentTab = getCurrentTab();
+            CardinalTab currentTab = getCurrentTab();
             if (currentTab != null) {
                 BasicAuthInputDialog dialog = new BasicAuthInputDialog();
                 Optional<BasicAuth> result = dialog.showAndWait();
@@ -395,7 +397,7 @@ public class CardinalNew extends Application  {
 
     private Function<Void, Void> showFormUrlEncodedInput() {
         return (v) -> {
-            CardinalTabNew currentTab = getCurrentTab();
+            CardinalTab currentTab = getCurrentTab();
             if (currentTab != null) {
                 FormUrlEncodedInputDialog dialog = new FormUrlEncodedInputDialog(
                         ((CardinalView) currentTab.getContent()).getRequest().getBody()
@@ -423,7 +425,7 @@ public class CardinalNew extends Application  {
 
     private Function<Void, Void> saveAs() {
         return (v) -> {
-          CardinalTabNew currentTab = getCurrentTab();
+          CardinalTab currentTab = getCurrentTab();
           if (currentTab != null) {
               FileChooser fileChooser = new FileChooser();
               File file = fileChooser.showSaveDialog(currentStage);
@@ -445,7 +447,7 @@ public class CardinalNew extends Application  {
                       CardinalRequest request = ((CardinalView) currentTab.getContent()).getRequest();
                       writeToFile().apply(fileWithExtension, request.toJson());
                       CardinalView cardinalView = new CardinalView(showAsCurl(), showErrorDialog(), getCurrentConfig(), exportToCsv(), exportToBash(), sendRequest(), triggerUnsavedChangesMade());
-                      addTab(new CardinalTabNew(fileWithExtension, cardinalView, openNewFileIfNoneOpen(), showConfirmDialog(), save()));
+                      addTab(new CardinalTab(fileWithExtension, cardinalView, openNewFileIfNoneOpen(), showConfirmDialog(), save()));
                       cardinalView.loadRequest(request);
                       getCurrentTab().setUnsavedChanges(false);
                   }
