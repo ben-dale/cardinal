@@ -2,7 +2,7 @@ package uk.co.ridentbyte.model;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
-import uk.co.ridentbyte.Cardinal;
+import uk.co.ridentbyte.CardinalNew;
 
 import java.util.Arrays;
 import java.util.List;
@@ -61,13 +61,13 @@ public class CardinalRequest {
 
     public CardinalRequest processConstants(Config config) {
         List<EnvironmentVariable> vars = config.getEnvironmentVariables();
-        String newUri = new RequestString(this.uri, vars, Cardinal.vocabulary()).process();
+        String newUri = new RequestString(this.uri, vars, CardinalNew.vocabulary).process();
         List<String> newHeaders = this.headers.stream().map((h) -> {
-           return new RequestString(h, vars, Cardinal.vocabulary()).process();
+           return new RequestString(h, vars, CardinalNew.vocabulary).process();
         }).collect(Collectors.toList());
         String newBody = this.body;
         if (newBody != null) {
-            newBody = new RequestString(newBody, vars, Cardinal.vocabulary()).process();
+            newBody = new RequestString(newBody, vars, CardinalNew.vocabulary).process();
         }
         return new CardinalRequest(newUri, verb, newHeaders, newBody);
     }

@@ -1,86 +1,102 @@
 package uk.co.ridentbyte;
 
 import javafx.application.Application;
+import javafx.application.Platform;
 import javafx.scene.Scene;
+import javafx.scene.control.Alert;
+import javafx.scene.control.ButtonBar;
+import javafx.scene.control.ButtonType;
 import javafx.scene.control.Tab;
 import javafx.scene.control.TabPane;
+import javafx.scene.input.KeyCode;
+import javafx.scene.input.KeyCodeCombination;
+import javafx.scene.input.KeyCombination;
+import javafx.scene.input.KeyEvent;
 import javafx.scene.layout.BorderPane;
-import javafx.scene.layout.Pane;
 import javafx.scene.text.Font;
+import javafx.stage.FileChooser;
 import javafx.stage.Stage;
+import uk.co.ridentbyte.model.BashScript;
+import uk.co.ridentbyte.model.BasicAuth;
+import uk.co.ridentbyte.model.CardinalHttpResponse;
+import uk.co.ridentbyte.model.CardinalRequest;
+import uk.co.ridentbyte.model.CardinalRequestAndResponse;
+import uk.co.ridentbyte.model.CardinalResponse;
 import uk.co.ridentbyte.model.Config;
 import uk.co.ridentbyte.model.EnvironmentVariable;
+import uk.co.ridentbyte.model.FormUrlEncoded;
+import uk.co.ridentbyte.model.Http;
 import uk.co.ridentbyte.model.Vocabulary;
 import uk.co.ridentbyte.model.Words;
+import uk.co.ridentbyte.view.CardinalMenuBar;
 import uk.co.ridentbyte.view.CardinalView;
+import uk.co.ridentbyte.view.dialog.BasicAuthInputDialog;
+import uk.co.ridentbyte.view.dialog.EnvironmentVariablesEditDialog;
+import uk.co.ridentbyte.view.dialog.FormUrlEncodedInputDialog;
 
 import java.io.File;
 import java.io.FileWriter;
 import java.nio.file.Files;
 import java.nio.file.Paths;
+import java.nio.file.attribute.PosixFilePermission;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Optional;
 import java.util.Random;
+import java.util.Set;
+import java.util.function.BiFunction;
+import java.util.function.Function;
+import java.util.stream.Collectors;
 
 public class CardinalNew extends Application  {
 
-    private static Words firstNames, lastNames, countries,
+    private Words firstNames, lastNames, countries,
             objects, actions, businessEntities, communications, places, loremipsum, emoji;
 
     public static Vocabulary vocabulary;
 
-    private static String configLocation = System.getProperty("user.home") + "/.cardinal_config.json";
-    private static Config currentConfig = null;
-    private static Stage currentStage = null;
-    private static TabPane cardinalTabs = null;
-
-    private static Tab newRequestTab = new Tab("+");
-
+    private String configLocation = System.getProperty("user.home") + "/.cardinal_config.json";
+    private Config currentConfig = null;
+    private Stage currentStage = null;
+    private TabPane cardinalTabs = null;
+    private CardinalMenuBar menuBar = null;
 
 
-    public static void main() throws Exception {
-        firstNames = new Words(Files.readAllLines(Paths.get("firstName.txt")), new Random());
-        lastNames = new Words(Files.readAllLines(Paths.get("lastNames.txt")), new Random());
-        countries = new Words(Files.readAllLines(Paths.get("countries.txt")), new Random());
-        objects = new Words(Files.readAllLines(Paths.get("objects.txt")), new Random());
-        actions = new Words(Files.readAllLines(Paths.get("actions.txt")), new Random());
-        businessEntities = new Words(Files.readAllLines(Paths.get("businessEntities.txt")), new Random());
-        communications = new Words(Files.readAllLines(Paths.get("communications.txt")), new Random());
-        places = new Words(Files.readAllLines(Paths.get("places.txt")), new Random());
-        loremipsum = new Words(Files.readAllLines(Paths.get("loremipsum.txt")), new Random());
-        emoji = new Words(Files.readAllLines(Paths.get("emoji.txt")), new Random());
+    private Tab newRequestTab = new Tab("+");
+    
+    @Override
+    public void start(Stage primaryStage) throws Exception {
+        firstNames = new Words(Files.readAllLines(Paths.get(getClass().getClassLoader().getResource("firstNames.txt").getPath())), new Random());
+        lastNames = new Words(Files.readAllLines(Paths.get(getClass().getClassLoader().getResource("lastNames.txt").getPath())), new Random());
+        countries = new Words(Files.readAllLines(Paths.get(getClass().getClassLoader().getResource("countries.txt").getPath())), new Random());
+        objects = new Words(Files.readAllLines(Paths.get(getClass().getClassLoader().getResource("objects.txt").getPath())), new Random());
+        actions = new Words(Files.readAllLines(Paths.get(getClass().getClassLoader().getResource("actions.txt").getPath())), new Random());
+        businessEntities = new Words(Files.readAllLines(Paths.get(getClass().getClassLoader().getResource("businessEntities.txt").getPath())), new Random());
+        communications = new Words(Files.readAllLines(Paths.get(getClass().getClassLoader().getResource("communications.txt").getPath())), new Random());
+        places = new Words(Files.readAllLines(Paths.get(getClass().getClassLoader().getResource("places.txt").getPath())), new Random());
+        loremipsum = new Words(Files.readAllLines(Paths.get(getClass().getClassLoader().getResource("loremipsum.txt").getPath())), new Random());
+        emoji = new Words(Files.readAllLines(Paths.get(getClass().getClassLoader().getResource("emoji.txt").getPath())), new Random());
         vocabulary = new Vocabulary(firstNames, lastNames, places, objects, actions, countries, communications, businessEntities, loremipsum, emoji);
+
+        menuBar = new CardinalMenuBar(newTab(), open(), save(), saveAs(), clearAll(), showEnvironmentVariablesInput(), showFormUrlEncodedInput(), showBasicAuthInput());
 
         newRequestTab.setClosable(false);
         newRequestTab.setOnSelectionChanged((e) -> {
             if ((e.getSource()) == newRequestTab) {
-//                newTab.apply(null);
+                newTab().apply(null);
             }
         });
+        cardinalTabs = new TabPane();
         cardinalTabs.getTabs().add(newRequestTab);
 
-        Application.launch(CardinalNew.class);
-    }
-
-    private void newTab() {
-//        cardinalTabs.getTabs().add(
-//          cardinalTabs.getTabs().size() - 1,
-//        CardinalTab(None, new CardinalView(showAsCurl, showErrorDialog, getCurrentConfig, exportToCsv, exportToBash, sendRequest, triggerUnsavedChangesMade))
-
-//        );
-        cardinalTabs.getSelectionModel().select(cardinalTabs.getTabs().size() - 2);
-
-    }
-
-    @Override
-    public void start(Stage primaryStage) throws Exception {
         currentStage = primaryStage;
         primaryStage.setTitle("Cardinal");
         primaryStage.setMinHeight(600);
         primaryStage.setMinWidth(800);
 
         BorderPane view = new BorderPane();
-//        view.setTop(menuBar);
+        view.setTop(menuBar);
         view.setCenter(cardinalTabs);
 
         Scene scene = new Scene(view, 1000, 500);
@@ -100,12 +116,358 @@ public class CardinalNew extends Application  {
         }
 
 
+        scene.addEventFilter(KeyEvent.KEY_PRESSED, (keyEvent) -> {
+            KeyCodeCombination saveAsCombo = new KeyCodeCombination(KeyCode.S, KeyCombination.SHIFT_DOWN, KeyCombination.SHORTCUT_DOWN);
+            KeyCodeCombination saveCombo = new KeyCodeCombination(KeyCode.S, KeyCombination.SHORTCUT_DOWN);
+            KeyCodeCombination closeTabCombo = new KeyCodeCombination(KeyCode.W, KeyCombination.SHORTCUT_DOWN);
+            KeyCodeCombination openCombo = new KeyCodeCombination(KeyCode.O, KeyCombination.SHORTCUT_DOWN);
+            KeyCodeCombination newCombo = new KeyCodeCombination(KeyCode.N, KeyCombination.SHORTCUT_DOWN);
+
+            if (saveCombo.match(keyEvent)) {
+                save().apply(null);
+            } else if (saveAsCombo.match(keyEvent)) {
+                saveAs().apply(null);
+            } else if (closeTabCombo.match(keyEvent) && getCurrentTab() != null) {
+                CardinalTabNew currentTab = getCurrentTab();
+                Function<Void, Void> remove = (v) -> {
+                    cardinalTabs.getTabs().remove(currentTab);
+                    openNewFileIfNoneOpen().apply(null);
+                    return null;
+                };
+
+                if (currentTab.hasUnsavedChanges()) {
+                    showConfirmDialog().apply("Save unsaved changes?", save(), remove, (v) -> null);
+                } else {
+                    remove.apply(null);
+                }
+            } else if (openCombo.match(keyEvent)) {
+                open().apply(null);
+            } else if (newCombo.match(keyEvent)) {
+                newTab().apply(null);
+            }
+        });
+
+        // Temporary action for dev
+//    scene.setOnKeyPressed(k => {
+//      if (k.getCode == KeyCode.R) {
+//        if (currentStage != null) {
+//          currentStage.getScene.getStylesheets.clear()
+//          println("[" + System.currentTimeMillis() + "] Reloading CSS")
+//          val f = new File("src/main/resources/style.css")
+//          currentStage.getScene.getStylesheets.add("file://" + f.getAbsolutePath)
+//        }
+//      }
+//    })
+
+        primaryStage.setScene(scene);
         primaryStage.show();
     }
 
-    public void writeToFile(File file, String data) throws Exception {
-        FileWriter fileWriter = new FileWriter(file);
-        fileWriter.write(data);
-        fileWriter.close();
+    private Function<Void, Void> newTab() {
+        return (v) -> {
+            cardinalTabs.getTabs().add(
+                    cardinalTabs.getTabs().size() - 1,
+                    new CardinalTabNew(
+                            null,
+                            new CardinalView(showAsCurl(), showErrorDialog(), getCurrentConfig(), exportToCsv(), exportToBash(), sendRequest(), triggerUnsavedChangesMade()),
+                            openNewFileIfNoneOpen(),
+                            showConfirmDialog(),
+                            save()
+                    )
+            );
+            cardinalTabs.getSelectionModel().select(cardinalTabs.getTabs().size() - 2);
+            return null;
+        };
     }
+
+    private Function<Void, Void> showAsCurl() {
+        return (v) -> {
+            CardinalTabNew currentTab = getCurrentTab();
+            if (currentTab != null) {
+                CardinalRequest request = ((CardinalView) currentTab.getContent()).getRequest();
+                if (request.getUri().trim().length() == 0) {
+                    showErrorDialog().apply("Please enter a URL.");
+                } else {
+                    ((CardinalView) currentTab.getContent()).loadCurlCommand(request.toCurl(currentConfig));
+                }
+            }
+            return null;
+        };
+    }
+
+    private Function<String, Void> showErrorDialog() {
+        return (message) -> {
+            Platform.runLater(() -> {
+                Alert alert = new Alert(Alert.AlertType.ERROR);
+                alert.setContentText(message);
+                alert.showAndWait();
+            });
+            return null;
+        };
+    }
+
+    private BiFunction<File, String, Void> writeToFile() {
+        return (file, data) -> {
+            try {
+                FileWriter fileWriter = new FileWriter(file);
+                fileWriter.write(data);
+                fileWriter.close();
+            } catch (Exception e) {
+                // TODO?
+            }
+            return null;
+        };
+    }
+
+    private CardinalTabNew getCurrentTab() {
+        return ((CardinalTabNew) cardinalTabs.getSelectionModel().getSelectedItem());
+    }
+
+    private Function<Void, Config> getCurrentConfig() {
+        return (v) -> currentConfig;
+    }
+
+    private Function<List<CardinalRequestAndResponse>, Void> exportToCsv() {
+        return (cardinalRequestAndResponses) -> {
+            String header = CardinalRequest.csvHeaders + "," + CardinalResponse.csvHeaders();
+            String content = cardinalRequestAndResponses.stream().map((reqAndRes) -> {
+                return reqAndRes.getRequest().toCsv() + "," + (reqAndRes.getResponse() != null ? reqAndRes.getResponse().toCSV() : CardinalResponse.blank().toCSV());
+            }).collect(Collectors.joining("\n"));
+
+            FileChooser fileChooser = new FileChooser();
+            File file = fileChooser.showSaveDialog(currentStage);
+            if (file != null) {
+                File fileWithExtension = null;
+                if (!file.getAbsolutePath().endsWith(".csv")) {
+                    fileWithExtension = new File(file.getAbsolutePath() + ".csv");
+                } else {
+                    fileWithExtension = file;
+                }
+                writeToFile().apply(fileWithExtension, header + "\n" + content);
+            }
+            return null;
+        };
+    }
+
+    private BiFunction<List<CardinalRequest>, Integer, Void> exportToBash() {
+        return (requests, throttle) -> {
+            BashScript script = new BashScript(requests, currentConfig, throttle);
+            FileChooser fileChooser = new FileChooser();
+            File file = fileChooser.showSaveDialog(currentStage);
+            if (file != null) {
+                writeToFile().apply(file, script.toString());
+                Set<PosixFilePermission> posix = new HashSet<>();
+                posix.add(PosixFilePermission.OWNER_WRITE);
+                posix.add(PosixFilePermission.OWNER_READ);
+                posix.add(PosixFilePermission.OWNER_EXECUTE);
+                posix.add(PosixFilePermission.GROUP_READ);
+                posix.add(PosixFilePermission.GROUP_EXECUTE);
+                posix.add(PosixFilePermission.OTHERS_READ);
+                posix.add(PosixFilePermission.OTHERS_EXECUTE);
+                try {
+                    Files.setPosixFilePermissions(file.toPath(), posix);
+                } catch (Exception e ) {
+                    // TODO?
+                }
+            }
+            return null;
+        };
+    }
+
+    private Function<CardinalRequest, CardinalResponse> sendRequest() {
+        return (request) -> {
+            long startTime = System.currentTimeMillis();
+            CardinalHttpResponse httpResponse = new Http(request).send();
+            long totalTime = System.currentTimeMillis() - startTime;
+            return new CardinalResponse(httpResponse, totalTime);
+        };
+    }
+
+    private Function<Void, Void> triggerUnsavedChangesMade() {
+        return (v) -> {
+            getCurrentTab().handleUnsavedChangesMade();
+            return null;
+        };
+    }
+
+    private Function<Void, Void> openNewFileIfNoneOpen() {
+        return (v) -> {
+            if (cardinalTabs.getTabs().size() == 0) {
+                newTab().apply(null);
+            }
+            return null;
+        };
+    }
+
+    private Function<Void, Void> save() {
+        return (v) -> {
+            CardinalTabNew currentTab = getCurrentTab();
+            if (currentTab != null && currentTab.getCurrentFile() != null) {
+                writeToFile().apply(
+                        currentTab.getCurrentFile(),
+                        ((CardinalView) currentTab.getContent()).getRequest().toJson()
+                );
+                currentTab.setUnsavedChanges(false);
+            } else {
+                saveAs().apply(null);
+            }
+            return null;
+        };
+    }
+
+    private QuadFunction<String, Function<Void, Void>, Function<Void, Void>, Function<Void, Void>, Void> showConfirmDialog() {
+        return (message, onYes, onNo, onCancel) -> {
+            Alert alert = new Alert(Alert.AlertType.CONFIRMATION);
+            alert.setTitle("Save Changes");
+            alert.setContentText(message + "\n\n");
+
+            ButtonType yesButton = new ButtonType("Yes", ButtonBar.ButtonData.RIGHT);
+            ButtonType noButton = new ButtonType("No", ButtonBar.ButtonData.RIGHT);
+            ButtonType cancelButton = new ButtonType("Cancel", ButtonBar.ButtonData.LEFT);
+            alert.getButtonTypes().setAll(cancelButton, noButton, yesButton);
+
+            Optional<ButtonType> result = alert.showAndWait();
+            if (result.isPresent()) {
+                if (result.get().getText().equals("Yes")) {
+                    onYes.apply(null);
+                } else if (result.get().getText().equals("No")) {
+                    onNo.apply(null);
+                } else if (result.get().getText().equals("Cancel")) {
+                    onCancel.apply(null);
+                }
+            }
+            return null;
+        };
+    }
+
+    private Function<Void, Void> open() {
+        return (v) -> {
+          FileChooser fileChooser = new FileChooser();
+          List<File> selectedFiles = fileChooser.showOpenMultipleDialog(currentStage);
+          if (selectedFiles != null) {
+              selectedFiles.forEach((file) -> {
+                  try {
+                      String lines = String.join("", Files.readAllLines(file.toPath()));
+                      CardinalView cardinalView = new CardinalView(
+                              showAsCurl(),
+                              showErrorDialog(),
+                              getCurrentConfig(),
+                              exportToCsv(),
+                              exportToBash(),
+                              sendRequest(),
+                              triggerUnsavedChangesMade()
+                      );
+                      addTab(new CardinalTabNew(file, cardinalView, openNewFileIfNoneOpen(), showConfirmDialog(), save()));
+                      cardinalView.loadRequest(CardinalRequest.apply(lines));
+                      getCurrentTab().setUnsavedChanges(false);
+                  } catch (Exception e) {
+                      // TODO?
+                  }
+              });
+          }
+          return null;
+        };
+    }
+
+    private Function<Void, Void> clearAll() {
+        return (v) -> {
+          CardinalTabNew currentTab = getCurrentTab();
+          if (currentTab != null) {
+              ((CardinalView) currentTab.getContent()).clearAll();
+          }
+          return null;
+        };
+    }
+
+    private Function<Void, Void> showBasicAuthInput() {
+        return (v) -> {
+            CardinalTabNew currentTab = getCurrentTab();
+            if (currentTab != null) {
+                BasicAuthInputDialog dialog = new BasicAuthInputDialog();
+                Optional<BasicAuth> result = dialog.showAndWait();
+                if (result.isPresent()) {
+                    ((CardinalView) currentTab.getContent()).addHeader(result.get().asAuthHeader());
+                }
+            }
+            return null;
+        };
+    }
+
+    private Function<Void, Void> showFormUrlEncodedInput() {
+        return (v) -> {
+            CardinalTabNew currentTab = getCurrentTab();
+            if (currentTab != null) {
+                FormUrlEncodedInputDialog dialog = new FormUrlEncodedInputDialog(
+                        ((CardinalView) currentTab.getContent()).getRequest().getBody()
+                );
+                Optional<FormUrlEncoded> result = dialog.showAndWait();
+                if (result.isPresent()) {
+                    ((CardinalView)currentTab.getContent()).setBody(result.get().toString());
+                    ((CardinalView)currentTab.getContent()).addHeader(result.get().header());
+                }
+            }
+            return null;
+        };
+    }
+
+    private Function<Void, Void> showEnvironmentVariablesInput() {
+        return (v) -> {
+            EnvironmentVariablesEditDialog dialog = new EnvironmentVariablesEditDialog(currentConfig.getEnvironmentVariables());
+            Optional<List<EnvironmentVariable>> result = dialog.showAndWait();
+            if (result.isPresent()) {
+                setEnvironmentVariables(result.get());
+            }
+            return null;
+        };
+    }
+
+    private Function<Void, Void> saveAs() {
+        return (v) -> {
+          CardinalTabNew currentTab = getCurrentTab();
+          if (currentTab != null) {
+              FileChooser fileChooser = new FileChooser();
+              File file = fileChooser.showSaveDialog(currentStage);
+              if (file != null) {
+                  File fileWithExtension = null;
+                  if (!file.getAbsolutePath().endsWith(".json")) {
+                      fileWithExtension = new File(file.getAbsolutePath() + ".json");
+                  } else {
+                      fileWithExtension = file;
+                  }
+
+                  if (currentTab.getCurrentFile() == null) {
+                      // New file so just save file
+                      writeToFile().apply(fileWithExtension, ((CardinalView) currentTab.getContent()).getRequest().toJson());
+                      currentTab.setCurrentFile(fileWithExtension);
+                      currentTab.setUnsavedChanges(false);
+                  } else {
+                      // Existing file so save and open in new tab
+                      CardinalRequest request = ((CardinalView) currentTab.getContent()).getRequest();
+                      writeToFile().apply(fileWithExtension, request.toJson());
+                      CardinalView cardinalView = new CardinalView(showAsCurl(), showErrorDialog(), getCurrentConfig(), exportToCsv(), exportToBash(), sendRequest(), triggerUnsavedChangesMade());
+                      addTab(new CardinalTabNew(fileWithExtension, cardinalView, openNewFileIfNoneOpen(), showConfirmDialog(), save()));
+                      cardinalView.loadRequest(request);
+                      getCurrentTab().setUnsavedChanges(false);
+                  }
+              }
+          }
+          return null;
+        };
+    }
+
+    private void setEnvironmentVariables(List<EnvironmentVariable> environmentVariables) {
+        currentConfig = currentConfig.withEnvironmentVariables(environmentVariables);
+        saveChangesToConfig(currentConfig);
+    }
+
+    private void saveChangesToConfig(Config config) {
+        File file = new File(configLocation);
+        writeToFile().apply(file, config.toJson());
+    }
+
+    private void addTab(Tab tab) {
+        cardinalTabs.getTabs().add(cardinalTabs.getTabs().size() - 1, tab);
+        cardinalTabs.getSelectionModel().select(cardinalTabs.getTabs().size() - 2);
+    }
+
 }
