@@ -16,6 +16,7 @@ import javafx.scene.layout.BorderPane;
 import javafx.scene.text.Font;
 import javafx.stage.FileChooser;
 import javafx.stage.Stage;
+import javafx.stage.WindowEvent;
 import org.apache.commons.io.IOUtils;
 import uk.co.ridentbyte.model.BashScript;
 import uk.co.ridentbyte.model.BasicAuth;
@@ -126,7 +127,6 @@ public class Cardinal extends Application  {
             currentConfig = conf;
         }
 
-
         scene.addEventFilter(KeyEvent.KEY_PRESSED, (keyEvent) -> {
             KeyCodeCombination saveAsCombo = new KeyCodeCombination(KeyCode.S, KeyCombination.SHIFT_DOWN, KeyCombination.SHORTCUT_DOWN);
             KeyCodeCombination saveCombo = new KeyCodeCombination(KeyCode.S, KeyCombination.SHORTCUT_DOWN);
@@ -170,13 +170,27 @@ public class Cardinal extends Application  {
 //      }
 //    })
 
+
         primaryStage.setScene(scene);
         primaryStage.show();
+
+        scene.getWindow().addEventFilter(WindowEvent.WINDOW_CLOSE_REQUEST, (e) -> {
+            try {
+                CardinalTab currentTab = getCurrentTab();
+                if (currentTab.hasUnsavedChanges()) {
+                    showConfirmDialog().apply("Save unsaved changes?", save(), (v) -> null, (v) -> {
+                        e.consume();
+                        return null;
+                    });
+                }
+            } catch (ClassCastException cce) {
+                // TODO clean this up! This is thrown when Cheat Sheet is active and window is closed
+            }
+        });
     }
 
     private Function<Void, Void> newTab() {
         return (v) -> {
-            System.out.println("Adding new cardinal tab");
             cardinalTabs.getTabs().add(
                     cardinalTabs.getTabs().size() - 1,
                     new CardinalTab(
