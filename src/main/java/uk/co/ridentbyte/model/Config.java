@@ -21,7 +21,6 @@ public class Config {
 
     public String toJson() {
         Gson gson = new GsonBuilder().setPrettyPrinting().create();
-        System.out.println(gson.toJson(this));
         return gson.toJson(this);
     }
 

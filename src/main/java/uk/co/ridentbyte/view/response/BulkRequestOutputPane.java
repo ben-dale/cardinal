@@ -15,6 +15,7 @@ import uk.co.ridentbyte.view.util.RowConstraintsBuilder;
 
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.function.BiFunction;
 import java.util.function.Function;
 import java.util.stream.Collectors;
@@ -54,7 +55,9 @@ public class BulkRequestOutputPane extends GridPane {
 
         XYChart.Series<Number, Number> timeSeries = new XYChart.Series<>();
         for (int i = 0; i < responses.size(); i++) {
-            timeSeries.getData().add(new XYChart.Data<>(i, responses.get(i).getTime()));
+            if (responses.get(i) != null) {
+                timeSeries.getData().add(new XYChart.Data<>(i, responses.get(i).getTime()));
+            }
         }
 
         AreaChart<Number, Number> lineChart = new AreaChart<>(xAxis, yAxis);
@@ -68,6 +71,7 @@ public class BulkRequestOutputPane extends GridPane {
 
 
         List<Long> allResponseTimes = responses.stream()
+                .filter(Objects::nonNull)
                 .map(CardinalResponse::getTime)
                 .collect(Collectors.toList());
 
@@ -79,7 +83,9 @@ public class BulkRequestOutputPane extends GridPane {
         }
 
         Map<Integer, List<CardinalResponse>> responsesGroupedByStatusCode =
-                responses.stream().collect(Collectors.groupingBy(CardinalResponse::getStatusCode));
+                responses.stream()
+                        .filter(Objects::nonNull)
+                        .collect(Collectors.groupingBy(CardinalResponse::getStatusCode));
 
         StringBuilder timingsOutput = new StringBuilder();
         timingsOutput.append("Timings\n");

@@ -38,7 +38,7 @@ public class BulkRequestProcessingOutputPane extends GridPane {
         CardinalRequest request = bulkRequest.getRequest();
         List<String> ids = bulkRequest.getIds();
 
-        task = new Task<Boolean>() {
+        task = new Task<>() {
             @Override
             protected Boolean call() {
                 if (requestCount > 0) {
