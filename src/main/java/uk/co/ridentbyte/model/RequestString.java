@@ -56,7 +56,7 @@ public class RequestString {
         variables.put("randomFloat()", () -> String.valueOf(Math.abs(new Random().nextFloat())));
         variables.put("randomFirstName()", () -> vocabulary.firstNames.random());
         variables.put("randomLastName()", () -> vocabulary.lastNames.random());
-        variables.put("randomAction()", () -> vocabulary.places.random());
+        variables.put("randomAction()", () -> vocabulary.actions.random());
         variables.put("randomBusinessEntity()", () -> vocabulary.businessEntities.random());
         variables.put("randomCommunication()", () -> vocabulary.communications.random());
         variables.put("randomCountry()", () -> vocabulary.countries.random());

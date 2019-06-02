@@ -31,6 +31,7 @@ import uk.co.ridentbyte.model.Vocabulary;
 import uk.co.ridentbyte.model.Words;
 import uk.co.ridentbyte.view.CardinalMenuBar;
 import uk.co.ridentbyte.view.CardinalView;
+import uk.co.ridentbyte.view.cheatsheet.CheatSheetPane;
 import uk.co.ridentbyte.view.dialog.BasicAuthInputDialog;
 import uk.co.ridentbyte.view.dialog.EnvironmentVariablesEditDialog;
 import uk.co.ridentbyte.view.dialog.FormUrlEncodedInputDialog;
@@ -91,8 +92,14 @@ public class Cardinal extends Application  {
                 newTab().apply(null);
             }
         });
+
         cardinalTabs = new TabPane();
+
+        Tab cheatSheetTab = new Tab("Cheat Sheet", new CheatSheetPane(vocabulary));
+        cheatSheetTab.setClosable(false);
+        cardinalTabs.getTabs().add(cheatSheetTab);
         cardinalTabs.getTabs().add(newRequestTab);
+        newTab().apply(null);
 
         currentStage = primaryStage;
         primaryStage.setTitle("Cardinal");
@@ -169,6 +176,7 @@ public class Cardinal extends Application  {
 
     private Function<Void, Void> newTab() {
         return (v) -> {
+            System.out.println("Adding new cardinal tab");
             cardinalTabs.getTabs().add(
                     cardinalTabs.getTabs().size() - 1,
                     new CardinalTab(
