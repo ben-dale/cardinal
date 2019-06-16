@@ -1,18 +1,18 @@
 package uk.co.ridentbyte.view.cheatsheet;
 
 import javafx.geometry.Insets;
-import javafx.scene.control.Label;
-import javafx.scene.control.ScrollPane;
-import javafx.scene.control.TextField;
+import javafx.scene.control.Button;
+import javafx.scene.control.TextArea;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.Priority;
-import javafx.scene.layout.RowConstraints;
 import uk.co.ridentbyte.model.RequestString;
 import uk.co.ridentbyte.model.Vocabulary;
 import uk.co.ridentbyte.view.util.ColumnConstraintsBuilder;
 import uk.co.ridentbyte.view.util.RowConstraintsBuilder;
 
+import java.util.Comparator;
 import java.util.List;
+import java.util.stream.Collectors;
 
 public class CheatSheetPane extends GridPane {
 
@@ -21,26 +21,29 @@ public class CheatSheetPane extends GridPane {
         this.setVgap(10);
         this.setPadding(new Insets(20));
         this.getColumnConstraints().setAll(
-                new ColumnConstraintsBuilder().withHgrow(Priority.ALWAYS).build(),
                 new ColumnConstraintsBuilder().withHgrow(Priority.ALWAYS).build()
         );
 
         this.getRowConstraints().setAll(
-                new RowConstraintsBuilder().withVgrow(Priority.NEVER).build(),
-                new RowConstraintsBuilder().withVgrow(Priority.NEVER).build(),
-                new RowConstraintsBuilder().withVgrow(Priority.ALWAYS).build()
+                new RowConstraintsBuilder().withVgrow(Priority.ALWAYS).build(),
+                new RowConstraintsBuilder().withVgrow(Priority.NEVER).build()
         );
+        
+        var textCommandsAndOutput = new TextArea();
+        textCommandsAndOutput.getStyleClass().add("cardinal-font-console");
+        textCommandsAndOutput.setEditable(false);
+        textCommandsAndOutput.setText(generateCheatSheetText(vocabulary));
+        this.add(textCommandsAndOutput, 0, 0);
 
-        var labelVariableHeader = new Label("Variables");
-        labelVariableHeader.getStyleClass().add("header");
-        this.add(labelVariableHeader, 0, 0);
+        var buttonRegenerate = new Button("Regenerate");
+        buttonRegenerate.setOnAction((e) -> textCommandsAndOutput.setText(generateCheatSheetText(vocabulary)));
+        this.add(buttonRegenerate, 0, 1);
+    }
 
-        var labelVariableInfo = new Label("These commands will always return the same value when used multiple times in a single request.");
-        labelVariableInfo.getStyleClass().add("cardinal-font");
-        labelVariableInfo.setWrapText(true);
-        this.add(labelVariableInfo, 0, 1);
+    private String generateCheatSheetText(Vocabulary vocabulary) {
+        StringBuilder builder = new StringBuilder();
 
-        var variableCommands = List.of(
+        var commands = List.of(
                 "#{guid}",
                 "#{int}",
                 "#{float}",
@@ -52,55 +55,7 @@ public class CheatSheetPane extends GridPane {
                 "#{country}",
                 "#{object}",
                 "#{place}",
-                "#{emoji}"
-        );
-
-        var variableCommandsScrollPaneGrid = new GridPane();
-        variableCommandsScrollPaneGrid.getColumnConstraints().setAll(
-                new ColumnConstraintsBuilder().withHgrow(Priority.ALWAYS).build(),
-                new ColumnConstraintsBuilder().withHgrow(Priority.NEVER).build(),
-                new ColumnConstraintsBuilder().withHgrow(Priority.ALWAYS).build()
-        );
-        variableCommandsScrollPaneGrid.setHgap(10);
-        variableCommandsScrollPaneGrid.setVgap(10);
-        variableCommandsScrollPaneGrid.setPadding(new Insets(20));
-
-        var variableCommandsScrollPane = new ScrollPane();
-        variableCommandsScrollPane.setFitToHeight(true);
-        variableCommandsScrollPane.setFitToWidth(true);
-        variableCommandsScrollPane.setHbarPolicy(ScrollPane.ScrollBarPolicy.NEVER);
-        variableCommandsScrollPane.setVbarPolicy(ScrollPane.ScrollBarPolicy.ALWAYS);
-        variableCommandsScrollPane.setContent(variableCommandsScrollPaneGrid);
-        this.add(variableCommandsScrollPane, 0, 2);
-
-        for (int i = 0; i < variableCommands.size(); i++) {
-            var textCommand = new TextField();
-            textCommand.setEditable(false);
-            textCommand.getStyleClass().add("cardinal-font");
-            textCommand.setText(variableCommands.get(i));
-            variableCommandsScrollPaneGrid.add(textCommand, 0, i);
-
-            var labelEquals = new Label("=");
-            variableCommandsScrollPaneGrid.add(labelEquals, 1, i);
-
-            var commandResult = new RequestString(variableCommands.get(i), List.of(), vocabulary).process();
-            var textCommandResult = new TextField();
-            textCommandResult.setEditable(false);
-            textCommandResult.getStyleClass().add("cardinal-font");
-            textCommandResult.setText(commandResult);
-            variableCommandsScrollPaneGrid.add(textCommandResult, 2, i);
-        }
-
-        var labelFunctionHeader = new Label("Functions");
-        labelFunctionHeader.getStyleClass().add("header");
-        this.add(labelFunctionHeader, 1, 0);
-
-        var labelFunctionInfo = new Label("These commands will return a different value when used multiple times in a single request.");
-        labelFunctionInfo.getStyleClass().add("cardinal-font");
-        labelFunctionInfo.setWrapText(true);
-        this.add(labelFunctionInfo, 1, 1);
-
-        var functionCommands = List.of(
+                "#{emoji}",
                 "#{random(\"A\", \"B\", \"C\")}",
                 "#{randomBetween(20, 50)}",
                 "#{lower(\"HELLO\")}",
@@ -120,44 +75,23 @@ public class CheatSheetPane extends GridPane {
                 "#{randomPlace()}",
                 "#{randomEmoji()}"
         );
+        var commandsSortedByLength = commands
+                .stream()
+                .sorted(Comparator.comparing(String::length))
+                .collect(Collectors.toList());
+        var longestCommand = commandsSortedByLength.get(commandsSortedByLength.size() - 1);
+        var longestCommandLength = longestCommand.length();
 
-        var functionCommandsScrollPaneGrid = new GridPane();
-        functionCommandsScrollPaneGrid.getColumnConstraints().setAll(
-                new ColumnConstraintsBuilder().withHgrow(Priority.ALWAYS).build(),
-                new ColumnConstraintsBuilder().withHgrow(Priority.NEVER).build(),
-                new ColumnConstraintsBuilder().withHgrow(Priority.ALWAYS).build()
-        );
-        functionCommandsScrollPaneGrid.setHgap(10);
-        functionCommandsScrollPaneGrid.setVgap(10);
-        functionCommandsScrollPaneGrid.setPadding(new Insets(20));
+        commands.forEach((command) -> {
+            int dotsNeeded = 4 + (longestCommandLength - command.length());
+            var commandResult = new RequestString(command, List.of(), vocabulary).process();
+            builder.append(command);
+            builder.append(".".repeat(dotsNeeded));
+            builder.append(commandResult);
+            builder.append("\n");
+        });
 
-        var functionCommandsScrollPane = new ScrollPane();
-        functionCommandsScrollPane.setFitToHeight(true);
-        functionCommandsScrollPane.setFitToWidth(true);
-        functionCommandsScrollPane.setHbarPolicy(ScrollPane.ScrollBarPolicy.NEVER);
-        functionCommandsScrollPane.setVbarPolicy(ScrollPane.ScrollBarPolicy.ALWAYS);
-        functionCommandsScrollPane.setContent(functionCommandsScrollPaneGrid);
-        this.add(functionCommandsScrollPane, 1, 2);
-
-        for (int i = 0; i < functionCommands.size(); i++) {
-            var textCommand = new TextField();
-            textCommand.setPrefWidth(200);
-            textCommand.setEditable(false);
-            textCommand.getStyleClass().add("cardinal-font");
-            textCommand.setText(functionCommands.get(i));
-            functionCommandsScrollPaneGrid.add(textCommand, 0, i);
-
-            var labelEquals = new Label("=");
-            functionCommandsScrollPaneGrid.add(labelEquals, 1, i);
-
-            var commandResult = new RequestString(functionCommands.get(i), List.of(), vocabulary).process();
-            var textCommandResult = new TextField();
-            textCommandResult.setEditable(false);
-            textCommandResult.getStyleClass().add("cardinal-font");
-            textCommandResult.setText(commandResult);
-            functionCommandsScrollPaneGrid.add(textCommandResult, 2, i);
-        }
+        return builder.toString();
 
     }
-
 }
