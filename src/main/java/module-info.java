@@ -8,4 +8,5 @@ module cardinal {
     requires java.xml;
     requires java.sql;
     exports uk.co.ridentbyte;
+    opens uk.co.ridentbyte.model;
 }
