@@ -39,16 +39,14 @@ import uk.co.ridentbyte.view.dialog.FormUrlEncodedInputDialog;
 
 import java.io.File;
 import java.io.FileWriter;
+import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Paths;
-import java.nio.file.attribute.PosixFilePermission;
 import java.util.ArrayList;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
 import java.util.Random;
-import java.util.Set;
 import java.util.function.BiFunction;
 import java.util.function.Function;
 import java.util.stream.Collectors;
@@ -65,7 +63,6 @@ public class Cardinal extends Application  {
     private Stage currentStage = null;
     private TabPane cardinalTabs = null;
     private CardinalMenuBar menuBar = null;
-    private Tab newRequestTab = new Tab("+");
 
     public static void main(String[] args) {
         launch();
@@ -87,6 +84,7 @@ public class Cardinal extends Application  {
 
         menuBar = new CardinalMenuBar(newTab(), open(), save(), saveAs(), clearAll(), showEnvironmentVariablesInput(), showFormUrlEncodedInput(), showBasicAuthInput());
 
+        var newRequestTab = new Tab("+");
         newRequestTab.setClosable(false);
         newRequestTab.setOnSelectionChanged((e) -> {
             if ((e.getSource()) == newRequestTab) {
@@ -96,7 +94,7 @@ public class Cardinal extends Application  {
 
         cardinalTabs = new TabPane();
 
-        Tab cheatSheetTab = new Tab("Cheat Sheet", new CheatSheetPane(vocabulary));
+        var cheatSheetTab = new Tab("Cheat Sheet", new CheatSheetPane(vocabulary));
         cheatSheetTab.setClosable(false);
         cardinalTabs.getTabs().add(cheatSheetTab);
         cardinalTabs.getTabs().add(newRequestTab);
@@ -281,19 +279,10 @@ public class Cardinal extends Application  {
             FileChooser fileChooser = new FileChooser();
             File file = fileChooser.showSaveDialog(currentStage);
             if (file != null) {
-                writeToFile().apply(file, script.toString());
-                Set<PosixFilePermission> posix = new HashSet<>();
-                posix.add(PosixFilePermission.OWNER_WRITE);
-                posix.add(PosixFilePermission.OWNER_READ);
-                posix.add(PosixFilePermission.OWNER_EXECUTE);
-                posix.add(PosixFilePermission.GROUP_READ);
-                posix.add(PosixFilePermission.GROUP_EXECUTE);
-                posix.add(PosixFilePermission.OTHERS_READ);
-                posix.add(PosixFilePermission.OTHERS_EXECUTE);
                 try {
-                    Files.setPosixFilePermissions(file.toPath(), posix);
-                } catch (Exception e ) {
-                    // TODO?
+                    script.writeTo(file);
+                } catch (IOException ioe) {
+                    showErrorDialog().apply("Unable to write bash script to a file.");
                 }
             }
             return null;
