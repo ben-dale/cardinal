@@ -36,6 +36,7 @@ public class RequestUriVerbInputPane extends GridPane {
         add(this.selectVerb, 1, 0);
 
         this.followRedirects = new CheckBox("Follow redirects");
+        this.followRedirects.selectedProperty().addListener((arg) -> triggerUnsavedChangesMade.apply(null));
         add(this.followRedirects, 0, 1);
     }
 
