@@ -27,6 +27,7 @@ public class CardinalView extends BorderPane {
     private Function<String, Void> showErrorDialog;
     private Function<CardinalRequest, CardinalResponse> sendRequest;
     private Function<Void, Config> getConfig;
+    private final RequestControlPane requestControlPane;
 
     public CardinalView(Function<Void, Void> exportToCurl,
                         Function<String, Void> showErrorDialog,
@@ -49,7 +50,7 @@ public class CardinalView extends BorderPane {
         this.responsePane = new ResponsePane(getConfig, sendRequest, exportToCsv, exportToBash, showErrorDialog);
         responsePane.setMinWidth(400);
 
-        RequestControlPane requestControlPane = new RequestControlPane(exportToCurl, this.showBulkRequestInput(), this.sendSingleRequest());
+        requestControlPane = new RequestControlPane(exportToCurl, this.showBulkRequestInput(), this.sendSingleRequest());
 
         GridPane grid = new GridPane();
         grid.getColumnConstraints().add(new ColumnConstraintsBuilder().withHgrow(Priority.ALWAYS).build());
@@ -130,6 +131,10 @@ public class CardinalView extends BorderPane {
                 return null;
             }
         };
+    }
+
+    public void triggerSendRequest() {
+        requestControlPane.triggerSendRequest();
     }
 
 }

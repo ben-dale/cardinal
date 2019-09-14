@@ -43,6 +43,7 @@ import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Paths;
+import java.security.Key;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
@@ -131,6 +132,8 @@ public class Cardinal extends Application  {
             KeyCodeCombination closeTabCombo = new KeyCodeCombination(KeyCode.W, KeyCombination.SHORTCUT_DOWN);
             KeyCodeCombination openCombo = new KeyCodeCombination(KeyCode.O, KeyCombination.SHORTCUT_DOWN);
             KeyCodeCombination newCombo = new KeyCodeCombination(KeyCode.N, KeyCombination.SHORTCUT_DOWN);
+            KeyCodeCombination sendCombo = new KeyCodeCombination(KeyCode.ENTER, KeyCodeCombination.SHORTCUT_DOWN);
+            KeyCodeCombination exitCombo = new KeyCodeCombination(KeyCode.Q, KeyCodeCombination.SHORTCUT_DOWN);
 
             if (saveCombo.match(keyEvent)) {
                 save().apply(null);
@@ -153,6 +156,10 @@ public class Cardinal extends Application  {
                 open().apply(null);
             } else if (newCombo.match(keyEvent)) {
                 newTab().apply(null);
+            } else if (sendCombo.match(keyEvent)) {
+                ((CardinalView) getCurrentTab().getContent()).triggerSendRequest();
+            } else if (exitCombo.match(keyEvent)) {
+                primaryStage.fireEvent(new WindowEvent(primaryStage, WindowEvent.WINDOW_CLOSE_REQUEST));
             }
         });
 

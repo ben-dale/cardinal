@@ -11,6 +11,8 @@ import java.util.function.Function;
 
 public class RequestControlPane extends GridPane {
 
+    private final Button buttonSendRequest;
+
     public RequestControlPane(Function<Void, Void> exportToCurl,
                               Function<Void, Void> showBulkRequest,
                               BiFunction<Function<Void, Void>, Function<Void, Void>, Void> sendRequest) {
@@ -33,7 +35,7 @@ public class RequestControlPane extends GridPane {
         buttonSendBulkRequest.setOnAction((actionEvent) -> showBulkRequest.apply(null));
         this.add(buttonSendBulkRequest, 1, 0);
 
-        Button buttonSendRequest = new Button("Send Request");
+        buttonSendRequest = new Button("Send Request");
         buttonSendRequest.setMinWidth(120);
         buttonSendRequest.setMaxWidth(120);
         buttonSendRequest.setPrefWidth(120);
@@ -56,6 +58,9 @@ public class RequestControlPane extends GridPane {
             });
         });
         this.add(buttonSendRequest, 2, 0);
+    }
 
+    public void triggerSendRequest() {
+        buttonSendRequest.fire();
     }
 }
