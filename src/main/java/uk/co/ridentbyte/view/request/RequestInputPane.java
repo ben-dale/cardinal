@@ -83,7 +83,8 @@ public class RequestInputPane extends GridPane {
         String[] headers = this.getHeaders();
         String verb = this.uriVerbInputPane.getVerb();
         String uri = this.uriVerbInputPane.getUri();
-        return new CardinalRequest(uri, verb, headers, body);
+        var followRedirects = this.uriVerbInputPane.shouldFollowRedirects();
+        return new CardinalRequest(uri, verb, headers, body, followRedirects);
     }
 
     public void clear() {

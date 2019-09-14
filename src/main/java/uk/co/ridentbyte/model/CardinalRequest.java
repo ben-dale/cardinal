@@ -17,19 +17,22 @@ public class CardinalRequest {
     private final String verb;
     private final List<String> headers;
     private final String body;
+    private final boolean followRedirects;
 
-    public CardinalRequest(String uri, String verb, List<String> headers, String body) {
+    public CardinalRequest(String uri, String verb, List<String> headers, String body, boolean followRedirects) {
         this.uri = uri;
         this.verb = verb;
         this.headers = headers;
         this.body = body;
+        this.followRedirects = followRedirects;
     }
 
-    public CardinalRequest(String uri, String verb, String[] headers, String body) {
+    public CardinalRequest(String uri, String verb, String[] headers, String body, boolean followRedirects) {
         this.uri = uri;
         this.verb = verb;
         this.headers = Arrays.asList(headers);
         this.body = body;
+        this.followRedirects = followRedirects;
     }
 
     public String toJson() {
@@ -51,7 +54,8 @@ public class CardinalRequest {
                 this.uri.replaceAll("#\\{id\\}", id),
                 this.verb,
                 headersWithId,
-                bodyWithId
+                bodyWithId,
+                this.followRedirects
         );
     }
 
@@ -69,7 +73,7 @@ public class CardinalRequest {
         if (newBody != null) {
             newBody = new RequestString(newBody, vars, Cardinal.vocabulary).process();
         }
-        return new CardinalRequest(newUri, verb, newHeaders, newBody);
+        return new CardinalRequest(newUri, verb, newHeaders, newBody, followRedirects);
     }
 
 
@@ -112,5 +116,9 @@ public class CardinalRequest {
 
     public String getVerb() {
         return verb;
+    }
+
+    public boolean shouldFollowRedirects() {
+        return followRedirects;
     }
 }

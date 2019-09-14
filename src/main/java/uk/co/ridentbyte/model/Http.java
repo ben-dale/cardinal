@@ -32,7 +32,6 @@ public class Http {
     private CardinalRequest request;
 
     public Http(CardinalRequest request) {
-
         this.request = request;
     }
 
@@ -48,7 +47,12 @@ public class Http {
         }).collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
 
         try {
-            HttpClient httpClient = HttpClientBuilder.create().setRedirectStrategy(new LaxRedirectStrategy()).build();
+            HttpClient httpClient = null;
+            if (request.shouldFollowRedirects()) {
+                httpClient = HttpClientBuilder.create().build();
+            } else {
+                httpClient = HttpClientBuilder.create().disableRedirectHandling().build();
+            }
             switch(request.getVerb()) {
                 case "POST": {
                     HttpPost httpPost = new HttpPost(parsedUri);

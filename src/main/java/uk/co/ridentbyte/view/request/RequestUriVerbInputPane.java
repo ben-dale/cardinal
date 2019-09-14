@@ -1,6 +1,7 @@
 package uk.co.ridentbyte.view.request;
 
 import javafx.collections.FXCollections;
+import javafx.scene.control.CheckBox;
 import javafx.scene.control.ChoiceBox;
 import javafx.scene.control.TextField;
 import javafx.scene.layout.GridPane;
@@ -12,6 +13,7 @@ public class RequestUriVerbInputPane extends GridPane {
 
     private TextField textUri;
     private ChoiceBox<String> selectVerb;
+    private CheckBox followRedirects;
 
     public RequestUriVerbInputPane(Function<Void, Void> triggerUnsavedChangesMade) {
         this.setHgap(10);
@@ -32,6 +34,9 @@ public class RequestUriVerbInputPane extends GridPane {
         GridPane.setVgrow(this.selectVerb, Priority.NEVER);
         GridPane.setHgrow(this.selectVerb, Priority.NEVER);
         add(this.selectVerb, 1, 0);
+
+        this.followRedirects = new CheckBox("Follow redirects");
+        add(this.followRedirects, 0, 1);
     }
 
     public String getUri() {
@@ -44,6 +49,10 @@ public class RequestUriVerbInputPane extends GridPane {
 
     public String getVerb() {
         return this.selectVerb.getSelectionModel().getSelectedItem();
+    }
+
+    public boolean shouldFollowRedirects() {
+        return this.followRedirects.isSelected();
     }
 
     public void setVerb(String verb) {
