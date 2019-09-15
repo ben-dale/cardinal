@@ -1,28 +1,17 @@
 package uk.co.ridentbyte.model;
 
-import org.apache.http.Header;
-import org.apache.http.HttpResponse;
-import org.apache.http.client.HttpClient;
-import org.apache.http.client.methods.HttpDelete;
-import org.apache.http.client.methods.HttpGet;
-import org.apache.http.client.methods.HttpHead;
-import org.apache.http.client.methods.HttpOptions;
-import org.apache.http.client.methods.HttpPatch;
-import org.apache.http.client.methods.HttpPost;
-import org.apache.http.client.methods.HttpPut;
-import org.apache.http.client.methods.HttpTrace;
-import org.apache.http.entity.StringEntity;
-import org.apache.http.impl.client.HttpClientBuilder;
-import org.apache.http.util.EntityUtils;
-
 import java.io.UnsupportedEncodingException;
 import java.net.MalformedURLException;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.URL;
 import java.net.URLDecoder;
+import java.net.http.HttpClient;
+import java.net.http.HttpRequest;
+import java.net.http.HttpResponse;
 import java.util.AbstractMap;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
@@ -48,137 +37,159 @@ public class Http {
         try {
             HttpClient httpClient = null;
             if (request.shouldFollowRedirects()) {
-                httpClient = HttpClientBuilder.create().build();
+                httpClient = HttpClient.newBuilder().followRedirects(HttpClient.Redirect.ALWAYS).build();
             } else {
-                httpClient = HttpClientBuilder.create().disableRedirectHandling().build();
+                httpClient = HttpClient.newBuilder().followRedirects(HttpClient.Redirect.NEVER).build();
             }
             switch(request.getVerb()) {
                 case "POST": {
-                    HttpPost httpPost = new HttpPost(parsedUri);
-                    splitHeaders.forEach((k, v) -> httpPost.setHeader(k, v));
+                    var httpRequestBuilder = HttpRequest.newBuilder().uri(URI.create(parsedUri));
                     if (request.getBody() != null) {
-                        httpPost.setEntity(new StringEntity(request.getBody()));
+                        httpRequestBuilder = httpRequestBuilder.POST(HttpRequest.BodyPublishers.ofString(request.getBody()));
+                    } else {
+                        httpRequestBuilder = httpRequestBuilder.POST(HttpRequest.BodyPublishers.noBody());
                     }
 
-                    HttpResponse res = httpClient.execute(httpPost);
-                    Map<String, String> headers = new HashMap<>();
-                    for (Header h : res.getAllHeaders()) {
-                        headers.put(h.getName(), h.getValue());
+                    for (Map.Entry<String, String> header : splitHeaders.entrySet()) {
+                        httpRequestBuilder = httpRequestBuilder.header(header.getKey(), header.getValue());
                     }
-                    String body = res.getEntity() != null ? EntityUtils.toString(res.getEntity()) : "";
-                    int code = res.getStatusLine().getStatusCode();
 
-                    return new CardinalHttpResponse(body, headers, code);
+                    HttpResponse<String> response = httpClient.send(httpRequestBuilder.build(), HttpResponse.BodyHandlers.ofString());
+                    var responseHeaders = new HashMap<String, String>();
+                    for (Map.Entry<String, List<String>> header : response.headers().map().entrySet()) {
+                        responseHeaders.put(header.getKey(), String.join("", header.getValue()));
+                    }
+                    return new CardinalHttpResponse(response.body(), responseHeaders, response.statusCode());
                 }
+
                 case "PUT": {
-                    HttpPut httpPut = new HttpPut(parsedUri);
-                    splitHeaders.forEach((k, v) -> httpPut.setHeader(k, v));
+                    var httpRequestBuilder = HttpRequest.newBuilder().uri(URI.create(parsedUri));
                     if (request.getBody() != null) {
-                        httpPut.setEntity(new StringEntity(request.getBody()));
+                        httpRequestBuilder = httpRequestBuilder.PUT(HttpRequest.BodyPublishers.ofString(request.getBody()));
+                    } else {
+                        httpRequestBuilder = httpRequestBuilder.PUT(HttpRequest.BodyPublishers.noBody());
                     }
 
-                    HttpResponse res = httpClient.execute(httpPut);
-                    Map<String, String> headers = new HashMap<>();
-                    for (Header h : res.getAllHeaders()) {
-                        headers.put(h.getName(), h.getValue());
+                    for (Map.Entry<String, String> header : splitHeaders.entrySet()) {
+                        httpRequestBuilder = httpRequestBuilder.header(header.getKey(), header.getValue());
                     }
-                    String body = res.getEntity() != null ? EntityUtils.toString(res.getEntity()) : "";
-                    int code = res.getStatusLine().getStatusCode();
 
-                    return new CardinalHttpResponse(body, headers, code);
+                    HttpResponse<String> response = httpClient.send(httpRequestBuilder.build(), HttpResponse.BodyHandlers.ofString());
+                    var responseHeaders = new HashMap<String, String>();
+                    for (Map.Entry<String, List<String>> header : response.headers().map().entrySet()) {
+                        responseHeaders.put(header.getKey(), String.join("", header.getValue()));
+                    }
+                    return new CardinalHttpResponse(response.body(), responseHeaders, response.statusCode());
                 }
 
                 case "GET": {
-                    HttpGet httpGet = new HttpGet(parsedUri);
-                    splitHeaders.forEach((k, v) -> httpGet.setHeader(k, v));
+                    var httpRequestBuilder = HttpRequest.newBuilder().uri(URI.create(parsedUri)).GET();
 
-                    HttpResponse res = httpClient.execute(httpGet);
-                    Map<String, String> headers = new HashMap<>();
-                    for (Header h : res.getAllHeaders()) {
-                        headers.put(h.getName(), h.getValue());
+                    for (Map.Entry<String, String> header : splitHeaders.entrySet()) {
+                        httpRequestBuilder = httpRequestBuilder.header(header.getKey(), header.getValue());
                     }
-                    String body = res.getEntity() != null ? EntityUtils.toString(res.getEntity()) : "";
-                    int code = res.getStatusLine().getStatusCode();
 
-                    return new CardinalHttpResponse(body, headers, code);
+                    HttpResponse<String> response = httpClient.send(httpRequestBuilder.build(), HttpResponse.BodyHandlers.ofString());
+                    var responseHeaders = new HashMap<String, String>();
+                    for (Map.Entry<String, List<String>> header : response.headers().map().entrySet()) {
+                        responseHeaders.put(header.getKey(), String.join("", header.getValue()));
+                    }
+                    return new CardinalHttpResponse(response.body(), responseHeaders, response.statusCode());
                 }
 
                 case "DELETE": {
-                    HttpDelete httpDelete = new HttpDelete(parsedUri);
-                    splitHeaders.forEach((k, v) -> httpDelete.setHeader(k, v));
+                    var httpRequestBuilder = HttpRequest.newBuilder().uri(URI.create(parsedUri)).DELETE();
 
-                    HttpResponse res = httpClient.execute(httpDelete);
-                    Map<String, String> headers = new HashMap<>();
-                    for (Header h : res.getAllHeaders()) {
-                        headers.put(h.getName(), h.getValue());
+                    for (Map.Entry<String, String> header : splitHeaders.entrySet()) {
+                        httpRequestBuilder = httpRequestBuilder.header(header.getKey(), header.getValue());
                     }
-                    String body = res.getEntity() != null ? EntityUtils.toString(res.getEntity()) : "";
-                    int code = res.getStatusLine().getStatusCode();
 
-                    return new CardinalHttpResponse(body, headers, code);
+                    HttpResponse<String> response = httpClient.send(httpRequestBuilder.build(), HttpResponse.BodyHandlers.ofString());
+                    var responseHeaders = new HashMap<String, String>();
+                    for (Map.Entry<String, List<String>> header : response.headers().map().entrySet()) {
+                        responseHeaders.put(header.getKey(), String.join("", header.getValue()));
+                    }
+                    return new CardinalHttpResponse(response.body(), responseHeaders, response.statusCode());
                 }
 
                 case "HEAD": {
-                    HttpHead httpHead = new HttpHead(parsedUri);
-                    splitHeaders.forEach((k, v) -> httpHead.setHeader(k, v));
-
-                    HttpResponse res = httpClient.execute(httpHead);
-                    Map<String, String> headers = new HashMap<>();
-                    for (Header h : res.getAllHeaders()) {
-                        headers.put(h.getName(), h.getValue());
+                    var httpRequestBuilder = HttpRequest.newBuilder().uri(URI.create(parsedUri));
+                    if (request.getBody() != null) {
+                        httpRequestBuilder = httpRequestBuilder.method("HEAD", HttpRequest.BodyPublishers.ofString(request.getBody()));
+                    } else {
+                        httpRequestBuilder.method("HEAD", HttpRequest.BodyPublishers.noBody());
                     }
-                    String body = res.getEntity() != null ? EntityUtils.toString(res.getEntity()) : "";
-                    int code = res.getStatusLine().getStatusCode();
 
-                    return new CardinalHttpResponse(body, headers, code);
+                    for (Map.Entry<String, String> header : splitHeaders.entrySet()) {
+                        httpRequestBuilder = httpRequestBuilder.header(header.getKey(), header.getValue());
+                    }
+
+                    HttpResponse<String> response = httpClient.send(httpRequestBuilder.build(), HttpResponse.BodyHandlers.ofString());
+                    var responseHeaders = new HashMap<String, String>();
+                    for (Map.Entry<String, List<String>> header : response.headers().map().entrySet()) {
+                        responseHeaders.put(header.getKey(), String.join("", header.getValue()));
+                    }
+                    return new CardinalHttpResponse(response.body(), responseHeaders, response.statusCode());
                 }
 
                 case "OPTIONS": {
-                    HttpOptions httpOptions = new HttpOptions(parsedUri);
-                    splitHeaders.forEach((k, v) -> httpOptions.setHeader(k, v));
-
-                    HttpResponse res = httpClient.execute(httpOptions);
-                    Map<String, String> headers = new HashMap<>();
-                    for (Header h : res.getAllHeaders()) {
-                        headers.put(h.getName(), h.getValue());
+                    var httpRequestBuilder = HttpRequest.newBuilder().uri(URI.create(parsedUri));
+                    if (request.getBody() != null) {
+                        httpRequestBuilder = httpRequestBuilder.method("OPTIONS", HttpRequest.BodyPublishers.ofString(request.getBody()));
+                    } else {
+                        httpRequestBuilder.method("OPTIONS", HttpRequest.BodyPublishers.noBody());
                     }
-                    String body = res.getEntity() != null ? EntityUtils.toString(res.getEntity()) : "";
-                    int code = res.getStatusLine().getStatusCode();
 
-                    return new CardinalHttpResponse(body, headers, code);
+                    for (Map.Entry<String, String> header : splitHeaders.entrySet()) {
+                        httpRequestBuilder = httpRequestBuilder.header(header.getKey(), header.getValue());
+                    }
+
+                    HttpResponse<String> response = httpClient.send(httpRequestBuilder.build(), HttpResponse.BodyHandlers.ofString());
+                    var responseHeaders = new HashMap<String, String>();
+                    for (Map.Entry<String, List<String>> header : response.headers().map().entrySet()) {
+                        responseHeaders.put(header.getKey(), String.join("", header.getValue()));
+                    }
+                    return new CardinalHttpResponse(response.body(), responseHeaders, response.statusCode());
                 }
 
                 case "TRACE": {
-                    HttpTrace httpTrace = new HttpTrace(parsedUri);
-                    splitHeaders.forEach((k, v) -> httpTrace.setHeader(k, v));
-
-                    HttpResponse res = httpClient.execute(httpTrace);
-                    Map<String, String> headers = new HashMap<>();
-                    for (Header h : res.getAllHeaders()) {
-                        headers.put(h.getName(), h.getValue());
+                    var httpRequestBuilder = HttpRequest.newBuilder().uri(URI.create(parsedUri));
+                    if (request.getBody() != null) {
+                        httpRequestBuilder = httpRequestBuilder.method("TRACE", HttpRequest.BodyPublishers.ofString(request.getBody()));
+                    } else {
+                        httpRequestBuilder.method("TRACE", HttpRequest.BodyPublishers.noBody());
                     }
-                    String body = res.getEntity() != null ? EntityUtils.toString(res.getEntity()) : "";
-                    int code = res.getStatusLine().getStatusCode();
 
-                    return new CardinalHttpResponse(body, headers, code);
+                    for (Map.Entry<String, String> header : splitHeaders.entrySet()) {
+                        httpRequestBuilder = httpRequestBuilder.header(header.getKey(), header.getValue());
+                    }
+
+                    HttpResponse<String> response = httpClient.send(httpRequestBuilder.build(), HttpResponse.BodyHandlers.ofString());
+                    var responseHeaders = new HashMap<String, String>();
+                    for (Map.Entry<String, List<String>> header : response.headers().map().entrySet()) {
+                        responseHeaders.put(header.getKey(), String.join("", header.getValue()));
+                    }
+                    return new CardinalHttpResponse(response.body(), responseHeaders, response.statusCode());
                 }
 
                 case "PATCH": {
-                    HttpPatch httpPatch = new HttpPatch(parsedUri);
-                    splitHeaders.forEach((k, v) -> httpPatch.setHeader(k, v));
+                    var httpRequestBuilder = HttpRequest.newBuilder().uri(URI.create(parsedUri));
                     if (request.getBody() != null) {
-                        httpPatch.setEntity(new StringEntity(request.getBody()));
+                        httpRequestBuilder = httpRequestBuilder.method("PATCH", HttpRequest.BodyPublishers.ofString(request.getBody()));
+                    } else {
+                        httpRequestBuilder.method("PATCH", HttpRequest.BodyPublishers.noBody());
                     }
 
-                    HttpResponse res = httpClient.execute(httpPatch);
-                    Map<String, String> headers = new HashMap<>();
-                    for (Header h : res.getAllHeaders()) {
-                        headers.put(h.getName(), h.getValue());
+                    for (Map.Entry<String, String> header : splitHeaders.entrySet()) {
+                        httpRequestBuilder = httpRequestBuilder.header(header.getKey(), header.getValue());
                     }
-                    String body = res.getEntity() != null ? EntityUtils.toString(res.getEntity()) : "";
-                    int code = res.getStatusLine().getStatusCode();
 
-                    return new CardinalHttpResponse(body, headers, code);
+                    HttpResponse<String> response = httpClient.send(httpRequestBuilder.build(), HttpResponse.BodyHandlers.ofString());
+                    var responseHeaders = new HashMap<String, String>();
+                    for (Map.Entry<String, List<String>> header : response.headers().map().entrySet()) {
+                        responseHeaders.put(header.getKey(), String.join("", header.getValue()));
+                    }
+                    return new CardinalHttpResponse(response.body(), responseHeaders, response.statusCode());
                 }
 
                 default:

@@ -6,13 +6,15 @@ import java.util.List;
 
 public class Curl {
 
+    private final boolean followRedirects;
     private String uri, verb, body;
     private List<String> headers;
     private List<EnvironmentVariable> envVars;
 
-    public Curl(String uri, String verb, String body, List<String> headers, List<EnvironmentVariable> envVars) {
+    public Curl(String uri, String verb, boolean followRedirects, String body, List<String> headers, List<EnvironmentVariable> envVars) {
         this.uri = uri;
         this.verb = verb;
+        this.followRedirects = followRedirects;
         this.body = body;
         this.headers = headers;
         this.envVars = envVars;
@@ -20,6 +22,9 @@ public class Curl {
 
     public String toCommand() {
         StringBuilder builder = new StringBuilder("curl -i \\\n");
+        if (followRedirects) {
+            builder.append("-L ");
+        }
 
         for (String header : this.headers) {
             String processedString = new RequestString(header, this.envVars, Cardinal.vocabulary).process();

@@ -383,7 +383,7 @@ public class Cardinal extends Application  {
                       cardinalView.loadRequest(CardinalRequest.apply(lines));
                       getCurrentTab().setUnsavedChanges(false);
                   } catch (Exception e) {
-                      // TODO?
+                      e.printStackTrace();
                   }
               });
           }

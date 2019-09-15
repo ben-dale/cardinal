@@ -11,13 +11,22 @@ import java.util.stream.Collectors;
 
 public class CardinalRequest {
 
-    public final static String csvHeaders = "request URI,request verb,request headers,request body";
+    public final static String csvHeaders = "request URI,request verb,follows redirects,request headers,request body";
 
     private final String uri;
     private final String verb;
     private final List<String> headers;
     private final String body;
     private final boolean followRedirects;
+
+    // for gson
+    public CardinalRequest() {
+        uri = null;
+        verb = null;
+        headers = List.of();
+        body = null;
+        followRedirects = false;
+    }
 
     public CardinalRequest(String uri, String verb, List<String> headers, String body, boolean followRedirects) {
         this.uri = uri;
@@ -60,7 +69,7 @@ public class CardinalRequest {
     }
 
     public String toCurl(Config config) {
-        return new Curl(uri, verb, body, headers, config.getEnvironmentVariables()).toCommand();
+        return new Curl(uri, verb, followRedirects, body, headers, config.getEnvironmentVariables()).toCommand();
     }
 
     public CardinalRequest processConstants(Config config) {
@@ -92,6 +101,7 @@ public class CardinalRequest {
 
         return "\"" + uri.replace("\"", "\"\"") + "\"," +
                 "\"" + verb + "\"," +
+                "\"" + followRedirects + "\"," +
                 "\"" + csvHeaders.toString() + "\"," +
                 "\"" + csvBody + "\"";
     }
@@ -100,7 +110,6 @@ public class CardinalRequest {
         Gson gson = new Gson();
         return gson.fromJson(json, CardinalRequest.class);
     }
-
 
     public String getUri() {
         return uri;
@@ -120,5 +129,16 @@ public class CardinalRequest {
 
     public boolean shouldFollowRedirects() {
         return followRedirects;
+    }
+
+    @Override
+    public String toString() {
+        return "CardinalRequest{" +
+                "uri='" + uri + '\'' +
+                ", verb='" + verb + '\'' +
+                ", headers=" + headers +
+                ", body='" + body + '\'' +
+                ", followRedirects=" + followRedirects +
+                '}';
     }
 }

@@ -67,4 +67,8 @@ public class RequestUriVerbInputPane extends GridPane {
         this.textUri.setText("");
         this.selectVerb.getSelectionModel().select(0);
     }
+
+    public void setShouldFollowRedirects(boolean shouldFollowRedirects) {
+        this.followRedirects.setSelected(shouldFollowRedirects);
+    }
 }

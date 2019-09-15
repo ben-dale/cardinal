@@ -9,6 +9,7 @@ public class Config {
 
     private List<EnvironmentVariable> environmentVariables;
 
+    // for gson
     public Config() {
         this.environmentVariables = List.of();
     }

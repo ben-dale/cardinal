@@ -103,6 +103,7 @@ public class RequestInputPane extends GridPane {
         this.textHeaders.setText(headers.toString());
         this.uriVerbInputPane.setVerb(request.getVerb());
         this.uriVerbInputPane.setUri(request.getUri());
+        this.uriVerbInputPane.setShouldFollowRedirects(request.shouldFollowRedirects());
     }
 
     public void addHeader(String header) {
