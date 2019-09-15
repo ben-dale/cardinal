@@ -9,6 +9,10 @@ public class Config {
 
     private List<EnvironmentVariable> environmentVariables;
 
+    public Config() {
+        this.environmentVariables = List.of();
+    }
+
     public Config(List<EnvironmentVariable> environmentVariables) {
         this.environmentVariables = environmentVariables;
     }

@@ -6,6 +6,7 @@ module cardinal {
     requires gson;
     requires java.xml;
     requires java.sql;
+    opens uk.co.ridentbyte.model to gson;
     exports uk.co.ridentbyte;
-    opens uk.co.ridentbyte.model;
+    exports uk.co.ridentbyte.model;
 }
