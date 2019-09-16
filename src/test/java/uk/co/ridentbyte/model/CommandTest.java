@@ -1,8 +1,10 @@
 package uk.co.ridentbyte.model;
 
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Disabled;
-import org.junit.jupiter.api.Test;
+
+
+import org.junit.Before;
+import org.junit.Ignore;
+import org.junit.Test;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -11,13 +13,14 @@ import java.util.Map;
 import java.util.Random;
 import java.util.function.Supplier;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static junit.framework.TestCase.assertTrue;
+import static org.junit.Assert.assertEquals;
 
 public class CommandTest {
 
     private Vocabulary vocabulary;
 
-    @BeforeEach
+    @Before
     public void setup() {
         List<String> loremIpsum = new ArrayList<>();
         loremIpsum.add("lorem");
@@ -165,7 +168,7 @@ public class CommandTest {
         assertEquals("World", result);
     }
 
-    @Disabled
+    @Ignore
     @Test
     public void shouldProcessCapitaliseFunctionWithVariableThatHasQuotedValue() {
         // Given
@@ -254,7 +257,7 @@ public class CommandTest {
         assertTrue(result.equals("ABC") || result.equals("123"));
     }
 
-    @Disabled
+    @Ignore
     @Test
     public void shouldProcessRandomFunctionWithNestedRandomFunctions() {
         // Given
