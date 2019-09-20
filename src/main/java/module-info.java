@@ -1,6 +1,5 @@
 module cardinal {
     requires javafx.controls;
-    requires org.apache.commons.io;
     requires gson;
     requires java.xml;
     requires java.sql;

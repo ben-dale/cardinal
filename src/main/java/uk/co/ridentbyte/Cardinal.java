@@ -17,7 +17,6 @@ import javafx.scene.text.Font;
 import javafx.stage.FileChooser;
 import javafx.stage.Stage;
 import javafx.stage.WindowEvent;
-import org.apache.commons.io.IOUtils;
 import uk.co.ridentbyte.model.BashScript;
 import uk.co.ridentbyte.model.BasicAuth;
 import uk.co.ridentbyte.model.CardinalHttpResponse;
@@ -37,13 +36,14 @@ import uk.co.ridentbyte.view.dialog.BasicAuthInputDialog;
 import uk.co.ridentbyte.view.dialog.EnvironmentVariablesEditDialog;
 import uk.co.ridentbyte.view.dialog.FormUrlEncodedInputDialog;
 
+import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.io.InputStreamReader;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Paths;
-import java.security.Key;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
@@ -54,8 +54,7 @@ import java.util.stream.Collectors;
 
 public class Cardinal extends Application  {
 
-    private Words firstNames, lastNames, countries,
-            objects, actions, businessEntities, communications, places, loremipsum, emoji;
+    private Words firstNames, lastNames, countries, objects, actions, businessEntities, communications, places, loremipsum, emoji;
 
     public static Vocabulary vocabulary;
 
@@ -68,19 +67,28 @@ public class Cardinal extends Application  {
     public static void main(String[] args) {
         launch();
     }
+
+    private List<String> readLinesFrom(String filename) throws Exception {
+        return new BufferedReader(
+                new InputStreamReader(
+                        getClass().getClassLoader().getResourceAsStream(filename),
+                        StandardCharsets.UTF_8
+                )
+        ).lines().collect(Collectors.toList());
+    }
     
     @Override
     public void start(Stage primaryStage) throws Exception {
-        firstNames = new Words(IOUtils.readLines(getClass().getClassLoader().getResourceAsStream("firstNames.txt"), StandardCharsets.UTF_8), new Random());
-        lastNames = new Words(IOUtils.readLines(getClass().getClassLoader().getResourceAsStream("lastNames.txt"), StandardCharsets.UTF_8), new Random());
-        countries = new Words(IOUtils.readLines(getClass().getClassLoader().getResourceAsStream("countries.txt"), StandardCharsets.UTF_8), new Random());
-        objects = new Words(IOUtils.readLines(getClass().getClassLoader().getResourceAsStream("objects.txt"), StandardCharsets.UTF_8), new Random());
-        actions = new Words(IOUtils.readLines(getClass().getClassLoader().getResourceAsStream("actions.txt"), StandardCharsets.UTF_8), new Random());
-        businessEntities = new Words(IOUtils.readLines(getClass().getClassLoader().getResourceAsStream("businessEntities.txt"), StandardCharsets.UTF_8), new Random());
-        communications = new Words(IOUtils.readLines(getClass().getClassLoader().getResourceAsStream("communications.txt"), StandardCharsets.UTF_8), new Random());
-        places = new Words(IOUtils.readLines(getClass().getClassLoader().getResourceAsStream("places.txt"), StandardCharsets.UTF_8), new Random());
-        loremipsum = new Words(IOUtils.readLines(getClass().getClassLoader().getResourceAsStream("loremipsum.txt"), StandardCharsets.UTF_8), new Random());
-        emoji = new Words(IOUtils.readLines(getClass().getClassLoader().getResourceAsStream("emoji.txt"), StandardCharsets.UTF_8), new Random());
+        firstNames = new Words(readLinesFrom("firstNames.txt"), new Random());
+        lastNames = new Words(readLinesFrom("lastNames.txt"), new Random());
+        countries = new Words(readLinesFrom("countries.txt"), new Random());
+        objects = new Words(readLinesFrom("objects.txt"), new Random());
+        actions = new Words(readLinesFrom("actions.txt"), new Random());
+        businessEntities = new Words(readLinesFrom("businessEntities.txt"), new Random());
+        communications = new Words(readLinesFrom("communications.txt"), new Random());
+        places = new Words(readLinesFrom("places.txt"), new Random());
+        loremipsum = new Words(readLinesFrom("loremipsum.txt"), new Random());
+        emoji = new Words(readLinesFrom("emoji.txt"), new Random());
         vocabulary = new Vocabulary(firstNames, lastNames, places, objects, actions, countries, communications, businessEntities, loremipsum, emoji);
 
         menuBar = new CardinalMenuBar(newTab(), open(), save(), saveAs(), clearAll(), showEnvironmentVariablesInput(), showFormUrlEncodedInput(), showBasicAuthInput());
