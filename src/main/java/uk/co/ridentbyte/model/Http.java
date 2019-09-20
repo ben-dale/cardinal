@@ -196,6 +196,7 @@ public class Http {
                     throw new RuntimeException("Invalid HTTP method");
             }
         } catch (Exception e) {
+            e.printStackTrace();
             throw new RuntimeException("Invalid HTTP method");
         }
 
