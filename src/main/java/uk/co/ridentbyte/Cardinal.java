@@ -114,6 +114,7 @@ public class Cardinal extends Application  {
         scene.getStylesheets().add(getClass().getClassLoader().getResource("style.css").toExternalForm());
 
         Font.loadFont(getClass().getClassLoader().getResource("OpenSans-Regular.ttf").toExternalForm(), 13);
+        Font.loadFont(getClass().getClassLoader().getResource("RobotoMono-Regular.ttf").toExternalForm(), 13);
 
         File file = new File(configLocation);
         if (file.exists() && !file.isDirectory()) {
