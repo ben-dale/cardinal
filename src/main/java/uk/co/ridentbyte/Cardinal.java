@@ -151,6 +151,7 @@ public class Cardinal extends Application  {
             } else if (closeTabCombo.match(keyEvent) && getCurrentTab() != null) {
                 CardinalTab currentTab = getCurrentTab();
                 Function<Void, Void> remove = (v) -> {
+                    ((CardinalView) currentTab.getContent()).clearAll();
                     cardinalTabs.getTabs().remove(currentTab);
                     openNewFileIfNoneOpen().apply(null);
                     return null;
@@ -205,16 +206,16 @@ public class Cardinal extends Application  {
 
     private Function<Void, Void> newTab() {
         return (v) -> {
-            cardinalTabs.getTabs().add(
-                    cardinalTabs.getTabs().size() - 1,
-                    new CardinalTab(
-                            null,
-                            new CardinalView(showAsCurl(), showErrorDialog(), getCurrentConfig(), exportToCsv(), exportToBash(), sendRequest(), triggerUnsavedChangesMade()),
-                            openNewFileIfNoneOpen(),
-                            showConfirmDialog(),
-                            save()
-                    )
+            var cardinalView = new CardinalView(showAsCurl(), showErrorDialog(), getCurrentConfig(), exportToCsv(), exportToBash(), sendRequest(), triggerUnsavedChangesMade());
+            var cardinalTab = new CardinalTab(
+                    null,
+                    cardinalView,
+                    openNewFileIfNoneOpen(),
+                    showConfirmDialog(),
+                    save()
             );
+            cardinalTab.setOnCloseRequest((e) -> cardinalView.clearAll());
+            cardinalTabs.getTabs().add(cardinalTabs.getTabs().size() - 1, cardinalTab);
             cardinalTabs.getSelectionModel().select(cardinalTabs.getTabs().size() - 2);
             return null;
         };

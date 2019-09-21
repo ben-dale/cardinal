@@ -1,6 +1,8 @@
 package uk.co.ridentbyte;
 
 import javafx.application.Platform;
+import javafx.event.Event;
+import javafx.event.EventHandler;
 import javafx.scene.control.Tab;
 import uk.co.ridentbyte.view.CardinalView;
 
@@ -61,5 +63,4 @@ public class CardinalTab extends Tab {
     public File getCurrentFile() {
         return currentFile;
     }
-
 }

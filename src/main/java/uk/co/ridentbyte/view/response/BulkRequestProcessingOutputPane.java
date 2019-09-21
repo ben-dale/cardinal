@@ -41,41 +41,47 @@ public class BulkRequestProcessingOutputPane extends GridPane {
         task = new Task<>() {
             @Override
             protected Boolean call() {
-                if (requestCount > 0) {
-                    for (int i = 0; i < requestCount; i++) {
-                        final int ii = i;
-                        CardinalRequest r = request.withId(String.valueOf(i)).processConstants(getConfig.apply(null));
-                        try {
-                            Thread.sleep(throttle);
-                            CardinalResponse response = sendRequestCallback.apply(r);
-                            requestsAndResponses.add(new CardinalRequestAndResponse(r, response));
-                        } catch (Exception e) {
-                            requestsAndResponses.add(new CardinalRequestAndResponse(r, null));
-                        } finally {
-                            updateProgress(i + 1, requestCount);
-                            Platform.runLater(() -> labelDelta.setText(String.valueOf(ii + 1)));
+                    if (requestCount > 0) {
+                        for (int i = 0; i < requestCount; i++) {
+                            if (isCancelled()) {
+                                return true;
+                            }
+                            final int ii = i;
+                            CardinalRequest r = request.withId(String.valueOf(i)).processConstants(getConfig.apply(null));
+                            try {
+                                Thread.sleep(throttle);
+                                CardinalResponse response = sendRequestCallback.apply(r);
+                                requestsAndResponses.add(new CardinalRequestAndResponse(r, response));
+                            } catch (Exception e) {
+                                requestsAndResponses.add(new CardinalRequestAndResponse(r, null));
+                            } finally {
+                                updateProgress(i + 1, requestCount);
+                                Platform.runLater(() -> labelDelta.setText(String.valueOf(ii + 1)));
+                            }
                         }
-                    }
-                    finishedBulkRequestCallback.apply(requestsAndResponses, throttle);
-                    return true;
-                } else {
-                    for (int i = 0; i < ids.size(); i++) {
-                        final int ii = i;
-                        CardinalRequest r = request.withId(ids.get(i)).processConstants(getConfig.apply(null));
-                        try {
-                            Thread.sleep(throttle);
-                            CardinalResponse response = sendRequestCallback.apply(r);
-                            requestsAndResponses.add(new CardinalRequestAndResponse(r, response));
-                        } catch (Exception e) {
-                            requestsAndResponses.add(new CardinalRequestAndResponse(r, null));
-                        } finally {
-                            updateProgress(i + 1, ids.size());
-                            Platform.runLater(() -> labelDelta.setText(String.valueOf(ii + 1)));
+                        finishedBulkRequestCallback.apply(requestsAndResponses, throttle);
+                        return true;
+                    } else {
+                        for (int i = 0; i < ids.size(); i++) {
+                            if (isCancelled()) {
+                                return true;
+                            }
+                            final int ii = i;
+                            CardinalRequest r = request.withId(ids.get(i)).processConstants(getConfig.apply(null));
+                            try {
+                                Thread.sleep(throttle);
+                                CardinalResponse response = sendRequestCallback.apply(r);
+                                requestsAndResponses.add(new CardinalRequestAndResponse(r, response));
+                            } catch (Exception e) {
+                                requestsAndResponses.add(new CardinalRequestAndResponse(r, null));
+                            } finally {
+                                updateProgress(i + 1, ids.size());
+                                Platform.runLater(() -> labelDelta.setText(String.valueOf(ii + 1)));
+                            }
                         }
+                        finishedBulkRequestCallback.apply(requestsAndResponses, throttle);
+                        return true;
                     }
-                    finishedBulkRequestCallback.apply(requestsAndResponses, throttle);
-                    return true;
-                }
             }
         };
 

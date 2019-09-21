@@ -68,7 +68,7 @@ public class CardinalView extends BorderPane {
 
     public void clearAll() {
         this.requestInputPane.clear();
-        this.responsePane.clearContents();
+        this.responsePane.clear();
     }
 
     public void loadRequest(CardinalRequest request) {
@@ -110,7 +110,7 @@ public class CardinalView extends BorderPane {
         return new BiFunction<Function<Void, Void>, Function<Void, Void>, Void>() {
             @Override
             public Void apply(Function<Void, Void> onStart, Function<Void, Void> onFinish) {
-                Platform.runLater(() -> responsePane.clearContents());
+                Platform.runLater(() -> responsePane.clear());
                 CardinalRequest request = requestInputPane.getRequest();
                 if (request.getUri().trim().length() == 0) {
                     showErrorDialog.apply("Please enter a URL.");

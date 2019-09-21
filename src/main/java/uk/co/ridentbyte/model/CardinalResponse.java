@@ -127,4 +127,11 @@ public class CardinalResponse {
         return "response code,response headers,response body,response time (ms)";
     }
 
+    @Override
+    public String toString() {
+        return "CardinalResponse{" +
+                "raw=" + raw +
+                ", time=" + time +
+                '}';
+    }
 }

@@ -1,6 +1,7 @@
 package uk.co.ridentbyte.view.response;
 
 import javafx.application.Platform;
+import javafx.concurrent.Task;
 import javafx.geometry.Insets;
 import javafx.scene.layout.BorderPane;
 import uk.co.ridentbyte.model.CardinalBulkRequest;
@@ -20,6 +21,7 @@ public class ResponsePane extends BorderPane {
     private Function<List<CardinalRequestAndResponse>, Void> exportToCsv;
     private BiFunction<List<CardinalRequest>, Integer, Void> exportToBash;
     private Function<String, Void> showErrorDialog;
+    private Task currentBackgroundTask;
 
     public ResponsePane(Function<Void, Config> getConfig,
                         Function<CardinalRequest, CardinalResponse> sendRequest,
@@ -33,10 +35,11 @@ public class ResponsePane extends BorderPane {
         this.showErrorDialog = showErrorDialog;
 
         setPadding(new Insets(20, 20, 20, 20));
-        this.clearContents();
+        this.clear();
     }
 
-    public void clearContents() {
+    public void clear() {
+        stopBulkRequestIfRunning();
         setCenter(new ClearResponsePane());
     }
 
@@ -52,17 +55,25 @@ public class ResponsePane extends BorderPane {
         Platform.runLater(() -> setCenter(new BulkRequestInputPane(getConfig, exportToBash, startBulkRequest(), showErrorDialog, request)));
     }
 
-    public java.util.function.Function<CardinalBulkRequest, Void> startBulkRequest() {
+    public void stopBulkRequestIfRunning() {
+        if (currentBackgroundTask != null) {
+            currentBackgroundTask.cancel();
+        }
+    }
 
+    public java.util.function.Function<CardinalBulkRequest, Void> startBulkRequest() {
         return new java.util.function.Function<CardinalBulkRequest, Void>() {
             @Override
             public Void apply(CardinalBulkRequest bulkRequest) {
                 if (bulkRequest.getRequestCount() == 0 && bulkRequest.getIds().isEmpty()) {
                     showErrorDialog.apply("Invalid input. \nPlease provide a throttle and either a request count or a range value.");
                 } else {
-                    BulkRequestProcessingOutputPane outputPane = new BulkRequestProcessingOutputPane(getConfig, sendRequest, finishedBulkRequestCallback(), bulkRequest);
-                    Platform.runLater(() -> setCenter(outputPane));
-                    new Thread(outputPane.getTask()).start();
+                    var bulkRequestProcessingOutputPane = new BulkRequestProcessingOutputPane(getConfig, sendRequest, finishedBulkRequestCallback(), bulkRequest);
+                    Platform.runLater(() -> setCenter(bulkRequestProcessingOutputPane));
+                    currentBackgroundTask = bulkRequestProcessingOutputPane.getTask();
+                    var bulkRequestThread = new Thread(currentBackgroundTask);
+                    bulkRequestThread.setDaemon(true);
+                    bulkRequestThread.start();
                 }
                 return null;
             }

@@ -26,4 +26,12 @@ public class CardinalHttpResponse {
         return body;
     }
 
+    @Override
+    public String toString() {
+        return "CardinalHttpResponse{" +
+                "body='" + body + '\'' +
+                ", headers=" + headers +
+                ", statusCode=" + statusCode +
+                '}';
+    }
 }
