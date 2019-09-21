@@ -6,6 +6,7 @@ import javafx.scene.control.TextArea;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.Priority;
 import uk.co.ridentbyte.model.CardinalRequest;
+import uk.co.ridentbyte.model.Vocabulary;
 import uk.co.ridentbyte.view.util.RowConstraintsBuilder;
 
 import java.util.StringJoiner;
@@ -15,8 +16,10 @@ public class RequestInputPane extends GridPane {
 
     private RequestUriVerbInputPane uriVerbInputPane;
     private TextArea textHeaders, textAreaBody;
+    private Vocabulary vocabulary;
 
-    public RequestInputPane(Function<Void, Void> triggerUnsavedChangesMade) {
+    public RequestInputPane(Function<Void, Void> triggerUnsavedChangesMade, Vocabulary vocabulary) {
+        this.vocabulary = vocabulary;
         this.setHgap(10);
         this.setVgap(10);
         this.setPadding(new Insets(20));
@@ -84,7 +87,7 @@ public class RequestInputPane extends GridPane {
         String verb = this.uriVerbInputPane.getVerb();
         String uri = this.uriVerbInputPane.getUri();
         var followRedirects = this.uriVerbInputPane.shouldFollowRedirects();
-        return new CardinalRequest(uri, verb, headers, body, followRedirects);
+        return new CardinalRequest(uri, verb, headers, body, followRedirects, vocabulary);
     }
 
     public void clear() {

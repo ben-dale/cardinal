@@ -9,6 +9,7 @@ import uk.co.ridentbyte.model.CardinalRequestAndResponse;
 import uk.co.ridentbyte.model.CardinalRequest;
 import uk.co.ridentbyte.model.CardinalResponse;
 import uk.co.ridentbyte.model.Config;
+import uk.co.ridentbyte.model.Vocabulary;
 import uk.co.ridentbyte.view.request.RequestControlPane;
 import uk.co.ridentbyte.view.request.RequestInputPane;
 import uk.co.ridentbyte.view.response.ResponsePane;
@@ -35,7 +36,8 @@ public class CardinalView extends BorderPane {
                         Function<List<CardinalRequestAndResponse>, Void> exportToCsv,
                         BiFunction<List<CardinalRequest>, Integer, Void> exportToBash,
                         Function<CardinalRequest, CardinalResponse> sendRequest,
-                        Function<Void, Void> triggerUnsavedChangesMade) {
+                        Function<Void, Void> triggerUnsavedChangesMade,
+                        Vocabulary vocabulary) {
 
         this.showErrorDialog = showErrorDialog;
         this.sendRequest = sendRequest;
@@ -44,7 +46,7 @@ public class CardinalView extends BorderPane {
         SplitPane requestResponseSplitPane = new SplitPane();
         requestResponseSplitPane.setDividerPositions(0.4);
 
-        this.requestPane = new RequestInputPane(triggerUnsavedChangesMade);
+        this.requestPane = new RequestInputPane(triggerUnsavedChangesMade, vocabulary);
         requestPane.setMinWidth(400);
 
         this.responsePane = new ResponsePane(getConfig, sendRequest, exportToCsv, exportToBash, showErrorDialog);

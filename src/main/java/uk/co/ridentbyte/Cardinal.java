@@ -44,7 +44,9 @@ import java.io.InputStreamReader;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Paths;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 import java.util.Optional;
 import java.util.Random;
@@ -206,7 +208,7 @@ public class Cardinal extends Application  {
 
     private Function<Void, Void> newTab() {
         return (v) -> {
-            var cardinalView = new CardinalView(showAsCurl(), showErrorDialog(), getCurrentConfig(), exportToCsv(), exportToBash(), sendRequest(), triggerUnsavedChangesMade());
+            var cardinalView = new CardinalView(showAsCurl(), showErrorDialog(), getCurrentConfig(), exportToCsv(), exportToBash(), sendRequest(), triggerUnsavedChangesMade(), vocabulary);
             var cardinalTab = new CardinalTab(
                     null,
                     cardinalView,
@@ -292,7 +294,7 @@ public class Cardinal extends Application  {
 
     private BiFunction<List<CardinalRequest>, Integer, Void> exportToBash() {
         return (requests, throttle) -> {
-            BashScript script = new BashScript(requests, currentConfig, throttle);
+            BashScript script = new BashScript(requests, currentConfig, throttle, LocalDateTime.now());
             FileChooser fileChooser = new FileChooser();
             File file = fileChooser.showSaveDialog(currentStage);
             if (file != null) {
@@ -387,7 +389,8 @@ public class Cardinal extends Application  {
                               exportToCsv(),
                               exportToBash(),
                               sendRequest(),
-                              triggerUnsavedChangesMade()
+                              triggerUnsavedChangesMade(),
+                              vocabulary
                       );
                       addTab(new CardinalTab(file, cardinalView, openNewFileIfNoneOpen(), showConfirmDialog(), save()));
                       cardinalView.loadRequest(CardinalRequest.apply(lines));
@@ -476,7 +479,16 @@ public class Cardinal extends Application  {
                       // Existing file so save and open in new tab
                       CardinalRequest request = ((CardinalView) currentTab.getContent()).getRequest();
                       writeToFile().apply(fileWithExtension, request.toJson());
-                      CardinalView cardinalView = new CardinalView(showAsCurl(), showErrorDialog(), getCurrentConfig(), exportToCsv(), exportToBash(), sendRequest(), triggerUnsavedChangesMade());
+                      CardinalView cardinalView = new CardinalView(
+                              showAsCurl(),
+                              showErrorDialog(),
+                              getCurrentConfig(),
+                              exportToCsv(),
+                              exportToBash(),
+                              sendRequest(),
+                              triggerUnsavedChangesMade(),
+                              vocabulary
+                      );
                       addTab(new CardinalTab(fileWithExtension, cardinalView, openNewFileIfNoneOpen(), showConfirmDialog(), save()));
                       cardinalView.loadRequest(request);
                       getCurrentTab().setUnsavedChanges(false);

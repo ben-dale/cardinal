@@ -18,6 +18,7 @@ public class CardinalRequest {
     private final List<String> headers;
     private final String body;
     private final boolean followRedirects;
+    private Vocabulary vocabulary;
 
     // for gson
     public CardinalRequest() {
@@ -28,20 +29,32 @@ public class CardinalRequest {
         followRedirects = false;
     }
 
-    public CardinalRequest(String uri, String verb, List<String> headers, String body, boolean followRedirects) {
+    public CardinalRequest(String uri,
+                           String verb,
+                           List<String> headers,
+                           String body,
+                           boolean followRedirects,
+                           Vocabulary vocabulary) {
         this.uri = uri;
         this.verb = verb;
         this.headers = headers;
         this.body = body;
         this.followRedirects = followRedirects;
+        this.vocabulary = vocabulary;
     }
 
-    public CardinalRequest(String uri, String verb, String[] headers, String body, boolean followRedirects) {
+    public CardinalRequest(String uri,
+                           String verb,
+                           String[] headers,
+                           String body,
+                           boolean followRedirects,
+                           Vocabulary vocabulary) {
         this.uri = uri;
         this.verb = verb;
         this.headers = Arrays.asList(headers);
         this.body = body;
         this.followRedirects = followRedirects;
+        this.vocabulary = vocabulary;
     }
 
     public String toJson() {
@@ -60,39 +73,42 @@ public class CardinalRequest {
             bodyWithId = bodyWithId.replaceAll("#\\{id\\}", id);
         }
         return new CardinalRequest(
-                this.uri.replaceAll("#\\{id\\}", id),
-                this.verb,
+                uri.replaceAll("#\\{id\\}", id),
+                verb,
                 headersWithId,
                 bodyWithId,
-                this.followRedirects
+                followRedirects,
+                vocabulary
         );
     }
 
     public String toCurl(Config config) {
-        return new Curl(uri, verb, followRedirects, body, headers, config.getEnvironmentVariables()).toCommand();
+        return new Curl(
+                uri, verb, followRedirects, body, headers, config.getEnvironmentVariables(), vocabulary
+        ).toCommand();
     }
 
     public CardinalRequest processConstants(Config config) {
         List<EnvironmentVariable> vars = config.getEnvironmentVariables();
-        String newUri = new RequestString(this.uri, vars, Cardinal.vocabulary).process();
-        List<String> newHeaders = this.headers.stream().map((h) -> {
-           return new RequestString(h, vars, Cardinal.vocabulary).process();
-        }).collect(Collectors.toList());
-        String newBody = this.body;
+        String newUri = new RequestString(uri, vars, Cardinal.vocabulary).process();
+        List<String> newHeaders = headers.stream()
+                .map((h) -> new RequestString(h, vars, Cardinal.vocabulary).process())
+                .collect(Collectors.toList());
+        String newBody = body;
         if (newBody != null) {
             newBody = new RequestString(newBody, vars, Cardinal.vocabulary).process();
         }
-        return new CardinalRequest(newUri, verb, newHeaders, newBody, followRedirects);
+        return new CardinalRequest(newUri, verb, newHeaders, newBody, followRedirects, vocabulary);
     }
 
 
     public String toCsv() {
         StringJoiner csvHeaders = new StringJoiner("\n");
-        for (String header : this.headers) {
+        for (String header : headers) {
             csvHeaders.add(header.replace("\"", "\"\""));
         }
 
-        String csvBody = this.body;
+        String csvBody = body;
         if (csvBody == null) {
             csvBody = "";
         } else {
