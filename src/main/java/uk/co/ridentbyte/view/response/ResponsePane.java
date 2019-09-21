@@ -44,15 +44,24 @@ public class ResponsePane extends BorderPane {
     }
 
     public void setResponse(CardinalResponse cardinalResponse) {
-        Platform.runLater(() -> setCenter(new ResponseOutputPane(cardinalResponse)));
+        Platform.runLater(() -> {
+            clear();
+            setCenter(new ResponseOutputPane(cardinalResponse));
+        });
     }
 
     public void loadCurlCommand(String command) {
-        Platform.runLater(() -> setCenter(new CurlOutputPane(command)));
+        Platform.runLater(() -> {
+            clear();
+            setCenter(new CurlOutputPane(command));
+        });
     }
 
     public void showBulkRequestInput(CardinalRequest request) {
-        Platform.runLater(() -> setCenter(new BulkRequestInputPane(getConfig, exportToBash, startBulkRequest(), showErrorDialog, request)));
+        Platform.runLater(() -> {
+            clear();
+            setCenter(new BulkRequestInputPane(getConfig, exportToBash, startBulkRequest(), showErrorDialog, request));
+        });
     }
 
     public void stopBulkRequestIfRunning() {
