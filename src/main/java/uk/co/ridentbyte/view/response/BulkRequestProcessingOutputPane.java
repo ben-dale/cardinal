@@ -116,13 +116,13 @@ public class BulkRequestProcessingOutputPane extends GridPane {
         GridPane.setFillWidth(labelDelta, true);
         add(labelDelta, 0, 2);
 
-        Button buttonAbort = new Button("Abort");
-        buttonAbort.setOnAction((a) -> {
+        Button interruptButton = new Button("Interrupt");
+        interruptButton.setOnAction((a) -> {
                 task.cancel();
                 finishedBulkRequestCallback.apply(requestsAndResponses, throttle);
         });
-        GridPane.setHalignment(buttonAbort, HPos.CENTER);
-        add(buttonAbort, 0, 3);
+        GridPane.setHalignment(interruptButton, HPos.CENTER);
+        add(interruptButton, 0, 3);
     }
 
     public Task<Boolean> getTask() {

@@ -101,11 +101,11 @@ Clicking "Start" will being sending the requests directly from Cardinal.
 
 ![Cardinal Curl View](images/cardinal_bulk_request_processing.png)
 
-You can abort the process at any point and this will take you to the summary screen.
+You can interrupt the process at any point and this will take you to the summary screen.
 
 ### Bulk Request Results
 
-Once finished (or aborted), the summary screen will appear.
+Once finished (or interrupted), the summary screen will appear.
 
 ![Cardinal Curl View](images/cardinal_bulk_request_processed.png)
 
