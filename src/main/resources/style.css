@@ -14,7 +14,7 @@
     -fx-box-border: transparent;
 }
 
-.curl-output .content {
+.console-output .content {
     -fx-padding: 15px 20px;
 }
 

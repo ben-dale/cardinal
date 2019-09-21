@@ -57,9 +57,11 @@ public class Http {
                     HttpResponse<String> response = httpClient.send(httpRequestBuilder.build(), HttpResponse.BodyHandlers.ofString());
                     var responseHeaders = new HashMap<String, String>();
                     for (Map.Entry<String, List<String>> header : response.headers().map().entrySet()) {
-                        responseHeaders.put(header.getKey(), String.join("", header.getValue()));
+                        responseHeaders.put(header.getKey().toLowerCase(), String.join("", header.getValue()));
                     }
-                    return new CardinalHttpResponse(response.body(), responseHeaders, response.statusCode());
+                    return new CardinalHttpResponse(
+                            response.body(), responseHeaders, response.statusCode(), response.version()
+                    );
                 }
 
                 case "PUT": {
@@ -77,9 +79,11 @@ public class Http {
                     HttpResponse<String> response = httpClient.send(httpRequestBuilder.build(), HttpResponse.BodyHandlers.ofString());
                     var responseHeaders = new HashMap<String, String>();
                     for (Map.Entry<String, List<String>> header : response.headers().map().entrySet()) {
-                        responseHeaders.put(header.getKey(), String.join("", header.getValue()));
+                        responseHeaders.put(header.getKey().toLowerCase(), String.join("", header.getValue()));
                     }
-                    return new CardinalHttpResponse(response.body(), responseHeaders, response.statusCode());
+                    return new CardinalHttpResponse(
+                            response.body(), responseHeaders, response.statusCode(), response.version()
+                    );
                 }
 
                 case "GET": {
@@ -92,9 +96,11 @@ public class Http {
                     HttpResponse<String> response = httpClient.send(httpRequestBuilder.build(), HttpResponse.BodyHandlers.ofString());
                     var responseHeaders = new HashMap<String, String>();
                     for (Map.Entry<String, List<String>> header : response.headers().map().entrySet()) {
-                        responseHeaders.put(header.getKey(), String.join("", header.getValue()));
+                        responseHeaders.put(header.getKey().toLowerCase(), String.join("", header.getValue()));
                     }
-                    return new CardinalHttpResponse(response.body(), responseHeaders, response.statusCode());
+                    return new CardinalHttpResponse(
+                            response.body(), responseHeaders, response.statusCode(), response.version()
+                    );
                 }
 
                 case "DELETE": {
@@ -107,9 +113,11 @@ public class Http {
                     HttpResponse<String> response = httpClient.send(httpRequestBuilder.build(), HttpResponse.BodyHandlers.ofString());
                     var responseHeaders = new HashMap<String, String>();
                     for (Map.Entry<String, List<String>> header : response.headers().map().entrySet()) {
-                        responseHeaders.put(header.getKey(), String.join("", header.getValue()));
+                        responseHeaders.put(header.getKey().toLowerCase(), String.join("", header.getValue()));
                     }
-                    return new CardinalHttpResponse(response.body(), responseHeaders, response.statusCode());
+                    return new CardinalHttpResponse(
+                            response.body(), responseHeaders, response.statusCode(), response.version()
+                    );
                 }
 
                 case "HEAD": {
@@ -127,9 +135,11 @@ public class Http {
                     HttpResponse<String> response = httpClient.send(httpRequestBuilder.build(), HttpResponse.BodyHandlers.ofString());
                     var responseHeaders = new HashMap<String, String>();
                     for (Map.Entry<String, List<String>> header : response.headers().map().entrySet()) {
-                        responseHeaders.put(header.getKey(), String.join("", header.getValue()));
+                        responseHeaders.put(header.getKey().toLowerCase(), String.join("", header.getValue()));
                     }
-                    return new CardinalHttpResponse(response.body(), responseHeaders, response.statusCode());
+                    return new CardinalHttpResponse(
+                            response.body(), responseHeaders, response.statusCode(), response.version()
+                    );
                 }
 
                 case "OPTIONS": {
@@ -147,9 +157,11 @@ public class Http {
                     HttpResponse<String> response = httpClient.send(httpRequestBuilder.build(), HttpResponse.BodyHandlers.ofString());
                     var responseHeaders = new HashMap<String, String>();
                     for (Map.Entry<String, List<String>> header : response.headers().map().entrySet()) {
-                        responseHeaders.put(header.getKey(), String.join("", header.getValue()));
+                        responseHeaders.put(header.getKey().toLowerCase(), String.join("", header.getValue()));
                     }
-                    return new CardinalHttpResponse(response.body(), responseHeaders, response.statusCode());
+                    return new CardinalHttpResponse(
+                            response.body(), responseHeaders, response.statusCode(), response.version()
+                    );
                 }
 
                 case "TRACE": {
@@ -167,9 +179,11 @@ public class Http {
                     HttpResponse<String> response = httpClient.send(httpRequestBuilder.build(), HttpResponse.BodyHandlers.ofString());
                     var responseHeaders = new HashMap<String, String>();
                     for (Map.Entry<String, List<String>> header : response.headers().map().entrySet()) {
-                        responseHeaders.put(header.getKey(), String.join("", header.getValue()));
+                        responseHeaders.put(header.getKey().toLowerCase(), String.join("", header.getValue()));
                     }
-                    return new CardinalHttpResponse(response.body(), responseHeaders, response.statusCode());
+                    return new CardinalHttpResponse(
+                            response.body(), responseHeaders, response.statusCode(), response.version()
+                    );
                 }
 
                 case "PATCH": {
@@ -187,9 +201,11 @@ public class Http {
                     HttpResponse<String> response = httpClient.send(httpRequestBuilder.build(), HttpResponse.BodyHandlers.ofString());
                     var responseHeaders = new HashMap<String, String>();
                     for (Map.Entry<String, List<String>> header : response.headers().map().entrySet()) {
-                        responseHeaders.put(header.getKey(), String.join("", header.getValue()));
+                        responseHeaders.put(header.getKey().toLowerCase(), String.join("", header.getValue()));
                     }
-                    return new CardinalHttpResponse(response.body(), responseHeaders, response.statusCode());
+                    return new CardinalHttpResponse(
+                            response.body(), responseHeaders, response.statusCode(), response.version()
+                    );
                 }
 
                 default:

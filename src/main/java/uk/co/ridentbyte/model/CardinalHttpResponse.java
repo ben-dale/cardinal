@@ -1,5 +1,6 @@
 package uk.co.ridentbyte.model;
 
+import java.net.http.HttpClient;
 import java.util.Map;
 
 public class CardinalHttpResponse {
@@ -7,11 +8,13 @@ public class CardinalHttpResponse {
     private String body;
     private Map<String, String> headers;
     private int statusCode;
+    private HttpClient.Version version;
 
-    public CardinalHttpResponse(String body, Map<String, String> headers, int statusCode) {
+    public CardinalHttpResponse(String body, Map<String, String> headers, int statusCode, HttpClient.Version version) {
         this.body = body;
         this.headers = headers;
         this.statusCode = statusCode;
+        this.version = version;
     }
 
     public int getStatusCode() {
@@ -24,6 +27,13 @@ public class CardinalHttpResponse {
 
     public String getBody() {
         return body;
+    }
+
+    public String getStatusLine() {
+        if (version.equals(HttpClient.Version.HTTP_1_1)) {
+            return "HTTP/1.1 " + statusCode;
+        }
+        return "HTTP/2.0 " + statusCode;
     }
 
     @Override

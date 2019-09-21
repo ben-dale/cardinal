@@ -14,7 +14,7 @@ public class CurlOutputPane extends GridPane {
         this.getStyleClass().addAll("plain-border", "round-border");
 
         TextArea textAreaCurl = new TextArea();
-        textAreaCurl.getStyleClass().addAll("cardinal-font-console", "curl-output");
+        textAreaCurl.getStyleClass().addAll("cardinal-font-console", "console-output");
         textAreaCurl.setText(command);
         textAreaCurl.setWrapText(true);
         GridPane.setHgrow(textAreaCurl, Priority.ALWAYS);

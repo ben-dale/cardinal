@@ -21,9 +21,11 @@ import javax.xml.xpath.XPathConstants;
 import javax.xml.xpath.XPathFactory;
 import java.io.ByteArrayInputStream;
 import java.io.StringWriter;
+import java.net.http.HttpClient;
 import java.nio.charset.StandardCharsets;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.StringJoiner;
 
 public class CardinalResponse {
 
@@ -36,7 +38,7 @@ public class CardinalResponse {
     }
 
     public String formattedBody() {
-        String contentType = raw.getHeaders().get("Content-Type");
+        String contentType = raw.getHeaders().get("content-type");
         if (contentType != null && contentType.contains("application/json")) {
             try {
                 JsonParser parser = new JsonParser();
@@ -105,12 +107,19 @@ public class CardinalResponse {
         return this.raw.getStatusCode();
     }
 
-    public Map<String, String> getHeaders() {
-        return this.raw.getHeaders();
+    public String rawHttpResponseText() {
+        var joiner = new StringJoiner("\n");
+        joiner.add(raw.getStatusLine());
+        for (Map.Entry<String, String> header : raw.getHeaders().entrySet()) {
+            joiner.add(header.getKey() + ": " + header.getValue());
+        }
+        joiner.add("\n");
+        joiner.add(formattedBody());
+        return joiner.toString();
     }
 
     public static CardinalResponse blank() {
-        return new CardinalResponse(new CardinalHttpResponse("", new HashMap<>(), 0), 0L) {
+        return new CardinalResponse(new CardinalHttpResponse("", new HashMap<>(), 0, HttpClient.Version.HTTP_1_1), 0L) {
             @Override
             public String toCSV() {
                 return ",,,";
