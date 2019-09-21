@@ -14,7 +14,6 @@ public class CardinalTab extends Tab {
 
     public CardinalTab(File currentFile,
                        CardinalView content,
-                       Function<Void, Void> openNewFileIfNoneOpen,
                        QuadFunction<String, Function<Void, Void>, Function<Void, Void>, Function<Void, Void>, Void> showConfirmDialog,
                        Function<Void, Void> save) {
         super(currentFile == null ? "Untitled" : currentFile.getName(), content);
@@ -29,7 +28,6 @@ public class CardinalTab extends Tab {
                );
             }
             content.clearAll();
-            Platform.runLater(() -> openNewFileIfNoneOpen.apply(null));
         });
 
         this.currentFile = currentFile;

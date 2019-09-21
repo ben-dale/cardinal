@@ -69,7 +69,7 @@ public class Cardinal extends Application  {
         launch();
     }
 
-    private List<String> readLinesFrom(String filename) throws Exception {
+    private List<String> readLinesFrom(String filename) {
         return new BufferedReader(
                 new InputStreamReader(
                         getClass().getClassLoader().getResourceAsStream(filename),
@@ -154,7 +154,6 @@ public class Cardinal extends Application  {
                 Function<Void, Void> remove = (v) -> {
                     ((CardinalView) currentTab.getContent()).clearAll();
                     cardinalTabs.getTabs().remove(currentTab);
-                    openNewFileIfNoneOpen().apply(null);
                     return null;
                 };
 
@@ -211,7 +210,6 @@ public class Cardinal extends Application  {
             var cardinalTab = new CardinalTab(
                     null,
                     cardinalView,
-                    openNewFileIfNoneOpen(),
                     showConfirmDialog(),
                     save()
             );
@@ -322,15 +320,6 @@ public class Cardinal extends Application  {
         };
     }
 
-    private Function<Void, Void> openNewFileIfNoneOpen() {
-        return (v) -> {
-            if (cardinalTabs.getTabs().size() == 0) {
-                newTab().apply(null);
-            }
-            return null;
-        };
-    }
-
     private Function<Void, Void> save() {
         return (v) -> {
             CardinalTab currentTab = getCurrentTab();
@@ -390,7 +379,7 @@ public class Cardinal extends Application  {
                               triggerUnsavedChangesMade(),
                               vocabulary
                       );
-                      addTab(new CardinalTab(file, cardinalView, openNewFileIfNoneOpen(), showConfirmDialog(), save()));
+                      addTab(new CardinalTab(file, cardinalView, showConfirmDialog(), save()));
                       cardinalView.loadRequest(CardinalRequest.apply(lines));
                       getCurrentTab().setUnsavedChanges(false);
                   } catch (Exception e) {
@@ -487,7 +476,7 @@ public class Cardinal extends Application  {
                               triggerUnsavedChangesMade(),
                               vocabulary
                       );
-                      addTab(new CardinalTab(fileWithExtension, cardinalView, openNewFileIfNoneOpen(), showConfirmDialog(), save()));
+                      addTab(new CardinalTab(fileWithExtension, cardinalView, showConfirmDialog(), save()));
                       cardinalView.loadRequest(request);
                       getCurrentTab().setUnsavedChanges(false);
                   }

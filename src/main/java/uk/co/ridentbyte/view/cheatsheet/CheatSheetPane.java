@@ -30,7 +30,7 @@ public class CheatSheetPane extends GridPane {
         );
         
         var textCommandsAndOutput = new TextArea();
-        textCommandsAndOutput.getStyleClass().add("cardinal-font-console");
+        textCommandsAndOutput.getStyleClass().addAll("cardinal-font-console", "console-output");
         textCommandsAndOutput.setEditable(false);
         textCommandsAndOutput.setText(generateCheatSheetText(vocabulary));
         this.add(textCommandsAndOutput, 0, 0);
