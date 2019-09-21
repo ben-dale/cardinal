@@ -90,13 +90,13 @@ public class CardinalRequest {
 
     public CardinalRequest processConstants(Config config) {
         List<EnvironmentVariable> vars = config.getEnvironmentVariables();
-        String newUri = new RequestString(uri, vars, Cardinal.vocabulary).process();
+        String newUri = new RequestString(uri, vars, vocabulary).process();
         List<String> newHeaders = headers.stream()
-                .map((h) -> new RequestString(h, vars, Cardinal.vocabulary).process())
+                .map((h) -> new RequestString(h, vars, vocabulary).process())
                 .collect(Collectors.toList());
         String newBody = body;
         if (newBody != null) {
-            newBody = new RequestString(newBody, vars, Cardinal.vocabulary).process();
+            newBody = new RequestString(newBody, vars, vocabulary).process();
         }
         return new CardinalRequest(newUri, verb, newHeaders, newBody, followRedirects, vocabulary);
     }

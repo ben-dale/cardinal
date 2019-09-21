@@ -46,7 +46,6 @@ import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.List;
 import java.util.Optional;
 import java.util.Random;
@@ -58,7 +57,7 @@ public class Cardinal extends Application  {
 
     private Words firstNames, lastNames, countries, objects, actions, businessEntities, communications, places, loremipsum, emoji;
 
-    public static Vocabulary vocabulary;
+    public Vocabulary vocabulary;
 
     private String configLocation = System.getProperty("user.home") + "/.cardinal_config.json";
     private Config currentConfig = null;
