@@ -1,8 +1,6 @@
 package uk.co.ridentbyte;
 
 import javafx.application.Platform;
-import javafx.event.Event;
-import javafx.event.EventHandler;
 import javafx.scene.control.Tab;
 import uk.co.ridentbyte.view.CardinalView;
 
@@ -22,16 +20,17 @@ public class CardinalTab extends Tab {
         super(currentFile == null ? "Untitled" : currentFile.getName(), content);
         getStyleClass().add("cardinal-font");
         setOnCloseRequest((e) -> {
-           if (unsavedChanges) {
+            if (unsavedChanges) {
                showConfirmDialog.apply(
                        "Save unsaved changes?",
                        (v) -> save.apply(null),
                        (v) -> null,
                        (v) -> {e.consume(); return null;}
                );
-           }
+            }
+            content.clearAll();
+            Platform.runLater(() -> openNewFileIfNoneOpen.apply(null));
         });
-        Platform.runLater(() -> openNewFileIfNoneOpen.apply(null));
 
         this.currentFile = currentFile;
         this.unsavedChanges = false;

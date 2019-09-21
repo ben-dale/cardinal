@@ -215,7 +215,6 @@ public class Cardinal extends Application  {
                     showConfirmDialog(),
                     save()
             );
-            cardinalTab.setOnCloseRequest((e) -> cardinalView.clearAll());
             cardinalTabs.getTabs().add(cardinalTabs.getTabs().size() - 1, cardinalTab);
             cardinalTabs.getSelectionModel().select(cardinalTabs.getTabs().size() - 2);
             return null;

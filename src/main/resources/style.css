@@ -32,6 +32,10 @@
     -fx-font-size: 13;
 }
 
+.grey-text {
+    -fx-text-fill: darkgrey;
+}
+
 .dashed-border {
     -fx-border-color: lightgrey;
     -fx-border-style: dashed;
