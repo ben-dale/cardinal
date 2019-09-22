@@ -17,7 +17,7 @@ class ResponseOutputPane extends GridPane {
         var textArea = new TextArea();
         textArea.setEditable(false);
         textArea.getStyleClass().addAll("cardinal-font-console", "console-output");
-        textArea.appendText(response.rawHttpResponseText());
+        textArea.setText(response.rawHttpResponseText());
         GridPane.setHgrow(textArea, Priority.ALWAYS);
         GridPane.setVgrow(textArea, Priority.ALWAYS);
         this.add(textArea, 0, 0);
