@@ -10,7 +10,6 @@ import uk.co.ridentbyte.functions.ExportToCSV;
 import uk.co.ridentbyte.functions.ShowAsCurl;
 import uk.co.ridentbyte.functions.ShowErrorDialog;
 import uk.co.ridentbyte.functions.UnsavedChangesMade;
-import uk.co.ridentbyte.model.CardinalRequestAndResponse;
 import uk.co.ridentbyte.model.CardinalRequest;
 import uk.co.ridentbyte.model.CardinalResponse;
 import uk.co.ridentbyte.model.Config;
@@ -21,7 +20,6 @@ import uk.co.ridentbyte.view.response.ResponsePane;
 import uk.co.ridentbyte.view.util.ColumnConstraintsBuilder;
 import uk.co.ridentbyte.view.util.RowConstraintsBuilder;
 
-import java.util.List;
 import java.util.function.BiFunction;
 import java.util.function.Function;
 
@@ -48,7 +46,7 @@ public class CardinalView extends BorderPane {
         this.sendRequest = sendRequest;
         this.getConfig = getConfig;
 
-        SplitPane requestResponseSplitPane = new SplitPane();
+        var requestResponseSplitPane = new SplitPane();
         requestResponseSplitPane.setDividerPositions(0.4);
 
         this.requestPane = new RequestInputPane(triggerUnsavedChangesMade, vocabulary);
@@ -57,20 +55,20 @@ public class CardinalView extends BorderPane {
         this.responsePane = new ResponsePane(getConfig, sendRequest, exportToCsv, exportToBash, showErrorDialog);
         responsePane.setMinWidth(400);
 
-        requestControlPane = new RequestControlPane(showAsCurl, this.showBulkRequestInput(), this.sendSingleRequest());
+        requestControlPane = new RequestControlPane(showAsCurl, this::showBulkRequestInput, this.sendSingleRequest());
 
-        GridPane grid = new GridPane();
-        grid.getColumnConstraints().add(new ColumnConstraintsBuilder().withHgrow(Priority.ALWAYS).build());
-        grid.getRowConstraints().add(new RowConstraintsBuilder().withVgrow(Priority.ALWAYS).build());
-        grid.getRowConstraints().add(new RowConstraintsBuilder().withVgrow(Priority.NEVER).build());
+        var gridPane = new GridPane();
+        gridPane.getColumnConstraints().add(new ColumnConstraintsBuilder().withHgrow(Priority.ALWAYS).build());
+        gridPane.getRowConstraints().add(new RowConstraintsBuilder().withVgrow(Priority.ALWAYS).build());
+        gridPane.getRowConstraints().add(new RowConstraintsBuilder().withVgrow(Priority.NEVER).build());
 
         requestResponseSplitPane.getItems().add(requestPane);
         requestResponseSplitPane.getItems().add(responsePane);
 
-        grid.add(requestResponseSplitPane, 0, 0);
-        grid.add(requestControlPane, 0, 1);
+        gridPane.add(requestResponseSplitPane, 0, 0);
+        gridPane.add(requestControlPane, 0, 1);
 
-        this.setCenter(grid);
+        this.setCenter(gridPane);
     }
 
     public void clearAll() {
@@ -98,19 +96,13 @@ public class CardinalView extends BorderPane {
         this.requestPane.addHeader(header);
     }
 
-    private Function<Void, Void> showBulkRequestInput() {
-        return new Function<Void, Void>() {
-            @Override
-            public Void apply(Void aVoid) {
-                CardinalRequest request = requestPane.getRequest();
-                if (request.getUri().trim().length() == 0) {
-                    showErrorDialog.show("Please enter a URL.");
-                } else {
-                    responsePane.showBulkRequestInput(requestPane.getRequest());
-                }
-                return null;
-            }
-        };
+    private void showBulkRequestInput() {
+        var request = requestPane.getRequest();
+        if (request.getUri().trim().length() == 0) {
+            showErrorDialog.show("Please enter a URL.");
+        } else {
+            responsePane.showBulkRequestInput(requestPane.getRequest());
+        }
     }
 
     private BiFunction<Function<Void, Void>, Function<Void, Void>, Void> sendSingleRequest() {

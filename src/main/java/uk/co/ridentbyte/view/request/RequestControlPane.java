@@ -6,6 +6,7 @@ import javafx.scene.control.Button;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.Priority;
 import uk.co.ridentbyte.functions.ShowAsCurl;
+import uk.co.ridentbyte.functions.ShowBulkRequestInput;
 
 import java.util.function.BiFunction;
 import java.util.function.Function;
@@ -15,7 +16,7 @@ public class RequestControlPane extends GridPane {
     private final Button buttonSendRequest;
 
     public RequestControlPane(ShowAsCurl showAsCurl,
-                              Function<Void, Void> showBulkRequest,
+                              ShowBulkRequestInput showBulkRequest,
                               BiFunction<Function<Void, Void>, Function<Void, Void>, Void> sendRequest) {
         this.setHgap(10);
         this.setVgap(10);
@@ -33,7 +34,7 @@ public class RequestControlPane extends GridPane {
         buttonSendBulkRequest.getStyleClass().add("cardinal-font");
         GridPane.setVgrow(buttonSendBulkRequest, Priority.NEVER);
         GridPane.setHgrow(buttonSendBulkRequest, Priority.NEVER);
-        buttonSendBulkRequest.setOnAction((actionEvent) -> showBulkRequest.apply(null));
+        buttonSendBulkRequest.setOnAction((actionEvent) -> showBulkRequest.show());
         this.add(buttonSendBulkRequest, 1, 0);
 
         buttonSendRequest = new Button("Send Request");
