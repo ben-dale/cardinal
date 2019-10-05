@@ -5,6 +5,8 @@ import javafx.scene.control.SplitPane;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.Priority;
+import uk.co.ridentbyte.functions.ExportToBash;
+import uk.co.ridentbyte.functions.ShowAsCurl;
 import uk.co.ridentbyte.functions.UnsavedChangesMade;
 import uk.co.ridentbyte.model.CardinalRequestAndResponse;
 import uk.co.ridentbyte.model.CardinalRequest;
@@ -31,11 +33,11 @@ public class CardinalView extends BorderPane {
     private Function<Void, Config> getConfig;
     private final RequestControlPane requestControlPane;
 
-    public CardinalView(Function<Void, Void> exportToCurl,
+    public CardinalView(ShowAsCurl showAsCurl,
                         Function<String, Void> showErrorDialog,
                         Function<Void, Config> getConfig,
                         Function<List<CardinalRequestAndResponse>, Void> exportToCsv,
-                        BiFunction<List<CardinalRequest>, Integer, Void> exportToBash,
+                        ExportToBash exportToBash,
                         Function<CardinalRequest, CardinalResponse> sendRequest,
                         UnsavedChangesMade triggerUnsavedChangesMade,
                         Vocabulary vocabulary) {
@@ -53,7 +55,7 @@ public class CardinalView extends BorderPane {
         this.responsePane = new ResponsePane(getConfig, sendRequest, exportToCsv, exportToBash, showErrorDialog);
         responsePane.setMinWidth(400);
 
-        requestControlPane = new RequestControlPane(exportToCurl, this.showBulkRequestInput(), this.sendSingleRequest());
+        requestControlPane = new RequestControlPane(showAsCurl, this.showBulkRequestInput(), this.sendSingleRequest());
 
         GridPane grid = new GridPane();
         grid.getColumnConstraints().add(new ColumnConstraintsBuilder().withHgrow(Priority.ALWAYS).build());

@@ -8,15 +8,15 @@ import javafx.scene.control.Button;
 import javafx.scene.control.TextArea;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.Priority;
-import uk.co.ridentbyte.model.CardinalRequestAndResponse;
+import uk.co.ridentbyte.functions.ExportToBash;
 import uk.co.ridentbyte.model.CardinalRequest;
+import uk.co.ridentbyte.model.CardinalRequestAndResponse;
 import uk.co.ridentbyte.model.CardinalResponse;
 import uk.co.ridentbyte.view.util.RowConstraintsBuilder;
 
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
-import java.util.function.BiFunction;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
@@ -24,7 +24,7 @@ public class BulkRequestOutputPane extends GridPane {
 
     public BulkRequestOutputPane(List<CardinalRequestAndResponse> requestAndResponses,
                                  Function<List<CardinalRequestAndResponse>, Void> exportToCsv,
-                                 BiFunction<List<CardinalRequest>, Integer, Void> exportToBash,
+                                 ExportToBash exportToBash,
                                  int throttle) {
         this.setHgap(10);
         this.setVgap(10);
@@ -127,7 +127,7 @@ public class BulkRequestOutputPane extends GridPane {
         add(exportToCsvButton, 0, 2);
 
         Button exportToBashButton = new Button("Export as script...");
-        exportToBashButton.setOnAction((a) -> exportToBash.apply(requests, throttle));
+        exportToBashButton.setOnAction((a) -> exportToBash.export(requests, throttle));
         GridPane.setColumnSpan(exportToBashButton, 1);
         GridPane.setHgrow(exportToBashButton, Priority.ALWAYS);
         add(exportToBashButton, 1, 2);

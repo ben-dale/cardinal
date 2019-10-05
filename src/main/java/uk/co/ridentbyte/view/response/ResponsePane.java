@@ -4,6 +4,7 @@ import javafx.application.Platform;
 import javafx.concurrent.Task;
 import javafx.geometry.Insets;
 import javafx.scene.layout.BorderPane;
+import uk.co.ridentbyte.functions.ExportToBash;
 import uk.co.ridentbyte.model.CardinalBulkRequest;
 import uk.co.ridentbyte.model.CardinalRequestAndResponse;
 import uk.co.ridentbyte.model.CardinalRequest;
@@ -19,14 +20,14 @@ public class ResponsePane extends BorderPane {
     private Function<Void, Config> getConfig;
     private Function<CardinalRequest, CardinalResponse> sendRequest;
     private Function<List<CardinalRequestAndResponse>, Void> exportToCsv;
-    private BiFunction<List<CardinalRequest>, Integer, Void> exportToBash;
+    private ExportToBash exportToBash;
     private Function<String, Void> showErrorDialog;
     private Task currentBackgroundTask;
 
     public ResponsePane(Function<Void, Config> getConfig,
                         Function<CardinalRequest, CardinalResponse> sendRequest,
                         Function<List<CardinalRequestAndResponse>, Void> exportToCsv,
-                        BiFunction<List<CardinalRequest>, Integer, Void> exportToBash,
+                        ExportToBash exportToBash,
                         Function<String, Void> showErrorDialog) {
         this.getConfig = getConfig;
         this.sendRequest = sendRequest;

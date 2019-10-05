@@ -5,6 +5,7 @@ import javafx.geometry.HPos;
 import javafx.scene.control.Button;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.Priority;
+import uk.co.ridentbyte.functions.ShowAsCurl;
 
 import java.util.function.BiFunction;
 import java.util.function.Function;
@@ -13,7 +14,7 @@ public class RequestControlPane extends GridPane {
 
     private final Button buttonSendRequest;
 
-    public RequestControlPane(Function<Void, Void> exportToCurl,
+    public RequestControlPane(ShowAsCurl showAsCurl,
                               Function<Void, Void> showBulkRequest,
                               BiFunction<Function<Void, Void>, Function<Void, Void>, Void> sendRequest) {
         this.setHgap(10);
@@ -25,7 +26,7 @@ public class RequestControlPane extends GridPane {
         GridPane.setVgrow(buttonExportToCurl, Priority.NEVER);
         GridPane.setHgrow(buttonExportToCurl, Priority.ALWAYS);
         GridPane.setHalignment(buttonExportToCurl, HPos.RIGHT);
-        buttonExportToCurl.setOnAction((actionEvent) -> exportToCurl.apply(null));
+        buttonExportToCurl.setOnAction((actionEvent) -> showAsCurl.trigger());
         this.add(buttonExportToCurl, 0, 0);
 
         Button buttonSendBulkRequest = new Button("Send Bulk Request...");

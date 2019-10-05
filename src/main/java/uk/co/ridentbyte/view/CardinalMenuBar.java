@@ -3,14 +3,15 @@ package uk.co.ridentbyte.view;
 import javafx.scene.control.Menu;
 import javafx.scene.control.MenuBar;
 import javafx.scene.control.MenuItem;
+import uk.co.ridentbyte.functions.NewTab;
+import uk.co.ridentbyte.functions.OpenFile;
 
 import java.util.function.Function;
 
-// TODO functions should take actionEvents
 public class CardinalMenuBar extends MenuBar {
 
-    public CardinalMenuBar(Function<Void, Void> newTab,
-                           Function<Void, Void> open,
+    public CardinalMenuBar(NewTab newTab,
+                           OpenFile openFile,
                            Function<Void, Void> save,
                            Function<Void, Void> saveAs,
                            Function<Void, Void> editEnvVars,
@@ -25,11 +26,11 @@ public class CardinalMenuBar extends MenuBar {
         Menu menuFile = new Menu("File");
 
         MenuItem menuItemNew = new MenuItem("New");
-        menuItemNew.setOnAction((actionEvent) -> newTab.apply(null));
+        menuItemNew.setOnAction((actionEvent) -> newTab.spawn());
         menuFile.getItems().add(menuItemNew);
 
         MenuItem menuItemOpen = new MenuItem("Open...");
-        menuItemOpen.setOnAction((actionEvent) -> open.apply(null));
+        menuItemOpen.setOnAction((actionEvent) -> openFile.trigger());
         menuFile.getItems().add(menuItemOpen);
 
         MenuItem menuItemSave = new MenuItem("Save");

@@ -7,6 +7,7 @@ import javafx.scene.control.Label;
 import javafx.scene.control.TextField;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.Priority;
+import uk.co.ridentbyte.functions.ExportToBash;
 import uk.co.ridentbyte.model.CardinalBulkRequest;
 import uk.co.ridentbyte.model.CardinalRequest;
 import uk.co.ridentbyte.model.Config;
@@ -15,7 +16,6 @@ import uk.co.ridentbyte.view.util.ColumnConstraintsBuilder;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
-import java.util.function.BiFunction;
 import java.util.function.Function;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -24,13 +24,13 @@ public class BulkRequestInputPane extends GridPane {
 
     private TextField textNumOfRequests, textDelay, textForEach;
     private Function<String, Void> showErrorDialogCallback;
-    private BiFunction<List<CardinalRequest>, Integer, Void> exportToBash;
+    private ExportToBash exportToBash;
     private CardinalRequest baseRequest;
     private Function<Void, Config> getConfig;
 
 
     public BulkRequestInputPane(Function<Void, Config> getConfig,
-                                BiFunction<List<CardinalRequest>, Integer, Void> exportToBash,
+                                ExportToBash exportToBash,
                                 Function<CardinalBulkRequest, Void> startBulkRequest,
                                 Function<String, Void> showErrorDialogCallback,
                                 CardinalRequest request) {
@@ -142,13 +142,13 @@ public class BulkRequestInputPane extends GridPane {
             for (int i = 0; i < requestCount; i++) {
                 requests.add(baseRequest.withId(String.valueOf(i)).processConstants(getConfig.apply(null)));
             }
-            exportToBash.apply(requests, getThrottle());
+            exportToBash.export(requests, getThrottle());
         } else if (!ids.isEmpty()) {
             List<CardinalRequest> requests = new ArrayList<>();
             for (String id : ids) {
                 requests.add(baseRequest.withId(id).processConstants(getConfig.apply(null)));
             }
-            exportToBash.apply(requests, getThrottle());
+            exportToBash.export(requests, getThrottle());
         } else {
             showErrorDialogCallback.apply("Invalid input. \nPlease provide a throttle and either a request count or a range value.");
         }

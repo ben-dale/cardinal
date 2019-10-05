@@ -49,6 +49,7 @@ import java.nio.file.Paths;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.Random;
 import java.util.function.BiFunction;
@@ -57,15 +58,11 @@ import java.util.stream.Collectors;
 
 public class Cardinal extends Application  {
 
-    private Words firstNames, lastNames, countries, objects, actions, businessEntities, communications, places, loremipsum, emoji;
-
     public Vocabulary vocabulary;
-
     private String configLocation = System.getProperty("user.home") + "/.cardinal_config.json";
     private Config currentConfig = null;
     private Stage currentStage = null;
     private TabPane cardinalTabs = null;
-    private CardinalMenuBar menuBar = null;
 
     public static void main(String[] args) {
         launch();
@@ -74,7 +71,7 @@ public class Cardinal extends Application  {
     private List<String> readLinesFrom(String filename) {
         return new BufferedReader(
                 new InputStreamReader(
-                        getClass().getClassLoader().getResourceAsStream(filename),
+                        Objects.requireNonNull(getClass().getClassLoader().getResourceAsStream(filename)),
                         StandardCharsets.UTF_8
                 )
         ).lines().collect(Collectors.toList());
@@ -82,25 +79,25 @@ public class Cardinal extends Application  {
     
     @Override
     public void start(Stage primaryStage) throws Exception {
-        firstNames = new Words(readLinesFrom("firstNames.txt"), new Random());
-        lastNames = new Words(readLinesFrom("lastNames.txt"), new Random());
-        countries = new Words(readLinesFrom("countries.txt"), new Random());
-        objects = new Words(readLinesFrom("objects.txt"), new Random());
-        actions = new Words(readLinesFrom("actions.txt"), new Random());
-        businessEntities = new Words(readLinesFrom("businessEntities.txt"), new Random());
-        communications = new Words(readLinesFrom("communications.txt"), new Random());
-        places = new Words(readLinesFrom("places.txt"), new Random());
-        loremipsum = new Words(readLinesFrom("loremipsum.txt"), new Random());
-        emoji = new Words(readLinesFrom("emoji.txt"), new Random());
+        Words firstNames = new Words(readLinesFrom("firstNames.txt"), new Random());
+        Words lastNames = new Words(readLinesFrom("lastNames.txt"), new Random());
+        Words countries = new Words(readLinesFrom("countries.txt"), new Random());
+        Words objects = new Words(readLinesFrom("objects.txt"), new Random());
+        Words actions = new Words(readLinesFrom("actions.txt"), new Random());
+        Words businessEntities = new Words(readLinesFrom("businessEntities.txt"), new Random());
+        Words communications = new Words(readLinesFrom("communications.txt"), new Random());
+        Words places = new Words(readLinesFrom("places.txt"), new Random());
+        Words loremipsum = new Words(readLinesFrom("loremipsum.txt"), new Random());
+        Words emoji = new Words(readLinesFrom("emoji.txt"), new Random());
         vocabulary = new Vocabulary(firstNames, lastNames, places, objects, actions, countries, communications, businessEntities, loremipsum, emoji);
 
-        menuBar = new CardinalMenuBar(newTab(), open(), save(), saveAs(), showEnvironmentVariablesInput(), showFormUrlEncodedInput(), showBasicAuthInput());
+        CardinalMenuBar menuBar = new CardinalMenuBar(this::newTab, this::openFile, save(), saveAs(), showEnvironmentVariablesInput(), showFormUrlEncodedInput(), showBasicAuthInput());
 
         var newRequestTab = new Tab("+");
         newRequestTab.setClosable(false);
         newRequestTab.setOnSelectionChanged((e) -> {
             if ((e.getSource()) == newRequestTab) {
-                newTab().apply(null);
+                newTab();
             }
         });
 
@@ -110,7 +107,7 @@ public class Cardinal extends Application  {
         cheatSheetTab.setClosable(false);
         cardinalTabs.getTabs().add(cheatSheetTab);
         cardinalTabs.getTabs().add(newRequestTab);
-        newTab().apply(null);
+        newTab();
 
         currentStage = primaryStage;
         primaryStage.setTitle("Cardinal");
@@ -122,10 +119,10 @@ public class Cardinal extends Application  {
         view.setCenter(cardinalTabs);
 
         Scene scene = new Scene(view, 1000, 500);
-        scene.getStylesheets().add(getClass().getClassLoader().getResource("style.css").toExternalForm());
+        scene.getStylesheets().add(Objects.requireNonNull(getClass().getClassLoader().getResource("style.css")).toExternalForm());
 
-        Font.loadFont(getClass().getClassLoader().getResource("OpenSans-Regular.ttf").toExternalForm(), 13);
-        Font.loadFont(getClass().getClassLoader().getResource("RobotoMono-Regular.ttf").toExternalForm(), 13);
+        Font.loadFont(Objects.requireNonNull(getClass().getClassLoader().getResource("OpenSans-Regular.ttf")).toExternalForm(), 13);
+        Font.loadFont(Objects.requireNonNull(getClass().getClassLoader().getResource("RobotoMono-Regular.ttf")).toExternalForm(), 13);
 
         File file = new File(configLocation);
         if (file.exists() && !file.isDirectory()) {
@@ -165,9 +162,9 @@ public class Cardinal extends Application  {
                     remove.apply(null);
                 }
             } else if (openCombo.match(keyEvent)) {
-                open().apply(null);
+                openFile();
             } else if (newCombo.match(keyEvent)) {
-                newTab().apply(null);
+                newTab();
             } else if (sendCombo.match(keyEvent)) {
                 ((CardinalView) getCurrentTab().getContent()).triggerSendRequest();
             } else if (exitCombo.match(keyEvent)) {
@@ -206,34 +203,37 @@ public class Cardinal extends Application  {
         });
     }
 
-    private Function<Void, Void> newTab() {
-        return (v) -> {
-            var cardinalView = new CardinalView(showAsCurl(), showErrorDialog(), getCurrentConfig(), exportToCsv(), exportToBash(), sendRequest(), this::triggerUnsavedChangesMade, vocabulary);
-            var cardinalTab = new CardinalTab(
-                    null,
-                    cardinalView,
-                    showConfirmDialog(),
-                    save()
-            );
-            cardinalTabs.getTabs().add(cardinalTabs.getTabs().size() - 1, cardinalTab);
-            cardinalTabs.getSelectionModel().select(cardinalTabs.getTabs().size() - 2);
-            return null;
-        };
+    private void newTab() {
+        var cardinalView = new CardinalView(
+                this::showAsCurl,
+                showErrorDialog(),
+                getCurrentConfig(),
+                exportToCsv(),
+                this::exportToBash,
+                sendRequest(),
+                this::triggerUnsavedChangesMade,
+                vocabulary
+        );
+        var cardinalTab = new CardinalTab(
+                null,
+                cardinalView,
+                showConfirmDialog(),
+                save()
+        );
+        cardinalTabs.getTabs().add(cardinalTabs.getTabs().size() - 1, cardinalTab);
+        cardinalTabs.getSelectionModel().select(cardinalTabs.getTabs().size() - 2);
     }
 
-    private Function<Void, Void> showAsCurl() {
-        return (v) -> {
-            CardinalTab currentTab = getCurrentTab();
-            if (currentTab != null) {
-                CardinalRequest request = ((CardinalView) currentTab.getContent()).getRequest();
-                if (request.getUri().trim().length() == 0) {
-                    showErrorDialog().apply("Please enter a URL.");
-                } else {
-                    ((CardinalView) currentTab.getContent()).loadCurlCommand(request.toCurl(currentConfig));
-                }
+    private void showAsCurl() {
+        CardinalTab currentTab = getCurrentTab();
+        if (currentTab != null) {
+            CardinalRequest request = ((CardinalView) currentTab.getContent()).getRequest();
+            if (request.getUri().trim().length() == 0) {
+                showErrorDialog().apply("Please enter a URL.");
+            } else {
+                ((CardinalView) currentTab.getContent()).loadCurlCommand(request.toCurl(currentConfig));
             }
-            return null;
-        };
+        }
     }
 
     private Function<String, Void> showErrorDialog() {
@@ -288,20 +288,17 @@ public class Cardinal extends Application  {
         };
     }
 
-    private BiFunction<List<CardinalRequest>, Integer, Void> exportToBash() {
-        return (requests, throttle) -> {
-            BashScript script = new BashScript(requests, currentConfig, throttle, LocalDateTime.now());
-            FileChooser fileChooser = new FileChooser();
-            File file = fileChooser.showSaveDialog(currentStage);
-            if (file != null) {
-                try {
-                    script.writeTo(file);
-                } catch (IOException ioe) {
-                    showErrorDialog().apply("Unable to write bash script to a file.");
-                }
+    private void exportToBash(List<CardinalRequest> requests, int throttle) {
+        BashScript script = new BashScript(requests, currentConfig, throttle, LocalDateTime.now());
+        FileChooser fileChooser = new FileChooser();
+        File file = fileChooser.showSaveDialog(currentStage);
+        if (file != null) {
+            try {
+                script.writeTo(file);
+            } catch (IOException ioe) {
+                showErrorDialog().apply("Unable to write bash script to a file.");
             }
-            return null;
-        };
+        }
     }
 
     private Function<CardinalRequest, CardinalResponse> sendRequest() {
@@ -346,46 +343,47 @@ public class Cardinal extends Application  {
 
             Optional<ButtonType> result = alert.showAndWait();
             if (result.isPresent()) {
-                if (result.get().getText().equals("Yes")) {
-                    onYes.apply(null);
-                } else if (result.get().getText().equals("No")) {
-                    onNo.apply(null);
-                } else if (result.get().getText().equals("Cancel")) {
-                    onCancel.apply(null);
+                switch (result.get().getText()) {
+                    case "Yes":
+                        onYes.apply(null);
+                        break;
+                    case "No":
+                        onNo.apply(null);
+                        break;
+                    case "Cancel":
+                        onCancel.apply(null);
+                        break;
                 }
             }
             return null;
         };
     }
 
-    private Function<Void, Void> open() {
-        return (v) -> {
-          FileChooser fileChooser = new FileChooser();
-          List<File> selectedFiles = fileChooser.showOpenMultipleDialog(currentStage);
-          if (selectedFiles != null) {
-              selectedFiles.forEach((file) -> {
-                  try {
-                      String lines = String.join("", Files.readAllLines(file.toPath()));
-                      CardinalView cardinalView = new CardinalView(
-                              showAsCurl(),
-                              showErrorDialog(),
-                              getCurrentConfig(),
-                              exportToCsv(),
-                              exportToBash(),
-                              sendRequest(),
-                              this::triggerUnsavedChangesMade,
-                              vocabulary
-                      );
-                      addTab(new CardinalTab(file, cardinalView, showConfirmDialog(), save()));
-                      cardinalView.loadRequest(CardinalRequest.apply(lines));
-                      getCurrentTab().setUnsavedChanges(false);
-                  } catch (Exception e) {
-                      e.printStackTrace();
-                  }
-              });
-          }
-          return null;
-        };
+    private void openFile() {
+        FileChooser fileChooser = new FileChooser();
+        List<File> selectedFiles = fileChooser.showOpenMultipleDialog(currentStage);
+        if (selectedFiles != null) {
+            selectedFiles.forEach((file) -> {
+                try {
+                        String lines = String.join("", Files.readAllLines(file.toPath()));
+                        CardinalView cardinalView = new CardinalView(
+                        this::showAsCurl,
+                        showErrorDialog(),
+                        getCurrentConfig(),
+                        exportToCsv(),
+                        this::exportToBash,
+                        sendRequest(),
+                        this::triggerUnsavedChangesMade,
+                        vocabulary
+                    );
+                    addTab(new CardinalTab(file, cardinalView, showConfirmDialog(), save()));
+                    cardinalView.loadRequest(CardinalRequest.apply(lines));
+                    getCurrentTab().setUnsavedChanges(false);
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+            });
+        }
     }
 
     private Function<Void, Void> showBasicAuthInput() {
@@ -394,9 +392,7 @@ public class Cardinal extends Application  {
             if (currentTab != null) {
                 BasicAuthInputDialog dialog = new BasicAuthInputDialog();
                 Optional<BasicAuth> result = dialog.showAndWait();
-                if (result.isPresent()) {
-                    ((CardinalView) currentTab.getContent()).addHeader(result.get().asAuthHeader());
-                }
+                result.ifPresent(basicAuth -> ((CardinalView) currentTab.getContent()).addHeader(basicAuth.asAuthHeader()));
             }
             return null;
         };
@@ -423,9 +419,7 @@ public class Cardinal extends Application  {
         return (v) -> {
             EnvironmentVariablesEditDialog dialog = new EnvironmentVariablesEditDialog(currentConfig.getEnvironmentVariables());
             Optional<List<EnvironmentVariable>> result = dialog.showAndWait();
-            if (result.isPresent()) {
-                setEnvironmentVariables(result.get());
-            }
+            result.ifPresent(this::setEnvironmentVariables);
             return null;
         };
     }
@@ -454,11 +448,11 @@ public class Cardinal extends Application  {
                       CardinalRequest request = ((CardinalView) currentTab.getContent()).getRequest();
                       writeToFile().apply(fileWithExtension, request.toJson());
                       CardinalView cardinalView = new CardinalView(
-                              showAsCurl(),
+                              this::showAsCurl,
                               showErrorDialog(),
                               getCurrentConfig(),
                               exportToCsv(),
-                              exportToBash(),
+                              this::exportToBash,
                               sendRequest(),
                               this::triggerUnsavedChangesMade,
                               vocabulary
