@@ -6,8 +6,7 @@ import javafx.scene.control.ChoiceBox;
 import javafx.scene.control.TextField;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.Priority;
-
-import java.util.function.Function;
+import uk.co.ridentbyte.functions.UnsavedChangesMade;
 
 public class RequestUriVerbInputPane extends GridPane {
 
@@ -15,13 +14,13 @@ public class RequestUriVerbInputPane extends GridPane {
     private ChoiceBox<String> selectVerb;
     private CheckBox followRedirects;
 
-    public RequestUriVerbInputPane(Function<Void, Void> triggerUnsavedChangesMade) {
+    public RequestUriVerbInputPane(UnsavedChangesMade unsavedChangesMade) {
         this.setHgap(10);
         this.setVgap(10);
 
         this.textUri = new TextField();
         this.textUri.getStyleClass().add("cardinal-font");
-        this.textUri.textProperty().addListener((arg, oldVal, newVal) -> triggerUnsavedChangesMade.apply(null));
+        this.textUri.textProperty().addListener((arg, oldVal, newVal) -> unsavedChangesMade.trigger());
         this.textUri.setPromptText("http://localhost:8080");
         GridPane.setVgrow(this.textUri, Priority.NEVER);
         GridPane.setHgrow(this.textUri, Priority.ALWAYS);
@@ -30,13 +29,13 @@ public class RequestUriVerbInputPane extends GridPane {
         this.selectVerb = new ChoiceBox<>(FXCollections.observableArrayList("GET", "POST", "PUT", "DELETE", "HEAD", "OPTIONS", "TRACE", "PATCH"));
         this.selectVerb.getStyleClass().add("cardinal-font");
         this.selectVerb.getSelectionModel().selectFirst();
-        this.selectVerb.getSelectionModel().selectedItemProperty().addListener((arg, oldVal, newVal) -> triggerUnsavedChangesMade.apply(null));
+        this.selectVerb.getSelectionModel().selectedItemProperty().addListener((arg, oldVal, newVal) -> unsavedChangesMade.trigger());
         GridPane.setVgrow(this.selectVerb, Priority.NEVER);
         GridPane.setHgrow(this.selectVerb, Priority.NEVER);
         add(this.selectVerb, 1, 0);
 
         this.followRedirects = new CheckBox("Follow redirects");
-        this.followRedirects.selectedProperty().addListener((arg) -> triggerUnsavedChangesMade.apply(null));
+        this.followRedirects.selectedProperty().addListener((arg) -> unsavedChangesMade.trigger());
         add(this.followRedirects, 0, 1);
     }
 

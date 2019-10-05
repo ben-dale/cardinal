@@ -17,6 +17,7 @@ import javafx.scene.text.Font;
 import javafx.stage.FileChooser;
 import javafx.stage.Stage;
 import javafx.stage.WindowEvent;
+import uk.co.ridentbyte.functions.QuadFunction;
 import uk.co.ridentbyte.model.BashScript;
 import uk.co.ridentbyte.model.BasicAuth;
 import uk.co.ridentbyte.model.CardinalHttpResponse;
@@ -30,6 +31,7 @@ import uk.co.ridentbyte.model.Http;
 import uk.co.ridentbyte.model.Vocabulary;
 import uk.co.ridentbyte.model.Words;
 import uk.co.ridentbyte.view.CardinalMenuBar;
+import uk.co.ridentbyte.view.CardinalTab;
 import uk.co.ridentbyte.view.CardinalView;
 import uk.co.ridentbyte.view.cheatsheet.CheatSheetPane;
 import uk.co.ridentbyte.view.dialog.BasicAuthInputDialog;
@@ -92,7 +94,7 @@ public class Cardinal extends Application  {
         emoji = new Words(readLinesFrom("emoji.txt"), new Random());
         vocabulary = new Vocabulary(firstNames, lastNames, places, objects, actions, countries, communications, businessEntities, loremipsum, emoji);
 
-        menuBar = new CardinalMenuBar(newTab(), open(), save(), saveAs(), clearAll(), showEnvironmentVariablesInput(), showFormUrlEncodedInput(), showBasicAuthInput());
+        menuBar = new CardinalMenuBar(newTab(), open(), save(), saveAs(), showEnvironmentVariablesInput(), showFormUrlEncodedInput(), showBasicAuthInput());
 
         var newRequestTab = new Tab("+");
         newRequestTab.setClosable(false);
@@ -206,7 +208,7 @@ public class Cardinal extends Application  {
 
     private Function<Void, Void> newTab() {
         return (v) -> {
-            var cardinalView = new CardinalView(showAsCurl(), showErrorDialog(), getCurrentConfig(), exportToCsv(), exportToBash(), sendRequest(), triggerUnsavedChangesMade(), vocabulary);
+            var cardinalView = new CardinalView(showAsCurl(), showErrorDialog(), getCurrentConfig(), exportToCsv(), exportToBash(), sendRequest(), this::triggerUnsavedChangesMade, vocabulary);
             var cardinalTab = new CardinalTab(
                     null,
                     cardinalView,
@@ -247,10 +249,8 @@ public class Cardinal extends Application  {
 
     private BiFunction<File, String, Void> writeToFile() {
         return (file, data) -> {
-            try {
-                FileWriter fileWriter = new FileWriter(file);
+            try (var fileWriter = new FileWriter(file)) {
                 fileWriter.write(data);
-                fileWriter.close();
             } catch (Exception e) {
                 // TODO?
             }
@@ -313,11 +313,8 @@ public class Cardinal extends Application  {
         };
     }
 
-    private Function<Void, Void> triggerUnsavedChangesMade() {
-        return (v) -> {
-            getCurrentTab().handleUnsavedChangesMade();
-            return null;
-        };
+    private void triggerUnsavedChangesMade() {
+        getCurrentTab().handleUnsavedChangesMade();
     }
 
     private Function<Void, Void> save() {
@@ -376,7 +373,7 @@ public class Cardinal extends Application  {
                               exportToCsv(),
                               exportToBash(),
                               sendRequest(),
-                              triggerUnsavedChangesMade(),
+                              this::triggerUnsavedChangesMade,
                               vocabulary
                       );
                       addTab(new CardinalTab(file, cardinalView, showConfirmDialog(), save()));
@@ -386,16 +383,6 @@ public class Cardinal extends Application  {
                       e.printStackTrace();
                   }
               });
-          }
-          return null;
-        };
-    }
-
-    private Function<Void, Void> clearAll() {
-        return (v) -> {
-          CardinalTab currentTab = getCurrentTab();
-          if (currentTab != null) {
-              ((CardinalView) currentTab.getContent()).clearAll();
           }
           return null;
         };
@@ -473,7 +460,7 @@ public class Cardinal extends Application  {
                               exportToCsv(),
                               exportToBash(),
                               sendRequest(),
-                              triggerUnsavedChangesMade(),
+                              this::triggerUnsavedChangesMade,
                               vocabulary
                       );
                       addTab(new CardinalTab(fileWithExtension, cardinalView, showConfirmDialog(), save()));

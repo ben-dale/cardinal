@@ -13,7 +13,6 @@ public class CardinalMenuBar extends MenuBar {
                            Function<Void, Void> open,
                            Function<Void, Void> save,
                            Function<Void, Void> saveAs,
-                           Function<Void, Void> clearAll,
                            Function<Void, Void> editEnvVars,
                            Function<Void, Void> showFormUrlEncodeDialog,
                            Function<Void, Void> showBasicAuthDialog) {
@@ -40,10 +39,6 @@ public class CardinalMenuBar extends MenuBar {
         MenuItem menuItemSaveAs = new MenuItem("Save As...");
         menuItemSaveAs.setOnAction((actionEvent) -> saveAs.apply(null));
         menuFile.getItems().add(menuItemSaveAs);
-
-        MenuItem menuItemClearAll = new MenuItem("Clear All");
-        menuItemClearAll.setOnAction((actionEvent) -> clearAll.apply(null));
-        menuFile.getItems().add(menuItemClearAll);
 
         getMenus().add(menuFile);
 

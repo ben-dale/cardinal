@@ -1,8 +1,7 @@
-package uk.co.ridentbyte;
+package uk.co.ridentbyte.view;
 
-import javafx.application.Platform;
 import javafx.scene.control.Tab;
-import uk.co.ridentbyte.view.CardinalView;
+import uk.co.ridentbyte.functions.QuadFunction;
 
 import java.io.File;
 import java.util.function.Function;

@@ -5,12 +5,12 @@ import javafx.scene.control.Label;
 import javafx.scene.control.TextArea;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.Priority;
+import uk.co.ridentbyte.functions.UnsavedChangesMade;
 import uk.co.ridentbyte.model.CardinalRequest;
 import uk.co.ridentbyte.model.Vocabulary;
 import uk.co.ridentbyte.view.util.RowConstraintsBuilder;
 
 import java.util.StringJoiner;
-import java.util.function.Function;
 
 public class RequestInputPane extends GridPane {
 
@@ -18,7 +18,7 @@ public class RequestInputPane extends GridPane {
     private TextArea textHeaders, textAreaBody;
     private Vocabulary vocabulary;
 
-    public RequestInputPane(Function<Void, Void> triggerUnsavedChangesMade, Vocabulary vocabulary) {
+    public RequestInputPane(UnsavedChangesMade unsavedChangesMade, Vocabulary vocabulary) {
         this.vocabulary = vocabulary;
         this.setHgap(10);
         this.setVgap(10);
@@ -31,7 +31,7 @@ public class RequestInputPane extends GridPane {
             new RowConstraintsBuilder().build()
         );
 
-        this.uriVerbInputPane = new RequestUriVerbInputPane(triggerUnsavedChangesMade);
+        this.uriVerbInputPane = new RequestUriVerbInputPane(unsavedChangesMade);
         GridPane.setVgrow(uriVerbInputPane, Priority.NEVER);
         GridPane.setHgrow(uriVerbInputPane, Priority.ALWAYS);
         this.add(uriVerbInputPane, 0, 0);
@@ -43,7 +43,7 @@ public class RequestInputPane extends GridPane {
         this.add(labelHeaders, 0, 1);
 
         this.textHeaders = new TextArea();
-        this.textHeaders.textProperty().addListener ( (arg, oldVal, newVal) -> triggerUnsavedChangesMade.apply(null));
+        this.textHeaders.textProperty().addListener ( (arg, oldVal, newVal) -> unsavedChangesMade.trigger());
         this.textHeaders.getStyleClass().add("cardinal-font");
         GridPane.setVgrow(this.textHeaders, Priority.ALWAYS);
         GridPane.setHgrow(this.textHeaders, Priority.ALWAYS);
@@ -56,7 +56,7 @@ public class RequestInputPane extends GridPane {
         this.add(labelBody, 0, 3);
 
         this.textAreaBody = new TextArea();
-        this.textAreaBody.textProperty().addListener ( (arg, oldVal, newVal) -> triggerUnsavedChangesMade.apply(null));
+        this.textAreaBody.textProperty().addListener ( (arg, oldVal, newVal) -> unsavedChangesMade.trigger());
         this.textAreaBody.getStyleClass().add("cardinal-font");
         GridPane.setVgrow(this.textAreaBody, Priority.ALWAYS);
         GridPane.setHgrow(this.textAreaBody, Priority.ALWAYS);

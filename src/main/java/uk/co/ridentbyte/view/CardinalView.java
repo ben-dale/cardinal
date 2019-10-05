@@ -5,6 +5,7 @@ import javafx.scene.control.SplitPane;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.Priority;
+import uk.co.ridentbyte.functions.UnsavedChangesMade;
 import uk.co.ridentbyte.model.CardinalRequestAndResponse;
 import uk.co.ridentbyte.model.CardinalRequest;
 import uk.co.ridentbyte.model.CardinalResponse;
@@ -36,7 +37,7 @@ public class CardinalView extends BorderPane {
                         Function<List<CardinalRequestAndResponse>, Void> exportToCsv,
                         BiFunction<List<CardinalRequest>, Integer, Void> exportToBash,
                         Function<CardinalRequest, CardinalResponse> sendRequest,
-                        Function<Void, Void> triggerUnsavedChangesMade,
+                        UnsavedChangesMade triggerUnsavedChangesMade,
                         Vocabulary vocabulary) {
 
         this.showErrorDialog = showErrorDialog;
