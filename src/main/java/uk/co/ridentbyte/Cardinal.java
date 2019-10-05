@@ -91,7 +91,7 @@ public class Cardinal extends Application  {
         Words emoji = new Words(readLinesFrom("emoji.txt"), new Random());
         vocabulary = new Vocabulary(firstNames, lastNames, places, objects, actions, countries, communications, businessEntities, loremipsum, emoji);
 
-        CardinalMenuBar menuBar = new CardinalMenuBar(this::newTab, this::openFile, save(), saveAs(), showEnvironmentVariablesInput(), showFormUrlEncodedInput(), showBasicAuthInput());
+        CardinalMenuBar menuBar = new CardinalMenuBar(this::newTab, this::openFile, save(), saveAs(), showEnvironmentVariablesInput(), showFormUrlEncodedInput(), this::showBasicAuthInput);
 
         var newRequestTab = new Tab("+");
         newRequestTab.setClosable(false);
@@ -206,9 +206,9 @@ public class Cardinal extends Application  {
     private void newTab() {
         var cardinalView = new CardinalView(
                 this::showAsCurl,
-                showErrorDialog(),
+                this::showErrorDialog,
                 getCurrentConfig(),
-                exportToCsv(),
+                this::exportToCsv,
                 this::exportToBash,
                 sendRequest(),
                 this::triggerUnsavedChangesMade,
@@ -229,33 +229,27 @@ public class Cardinal extends Application  {
         if (currentTab != null) {
             CardinalRequest request = ((CardinalView) currentTab.getContent()).getRequest();
             if (request.getUri().trim().length() == 0) {
-                showErrorDialog().apply("Please enter a URL.");
+                showErrorDialog("Please enter a URL.");
             } else {
                 ((CardinalView) currentTab.getContent()).loadCurlCommand(request.toCurl(currentConfig));
             }
         }
     }
 
-    private Function<String, Void> showErrorDialog() {
-        return (message) -> {
-            Platform.runLater(() -> {
-                Alert alert = new Alert(Alert.AlertType.ERROR);
-                alert.setContentText(message);
-                alert.showAndWait();
-            });
-            return null;
-        };
+    private void showErrorDialog(String message) {
+        Platform.runLater(() -> {
+            Alert alert = new Alert(Alert.AlertType.ERROR);
+            alert.setContentText(message);
+            alert.showAndWait();
+        });
     }
 
-    private BiFunction<File, String, Void> writeToFile() {
-        return (file, data) -> {
-            try (var fileWriter = new FileWriter(file)) {
-                fileWriter.write(data);
-            } catch (Exception e) {
-                // TODO?
-            }
-            return null;
-        };
+    private void writeToFile(File file, String data) {
+        try (var fileWriter = new FileWriter(file)) {
+            fileWriter.write(data);
+        } catch (Exception e) {
+            // TODO?
+        }
     }
 
     private CardinalTab getCurrentTab() {
@@ -266,26 +260,25 @@ public class Cardinal extends Application  {
         return (v) -> currentConfig;
     }
 
-    private Function<List<CardinalRequestAndResponse>, Void> exportToCsv() {
-        return (cardinalRequestAndResponses) -> {
-            String header = CardinalRequest.csvHeaders + "," + CardinalResponse.csvHeaders();
-            String content = cardinalRequestAndResponses.stream().map((reqAndRes) -> {
-                return reqAndRes.getRequest().toCsv() + "," + (reqAndRes.getResponse() != null ? reqAndRes.getResponse().toCSV() : CardinalResponse.blank().toCSV());
-            }).collect(Collectors.joining("\n"));
-
-            FileChooser fileChooser = new FileChooser();
-            File file = fileChooser.showSaveDialog(currentStage);
-            if (file != null) {
-                File fileWithExtension = null;
-                if (!file.getAbsolutePath().endsWith(".csv")) {
-                    fileWithExtension = new File(file.getAbsolutePath() + ".csv");
-                } else {
-                    fileWithExtension = file;
-                }
-                writeToFile().apply(fileWithExtension, header + "\n" + content);
+    private void exportToCsv(List<CardinalRequestAndResponse> requestAndResponses) {
+        String header = CardinalRequest.csvHeaders + "," + CardinalResponse.csvHeaders();
+        String content = requestAndResponses.stream().map((reqAndRes) ->
+                reqAndRes.getRequest().toCsv() + "," +
+                        (reqAndRes.getResponse() != null ?
+                                reqAndRes.getResponse().toCSV() :
+                                CardinalResponse.blank().toCSV()
+                        )).collect(Collectors.joining("\n"));
+        FileChooser fileChooser = new FileChooser();
+        File file = fileChooser.showSaveDialog(currentStage);
+        if (file != null) {
+            File fileWithExtension;
+            if (!file.getAbsolutePath().endsWith(".csv")) {
+                fileWithExtension = new File(file.getAbsolutePath() + ".csv");
+            } else {
+                fileWithExtension = file;
             }
-            return null;
-        };
+            writeToFile(fileWithExtension, header + "\n" + content);
+        }
     }
 
     private void exportToBash(List<CardinalRequest> requests, int throttle) {
@@ -296,7 +289,7 @@ public class Cardinal extends Application  {
             try {
                 script.writeTo(file);
             } catch (IOException ioe) {
-                showErrorDialog().apply("Unable to write bash script to a file.");
+                showErrorDialog("Unable to write bash script to a file.");
             }
         }
     }
@@ -318,7 +311,7 @@ public class Cardinal extends Application  {
         return (v) -> {
             CardinalTab currentTab = getCurrentTab();
             if (currentTab != null && currentTab.getCurrentFile() != null) {
-                writeToFile().apply(
+                writeToFile(
                         currentTab.getCurrentFile(),
                         ((CardinalView) currentTab.getContent()).getRequest().toJson()
                 );
@@ -368,9 +361,9 @@ public class Cardinal extends Application  {
                         String lines = String.join("", Files.readAllLines(file.toPath()));
                         CardinalView cardinalView = new CardinalView(
                         this::showAsCurl,
-                        showErrorDialog(),
+                        this::showErrorDialog,
                         getCurrentConfig(),
-                        exportToCsv(),
+                        this::exportToCsv,
                         this::exportToBash,
                         sendRequest(),
                         this::triggerUnsavedChangesMade,
@@ -386,16 +379,13 @@ public class Cardinal extends Application  {
         }
     }
 
-    private Function<Void, Void> showBasicAuthInput() {
-        return (v) -> {
-            CardinalTab currentTab = getCurrentTab();
-            if (currentTab != null) {
-                BasicAuthInputDialog dialog = new BasicAuthInputDialog();
-                Optional<BasicAuth> result = dialog.showAndWait();
-                result.ifPresent(basicAuth -> ((CardinalView) currentTab.getContent()).addHeader(basicAuth.asAuthHeader()));
-            }
-            return null;
-        };
+    private void showBasicAuthInput() {
+        CardinalTab currentTab = getCurrentTab();
+        if (currentTab != null) {
+            BasicAuthInputDialog dialog = new BasicAuthInputDialog();
+            Optional<BasicAuth> result = dialog.showAndWait();
+            result.ifPresent(basicAuth -> ((CardinalView) currentTab.getContent()).addHeader(basicAuth.asAuthHeader()));
+        }
     }
 
     private Function<Void, Void> showFormUrlEncodedInput() {
@@ -440,18 +430,18 @@ public class Cardinal extends Application  {
 
                   if (currentTab.getCurrentFile() == null) {
                       // New file so just save file
-                      writeToFile().apply(fileWithExtension, ((CardinalView) currentTab.getContent()).getRequest().toJson());
+                      writeToFile(fileWithExtension, ((CardinalView) currentTab.getContent()).getRequest().toJson());
                       currentTab.setCurrentFile(fileWithExtension);
                       currentTab.setUnsavedChanges(false);
                   } else {
                       // Existing file so save and open in new tab
                       CardinalRequest request = ((CardinalView) currentTab.getContent()).getRequest();
-                      writeToFile().apply(fileWithExtension, request.toJson());
+                      writeToFile(fileWithExtension, request.toJson());
                       CardinalView cardinalView = new CardinalView(
                               this::showAsCurl,
-                              showErrorDialog(),
+                              this::showErrorDialog,
                               getCurrentConfig(),
-                              exportToCsv(),
+                              this::exportToCsv,
                               this::exportToBash,
                               sendRequest(),
                               this::triggerUnsavedChangesMade,
@@ -474,7 +464,7 @@ public class Cardinal extends Application  {
 
     private void saveChangesToConfig(Config config) {
         File file = new File(configLocation);
-        writeToFile().apply(file, config.toJson());
+        writeToFile(file, config.toJson());
     }
 
     private void addTab(Tab tab) {

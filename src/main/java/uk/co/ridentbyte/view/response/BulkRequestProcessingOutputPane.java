@@ -51,7 +51,6 @@ public class BulkRequestProcessingOutputPane extends GridPane {
                         if (isCancelled()) {
                             return true;
                         }
-                        System.out.println("hihi");
                         final int ii = i;
                         CardinalRequest r = request.withId(String.valueOf(i)).processConstants(getConfig.apply(null));
                         CardinalResponse response;

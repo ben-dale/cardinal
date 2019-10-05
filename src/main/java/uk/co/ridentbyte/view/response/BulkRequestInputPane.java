@@ -8,6 +8,7 @@ import javafx.scene.control.TextField;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.Priority;
 import uk.co.ridentbyte.functions.ExportToBash;
+import uk.co.ridentbyte.functions.ShowErrorDialog;
 import uk.co.ridentbyte.model.CardinalBulkRequest;
 import uk.co.ridentbyte.model.CardinalRequest;
 import uk.co.ridentbyte.model.Config;
@@ -23,7 +24,7 @@ import java.util.regex.Pattern;
 public class BulkRequestInputPane extends GridPane {
 
     private TextField textNumOfRequests, textDelay, textForEach;
-    private Function<String, Void> showErrorDialogCallback;
+    private ShowErrorDialog showErrorDialogCallback;
     private ExportToBash exportToBash;
     private CardinalRequest baseRequest;
     private Function<Void, Config> getConfig;
@@ -32,7 +33,7 @@ public class BulkRequestInputPane extends GridPane {
     public BulkRequestInputPane(Function<Void, Config> getConfig,
                                 ExportToBash exportToBash,
                                 Function<CardinalBulkRequest, Void> startBulkRequest,
-                                Function<String, Void> showErrorDialogCallback,
+                                ShowErrorDialog showErrorDialogCallback,
                                 CardinalRequest request) {
 
         this.getConfig = getConfig;
@@ -150,7 +151,7 @@ public class BulkRequestInputPane extends GridPane {
             }
             exportToBash.export(requests, getThrottle());
         } else {
-            showErrorDialogCallback.apply("Invalid input. \nPlease provide a throttle and either a request count or a range value.");
+            showErrorDialogCallback.show("Invalid input. \nPlease provide a throttle and either a request count or a range value.");
         }
     }
 

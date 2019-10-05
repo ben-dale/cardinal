@@ -5,6 +5,7 @@ import javafx.scene.control.MenuBar;
 import javafx.scene.control.MenuItem;
 import uk.co.ridentbyte.functions.NewTab;
 import uk.co.ridentbyte.functions.OpenFile;
+import uk.co.ridentbyte.functions.ShowBasicAuthInput;
 
 import java.util.function.Function;
 
@@ -16,7 +17,7 @@ public class CardinalMenuBar extends MenuBar {
                            Function<Void, Void> saveAs,
                            Function<Void, Void> editEnvVars,
                            Function<Void, Void> showFormUrlEncodeDialog,
-                           Function<Void, Void> showBasicAuthDialog) {
+                           ShowBasicAuthInput showBasicAuthDialog) {
 
         if (System.getProperty("os.name").toLowerCase().contains("mac")) {
             setUseSystemMenuBar(true);
@@ -47,7 +48,7 @@ public class CardinalMenuBar extends MenuBar {
         Menu menuAuth = new Menu("Authorisation");
 
         MenuItem menuItemBasicAuth = new MenuItem("Basic Authorisation...");
-        menuItemBasicAuth.setOnAction((actionEvent) -> showBasicAuthDialog.apply(null));
+        menuItemBasicAuth.setOnAction((actionEvent) -> showBasicAuthDialog.show());
         menuAuth.getItems().add(menuItemBasicAuth);
 
         getMenus().add(menuAuth);

@@ -9,6 +9,7 @@ import javafx.scene.control.TextArea;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.Priority;
 import uk.co.ridentbyte.functions.ExportToBash;
+import uk.co.ridentbyte.functions.ExportToCSV;
 import uk.co.ridentbyte.model.CardinalRequest;
 import uk.co.ridentbyte.model.CardinalRequestAndResponse;
 import uk.co.ridentbyte.model.CardinalResponse;
@@ -17,13 +18,12 @@ import uk.co.ridentbyte.view.util.RowConstraintsBuilder;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
-import java.util.function.Function;
 import java.util.stream.Collectors;
 
 public class BulkRequestOutputPane extends GridPane {
 
     public BulkRequestOutputPane(List<CardinalRequestAndResponse> requestAndResponses,
-                                 Function<List<CardinalRequestAndResponse>, Void> exportToCsv,
+                                 ExportToCSV exportToCsv,
                                  ExportToBash exportToBash,
                                  int throttle) {
         this.setHgap(10);
@@ -121,7 +121,7 @@ public class BulkRequestOutputPane extends GridPane {
         add(textAreaTimings, 0, 1);
 
         Button exportToCsvButton = new Button("Export to CSV...");
-        exportToCsvButton.setOnAction((a) -> exportToCsv.apply(requestAndResponses));
+        exportToCsvButton.setOnAction((a) -> exportToCsv.export(requestAndResponses));
         GridPane.setColumnSpan(exportToCsvButton, 1);
         GridPane.setHgrow(exportToCsvButton, Priority.NEVER);
         add(exportToCsvButton, 0, 2);

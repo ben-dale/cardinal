@@ -6,7 +6,9 @@ import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.Priority;
 import uk.co.ridentbyte.functions.ExportToBash;
+import uk.co.ridentbyte.functions.ExportToCSV;
 import uk.co.ridentbyte.functions.ShowAsCurl;
+import uk.co.ridentbyte.functions.ShowErrorDialog;
 import uk.co.ridentbyte.functions.UnsavedChangesMade;
 import uk.co.ridentbyte.model.CardinalRequestAndResponse;
 import uk.co.ridentbyte.model.CardinalRequest;
@@ -28,15 +30,15 @@ public class CardinalView extends BorderPane {
     private RequestInputPane requestPane;
     private ResponsePane responsePane;
 
-    private Function<String, Void> showErrorDialog;
+    private ShowErrorDialog showErrorDialog;
     private Function<CardinalRequest, CardinalResponse> sendRequest;
     private Function<Void, Config> getConfig;
     private final RequestControlPane requestControlPane;
 
     public CardinalView(ShowAsCurl showAsCurl,
-                        Function<String, Void> showErrorDialog,
+                        ShowErrorDialog showErrorDialog,
                         Function<Void, Config> getConfig,
-                        Function<List<CardinalRequestAndResponse>, Void> exportToCsv,
+                        ExportToCSV exportToCsv,
                         ExportToBash exportToBash,
                         Function<CardinalRequest, CardinalResponse> sendRequest,
                         UnsavedChangesMade triggerUnsavedChangesMade,
@@ -102,7 +104,7 @@ public class CardinalView extends BorderPane {
             public Void apply(Void aVoid) {
                 CardinalRequest request = requestPane.getRequest();
                 if (request.getUri().trim().length() == 0) {
-                    showErrorDialog.apply("Please enter a URL.");
+                    showErrorDialog.show("Please enter a URL.");
                 } else {
                     responsePane.showBulkRequestInput(requestPane.getRequest());
                 }
@@ -118,7 +120,7 @@ public class CardinalView extends BorderPane {
                 Platform.runLater(() -> responsePane.clear());
                 CardinalRequest request = requestPane.getRequest();
                 if (request.getUri().trim().length() == 0) {
-                    showErrorDialog.apply("Please enter a URL.");
+                    showErrorDialog.show("Please enter a URL.");
                 } else {
                     new Thread(() -> {
                         Platform.runLater(() -> onStart.apply(null));
@@ -127,7 +129,7 @@ public class CardinalView extends BorderPane {
                             responsePane.setResponse(response);
                         } catch (Exception e) {
                             e.printStackTrace();
-                            showErrorDialog.apply("Unknown error");
+                            showErrorDialog.show("Unknown error");
                         } finally {
                             Platform.runLater(() -> onFinish.apply(null));
                         }

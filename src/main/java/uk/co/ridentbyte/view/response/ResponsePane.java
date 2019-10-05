@@ -5,6 +5,8 @@ import javafx.concurrent.Task;
 import javafx.geometry.Insets;
 import javafx.scene.layout.BorderPane;
 import uk.co.ridentbyte.functions.ExportToBash;
+import uk.co.ridentbyte.functions.ExportToCSV;
+import uk.co.ridentbyte.functions.ShowErrorDialog;
 import uk.co.ridentbyte.model.CardinalBulkRequest;
 import uk.co.ridentbyte.model.CardinalRequestAndResponse;
 import uk.co.ridentbyte.model.CardinalRequest;
@@ -19,16 +21,16 @@ public class ResponsePane extends BorderPane {
 
     private Function<Void, Config> getConfig;
     private Function<CardinalRequest, CardinalResponse> sendRequest;
-    private Function<List<CardinalRequestAndResponse>, Void> exportToCsv;
+    private ExportToCSV exportToCsv;
     private ExportToBash exportToBash;
-    private Function<String, Void> showErrorDialog;
+    private ShowErrorDialog showErrorDialog;
     private Task currentBackgroundTask;
 
     public ResponsePane(Function<Void, Config> getConfig,
                         Function<CardinalRequest, CardinalResponse> sendRequest,
-                        Function<List<CardinalRequestAndResponse>, Void> exportToCsv,
+                        ExportToCSV exportToCsv,
                         ExportToBash exportToBash,
-                        Function<String, Void> showErrorDialog) {
+                        ShowErrorDialog showErrorDialog) {
         this.getConfig = getConfig;
         this.sendRequest = sendRequest;
         this.exportToCsv = exportToCsv;
@@ -75,8 +77,8 @@ public class ResponsePane extends BorderPane {
         return new java.util.function.Function<CardinalBulkRequest, Void>() {
             @Override
             public Void apply(CardinalBulkRequest bulkRequest) {
-                if (bulkRequest.getRequestCount() == 0 && bulkRequest.getIds().isEmpty()) {
-                    showErrorDialog.apply("Invalid input. \nPlease provide a throttle and either a request count or a range value.");
+                if (bulkRequest.getRequestCount() == 0 && bulkRequest.getIds().size() == 0) {
+                    showErrorDialog.show("Invalid input. \nPlease provide a throttle and either a request count or a range value.");
                 } else {
                     var bulkRequestProcessingOutputPane = new BulkRequestProcessingOutputPane(getConfig, sendRequest, finishedBulkRequestCallback(), bulkRequest);
                     Platform.runLater(() -> setCenter(bulkRequestProcessingOutputPane));
